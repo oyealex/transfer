@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartKit 存储设备运维工具箱 — GUI交互模式分析报告（WEB化重构决策依据）</title>
+<style>
+  /* ===== Reset & Base ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 15px; scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #0d0d1a;
+    color: #d0d0e0;
+    line-height: 1.7;
+    padding: 2rem;
+  }
+
+  /* ===== Scrollbar ===== */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: #111128; }
+  ::-webkit-scrollbar-thumb { background: #2a2a5a; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #3a3a7a; }
+
+  /* ===== Typography ===== */
+  h1, h2, h3, h4 { color: #e8e8f8; line-height: 1.3; }
+  h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+  h2 {
+    font-size: 1.5rem;
+    margin: 2.5rem 0 1.2rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e94560;
+    display: inline-block;
+  }
+  h3 { font-size: 1.2rem; margin: 1.8rem 0 0.8rem; color: #e94560; }
+  h4 { font-size: 1.05rem; margin: 1.2rem 0 0.5rem; color: #a0c4e8; }
+  p { margin-bottom: 0.8rem; }
+  a { color: #6db3f2; text-decoration: none; transition: color 0.2s; }
+  a:hover { color: #a0d0ff; text-decoration: underline; }
+  code {
+    font-family: "JetBrains Mono", "Fira Code", "Source Code Pro", "Consolas", monospace;
+    background: #1a1a3e;
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+    font-size: 0.88em;
+    color: #b0d0f0;
+  }
+
+  /* ===== Layout ===== */
+  .container { max-width: 1400px; margin: 0 auto; }
+
+  /* ===== Header ===== */
+  .report-header {
+    text-align: center;
+    padding: 3rem 2rem;
+    margin-bottom: 2.5rem;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+    border-radius: 16px;
+    border: 1px solid #2a2a5a;
+    position: relative;
+    overflow: hidden;
+  }
+  .report-header::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle at 70% 30%, rgba(233,69,96,0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .report-header h1 { font-size: 2.2rem; color: #f0f0ff; position: relative; }
+  .report-header .subtitle {
+    font-size: 1rem;
+    color: #8a8aaa;
+    margin-top: 0.5rem;
+    position: relative;
+  }
+  .report-header .meta {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+    position: relative;
+  }
+  .report-header .meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #b0b0d0;
+    font-size: 0.92rem;
+  }
+  .report-header .meta .label { color: #7a7a9a; }
+  .report-header .meta .value { color: #e94560; font-weight: 600; }
+
+  /* ===== Cards ===== */
+  .card {
+    background: #16213e;
+    border: 1px solid #2a2a5a;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    border-color: #3a3a7a;
+  }
+  .card-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #e8e8f8;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .card-title .badge {
+    background: #e94560;
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 0.15rem 0.6rem;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+
+  /* ===== Stats Grid ===== */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: linear-gradient(135deg, #1a1a3e 0%, #16213e 100%);
+    border: 1px solid #2a2a5a;
+    border-radius: 12px;
+    padding: 1.2rem;
+    text-align: center;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .stat-card:hover {
+    transform: translateY(-3px);
+    border-color: #e94560;
+  }
+  .stat-card .number {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: #e94560;
+    line-height: 1.2;
+  }
+  .stat-card .number.gold { color: #f0c040; }
+  .stat-card .number.blue { color: #6db3f2; }
+  .stat-card .number.green { color: #5ccd8a; }
+  .stat-card .number.purple { color: #b080e0; }
+  .stat-card .stat-label {
+    font-size: 0.82rem;
+    color: #8a8aaa;
+    margin-top: 0.3rem;
+  }
+
+  /* ===== Tables ===== */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  thead th {
+    background: #111128;
+    color: #a0a0d0;
+    padding: 0.7rem 0.8rem;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #2a2a5a;
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid #1e1e3e;
+    vertical-align: top;
+  }
+  tbody tr:hover td { background: rgba(233,69,96,0.04); }
+  tbody tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  tbody tr:nth-child(even):hover td { background: rgba(233,69,96,0.06); }
+
+  /* ===== Code Block ===== */
+  .code-block {
+    background: #0d0d1f;
+    border: 1px solid #2a2a5a;
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin: 0.8rem 0;
+    overflow-x: auto;
+    font-family: "JetBrains Mono", "Fira Code", "Source Code Pro", "Consolas", monospace;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: #c8d0e0;
+  }
+  .code-block .kw { color: #c792ea; }   /* keyword */
+  .code-block .str { color: #c3e88d; }  /* string */
+  .code-block .cmt { color: #546e7a; font-style: italic; }  /* comment */
+  .code-block .typ { color: #82aaff; }  /* type */
+  .code-block .fn { color: #ffcb6b; }   /* function */
+  .code-block .num { color: #f78c6c; }  /* number */
+  .code-block .op { color: #89ddff; }   /* operator */
+  .code-block .ann { color: #f07178; }  /* annotation */
+
+  /* ===== Tag/Badge ===== */
+  .tag {
+    display: inline-block;
+    padding: 0.15rem 0.55rem;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin: 0.15rem;
+  }
+  .tag-tight { background: #e94560; color: #fff; }
+  .tag-mixed { background: #f0a030; color: #1a1a2e; }
+  .tag-loose { background: #5ccd8a; color: #1a1a2e; }
+  .tag-unsafe { background: #e94560; color: #fff; }
+  .tag-mixed-safe { background: #f0a030; color: #1a1a2e; }
+  .tag-edt-only { background: #6db3f2; color: #1a1a2e; }
+  .tag-critical { background: #e53935; color: #fff; }
+  .tag-high { background: #f57c00; color: #fff; }
+  .tag-medium { background: #f0a030; color: #1a1a2e; }
+  .tag-low { background: #5ccd8a; color: #1a1a2e; }
+  .tag-p0 { background: #e53935; color: #fff; }
+  .tag-p1 { background: #f57c00; color: #fff; }
+  .tag-p2 { background: #f0a030; color: #1a1a2e; }
+
+  /* ===== Bar/Visual ===== */
+  .bar-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.25rem 0;
+  }
+  .bar {
+    height: 1.5rem;
+    border-radius: 4px;
+    min-width: 4px;
+    transition: width 0.6s ease;
+    background: linear-gradient(90deg, #e94560, #f07080);
+  }
+  .bar-label {
+    min-width: 7rem;
+    font-size: 0.82rem;
+    color: #b0b0d0;
+    text-align: right;
+  }
+  .bar-value {
+    font-size: 0.82rem;
+    color: #8a8aaa;
+    min-width: 2.5rem;
+  }
+
+  /* ===== Direction Icon ===== */
+  .direction-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .dir-ui2biz { background: #6db3f2; color: #0d0d1a; }
+  .dir-biz2ui { background: #f0c040; color: #0d0d1a; }
+  .dir-bi { background: #b080e0; color: #0d0d1a; }
+  .dir-poll { background: #5ccd8a; color: #0d0d1a; }
+
+  /* ===== Modules Grid ===== */
+  .modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+  .module-card {
+    background: #1a1a3e;
+    border: 1px solid #2a2a5a;
+    border-radius: 10px;
+    padding: 1rem;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .module-card:hover {
+    transform: translateY(-2px);
+    border-color: #e94560;
+  }
+  .module-card h4 { margin: 0 0 0.4rem; color: #e0e0f0; font-size: 1rem; }
+  .module-card .file-count { color: #7a7a9a; font-size: 0.82rem; margin-bottom: 0.5rem; }
+  .module-card .tags { margin: 0.4rem 0; }
+  .module-card .patterns {
+    font-size: 0.78rem;
+    color: #8a8aaa;
+    line-height: 1.5;
+  }
+
+  /* ===== Priority List ===== */
+  .insight-card {
+    background: #1a1a3e;
+    border-left: 4px solid #e94560;
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 0.8rem;
+  }
+  .insight-card.p0 { border-left-color: #e53935; }
+  .insight-card.p1 { border-left-color: #f57c00; }
+  .insight-card.p2 { border-left-color: #f0a030; }
+  .insight-card .insight-text { color: #d0d0e0; font-size: 0.92rem; }
+  .insight-card .insight-meta { margin-top: 0.4rem; font-size: 0.8rem; color: #7a7a9a; }
+
+  /* ===== Section Nav ===== */
+  .toc {
+    background: #111128;
+    border: 1px solid #2a2a5a;
+    border-radius: 12px;
+    padding: 1.2rem 1.8rem;
+    margin-bottom: 2.5rem;
+  }
+  .toc-title { font-weight: 600; color: #a0a0d0; margin-bottom: 0.6rem; font-size: 0.95rem; }
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.3rem;
+  }
+  .toc a {
+    font-size: 0.85rem;
+    padding: 0.15rem 0;
+    display: inline-block;
+  }
+  .toc .toc-num {
+    color: #e94560;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  /* ===== Direction Detail Header ===== */
+  .direction-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .direction-header h4 { margin: 0; }
+
+  .big-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #e94560;
+  }
+
+  /* ===== Sorting Controls ===== */
+  .sort-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+    flex-wrap: wrap;
+  }
+  .sort-btn {
+    background: #1a1a3e;
+    border: 1px solid #2a2a5a;
+    color: #a0a0d0;
+    padding: 0.3rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+  }
+  .sort-btn:hover, .sort-btn.active { background: #e94560; color: #fff; border-color: #e94560; }
+
+  /* ===== Ring visual ===== */
+  .ring-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    align-items: center;
+    margin: 1rem 0;
+  }
+  .ring {
+    position: relative;
+    width: 140px; height: 140px;
+    flex-shrink: 0;
+  }
+  .ring svg { transform: rotate(-90deg); }
+  .ring .center-text {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  .ring .center-text .big { font-size: 1.5rem; font-weight: 700; color: #e8e8f8; }
+  .ring .center-text .small { font-size: 0.7rem; color: #7a7a9a; }
+  .ring-legend { font-size: 0.82rem; }
+  .ring-legend .item { display: flex; align-items: center; gap: 0.4rem; margin: 0.25rem 0; }
+  .ring-legend .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ===== Risk Bar ===== */
+  .risk-bar {
+    height: 8px;
+    border-radius: 4px;
+    margin: 0.4rem 0;
+    background: #1a1a3e;
+    overflow: hidden;
+  }
+  .risk-bar .fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s;
+  }
+  .risk-bar .fill.critical { background: linear-gradient(90deg, #e53935, #ff6b6b); }
+  .risk-bar .fill.high { background: linear-gradient(90deg, #f57c00, #ffb74d); }
+  .risk-bar .fill.medium { background: linear-gradient(90deg, #f0a030, #ffe082); }
+  .risk-bar .fill.low { background: linear-gradient(90deg, #5ccd8a, #81c784); }
+
+  /* ===== Print ===== */
+  @media print {
+    body { background: #fff; color: #222; padding: 0.5cm; }
+    .card, .report-header, .toc, .stat-card, .module-card, .insight-card, .code-block {
+      background: #f5f5f8 !important;
+      border-color: #ccc !important;
+      break-inside: avoid;
+    }
+    .report-header { border: 2px solid #333; }
+    .report-header h1 { color: #111; }
+    .stat-card .number { color: #c62828; }
+    .tag-tight { background: #c62828; }
+    .tag-mixed { background: #e65100; }
+    .tag-loose { background: #2e7d32; }
+    h2 { border-bottom-color: #c62828; }
+    h3 { color: #c62828; }
+    code { background: #eee; }
+    thead th { background: #ddd; }
+    tbody td { border-bottom-color: #ddd; }
+    .code-block { background: #f0f0f4; color: #333; }
+    .code-block .kw { color: #7b1fa2; }
+    .code-block .str { color: #2e7d32; }
+    .code-block .cmt { color: #777; }
+    .code-block .typ { color: #1565c0; }
+    .code-block .fn { color: #e65100; }
+    .code-block .num { color: #c62828; }
+    .code-block .op { color: #00838f; }
+    .code-block .ann { color: #c62828; }
+    .sort-controls { display: none; }
+    .bar { background: #c62828 !important; }
+    .risk-bar .fill.critical { background: #c62828 !important; }
+    .risk-bar .fill.high { background: #e65100 !important; }
+    .risk-bar .fill.medium { background: #f9a825 !important; }
+    .risk-bar .fill.low { background: #2e7d32 !important; }
+    .ring .center-text .big { color: #111; }
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 768px) {
+    body { padding: 1rem; }
+    h1 { font-size: 1.5rem; }
+    .report-header { padding: 1.5rem 1rem; }
+    .report-header .meta { gap: 1rem; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .modules-grid { grid-template-columns: 1fr; }
+    .ring-container { flex-direction: column; align-items: flex-start; }
+  }
+
+  /* ===== Collapsible ===== */
+  .collapsible-toggle {
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .collapsible-toggle::after {
+    content: '▸';
+    display: inline-block;
+    transition: transform 0.2s;
+    font-size: 0.8rem;
+    color: #7a7a9a;
+  }
+  .collapsible-toggle.open::after { transform: rotate(90deg); }
+  .collapsible-content { overflow: hidden; max-height: 0; transition: max-height 0.3s ease; }
+  .collapsible-content.open { max-height: none; }
+
+  /* ===== Misc ===== */
+  .flex-row { display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-start; }
+  .gap-1 { gap: 0.5rem; }
+  .mt-1 { margin-top: 0.8rem; }
+  .mb-1 { margin-bottom: 0.8rem; }
+  .text-muted { color: #7a7a9a; font-size: 0.85rem; }
+  .text-center { text-align: center; }
+  .highlight { color: #e94560; font-weight: 600; }
+  .inline-list { list-style: none; display: flex; flex-wrap: wrap; gap: 0.3rem; }
+  .inline-list li { display: inline; }
+  .inline-list li::after { content: ', '; color: #5a5a7a; }
+  .inline-list li:last-child::after { content: ''; }
+  .pattern-tag {
+    display: inline-block;
+    background: #1a1a4e;
+    color: #b0b0e0;
+    padding: 0.1rem 0.45rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    margin: 0.1rem;
+    border: 1px solid #2a2a6a;
+  }
+  .pattern-tag.negative { border-color: #6a2a2a; color: #e08080; }
+  .section-anchor { scroll-margin-top: 1rem; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- ===== HEADER ===== -->
+<header class="report-header">
+  <h1>SmartKit 存储设备运维工具箱</h1>
+  <div class="subtitle">GUI-业务交互模式分析报告 — WEB化重构决策依据</div>
+  <div class="meta">
+    <span><span class="label">分析日期</span> <span class="value">2026-06-05</span></span>
+    <span><span class="label">全量扫描模块</span> <span class="value">12 个</span></span>
+    <span><span class="label">识别模式</span> <span class="value">~200 种</span></span>
+    <span><span class="label">归分子类</span> <span class="value">11 个</span></span>
+  </div>
+</header>
+
+<!-- ===== TOC ===== -->
+<nav class="toc">
+  <div class="toc-title">目录</div>
+  <div class="toc-grid">
+    <a href="#sec1"><span class="toc-num">1</span> 概述</a>
+    <a href="#sec2"><span class="toc-num">2</span> 全局统计面板</a>
+    <a href="#sec3"><span class="toc-num">3</span> 交互方向分类详解</a>
+    <a href="#sec4"><span class="toc-num">4</span> 耦合度分析</a>
+    <a href="#sec5"><span class="toc-num">5</span> 线程安全分析</a>
+    <a href="#sec6"><span class="toc-num">6</span> 模块维度总览</a>
+    <a href="#sec7"><span class="toc-num">7</span> 无法归类的特殊模式</a>
+    <a href="#sec8"><span class="toc-num">8</span> WEB化重构建议</a>
+    <a href="#sec9"><span class="toc-num">9</span> 附录</a>
+  </div>
+</nav>
+
+<!-- ============================================================ -->
+<!-- SECTION 1: 概述 -->
+<!-- ============================================================ -->
+<section id="sec1" class="section-anchor">
+<h2>1. 概述</h2>
+
+<div class="card">
+  <div class="card-title">分析范围与方法</div>
+  <p>
+    本报告对 <strong>SmartKit 存储设备运维工具箱</strong> 的 Java Swing 桌面应用代码库进行全量静态分析，聚焦于 <strong>GUI 层与业务逻辑层之间的交互模式</strong>。分析范围涵盖 12 个核心业务模块、共计 <strong>1,434 个 GUI 相关文件</strong>、<strong>66 个顶层窗口</strong>，累计识别约 200 种交互模式并归纳为 <strong>11 个子分类</strong>。
+  </p>
+  <p>
+    分析方法：通过代码静态扫描与模式匹配，对每一处界面-业务交互的调用点进行分类标注，从交互方向（UI→业务、业务→UI、双向、轮询）、耦合紧密程度、线程安全性三个维度进行全面评估。
+  </p>
+</div>
+
+<div class="card">
+  <div class="card-title">核心结论</div>
+  <p>
+    <strong>本项目 WEB 化重构难度极高。</strong> 主导模式（匿名内部类 ActionListener 直接调用业务逻辑）在 12 个模块中散布约 <strong>413 处</strong>，占所有交互模式的 45%。这一模式将界面事件处理与业务逻辑在 EDT（Event Dispatch Thread）上紧耦合，是重构的核心挑战。三个关键重构工作：<span class="highlight">(1) 将 ActionListener 事件处理改为声明式事件绑定</span>、<span class="highlight">(2) 将 AsyncExcutor 模态等待改为 Web 异步模式</span>、<span class="highlight">(3) 将 Service Locator 替换为 DI 机制</span>。
+  </p>
+</div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 2: 全局统计面板 -->
+<!-- ============================================================ -->
+<section id="sec2" class="section-anchor">
+<h2>2. 全局统计面板</h2>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="number gold">1,434</div>
+    <div class="stat-label">GUI 相关文件总数</div>
+  </div>
+  <div class="stat-card">
+    <div class="number blue">12</div>
+    <div class="stat-label">分析覆盖模块数</div>
+  </div>
+  <div class="stat-card">
+    <div class="number">66</div>
+    <div class="stat-label">顶层窗口数</div>
+  </div>
+  <div class="stat-card">
+    <div class="number purple">~200</div>
+    <div class="stat-label">识别交互模式种类</div>
+  </div>
+  <div class="stat-card">
+    <div class="number green">11</div>
+    <div class="stat-label">归分子分类数</div>
+  </div>
+  <div class="stat-card">
+    <div class="number">413</div>
+    <div class="stat-label">ActionListener 直接调用点</div>
+  </div>
+</div>
+
+<h3>模块 GUI 文件分布</h3>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>模块</th><th>GUI 文件数</th><th>占比</th><th style="width:50%">分布条</th></tr>
+      </thead>
+      <tbody id="module-file-table"></tbody>
+    </table>
+  </div>
+</div>
+
+<h3>交互模式概览</h3>
+<div class="ring-container" id="direction-ring-container"></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 3: 交互方向分类详解 -->
+<!-- ============================================================ -->
+<section id="sec3" class="section-anchor">
+<h2>3. 交互方向分类详解</h2>
+<p class="text-muted">全量归纳覆盖 12 个业务模块，累计识别 GUI-业务交互模式约 200 种，按交互方向划分为 11 个子分类。</p>
+
+<!-- 1a -->
+<div class="card">
+  <div class="direction-header">
+    <div class="direction-icon dir-ui2biz">U→B</div>
+    <div>
+      <h4>子分类 1a：ActionListener 直接调用业务方法 <span class="tag tag-tight">紧耦合</span></h4>
+      <div class="text-muted">UI → Business 方向 | 匿名内部类 Lambda 等直接触发业务逻辑</div>
+    </div>
+  </div>
+  <div class="big-number">413</div>
+  <p>调用点总数。遍布全部 12 个模块，是当前系统最主流的 GUI-业务交互方式。匿名内部类 ActionListener 在 EDT 线程中同步调用业务方法，造成界面与业务逻辑的紧耦合。WEB 迁移中需全部替换为声明式事件绑定。</p>
+
+  <h4>模块分布</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>模块</th><th>调用点数</th><th style="width:50%">分布</th></tr></thead>
+      <tbody id="dist-1a"></tbody>
+    </table>
+  </div>
+
+  <h4>代表代码示例</h4>
+  <div class="code-block">
+<span class="cmt">// ActionListener 匿名内部类直接调用业务方法（EDT 同步执行）</span>
+btnScan.addActionListener(<span class="kw">new</span> ActionListener() {
+    <span class="fn">@Override</span>
+    <span class="kw">public void</span> actionPerformed(ActionEvent e) {
+        <span class="cmt">// 直接在 EDT 中执行 I/O 操作，导致 UI 冻结</span>
+        List&lt;Device&gt; devices = deviceService.scanDevices();
+        deviceTable.setModel(<span class="kw">new</span> DeviceTableModel(devices));
+    }
+});
+  </div>
+  <div class="risk-bar"><div class="fill critical" style="width:95%"></div></div>
+  <div class="text-muted">重构影响：极高。413 处调用点需逐一抽取为独立事件处理器，替换为声明式绑定。预计重构工作量占比最高。</div>
+</div>
+
+<!-- 2a -->
+<div class="card">
+  <div class="direction-header">
+    <div class="direction-icon dir-biz2ui">B→U</div>
+    <div>
+      <h4>子分类 2a：业务方法直接操作 Swing 组件 <span class="tag tag-tight">紧耦合</span></h4>
+      <div class="text-muted">Business → UI 方向 | 业务层持有 UI 组件引用并直接操作</div>
+    </div>
+  </div>
+  <div class="big-number">124</div>
+  <p>调用点总数。业务逻辑层直接操作 Swing 组件（setText、repaint 等），破坏了分层架构。InspectTaskManager（50 处）和 Base（30 处）是最突出的两个模块。</p>
+
+  <h4>模块分布</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>模块</th><th>调用点数</th><th style="width:50%">分布</th></tr></thead>
+      <tbody id="dist-2a"></tbody>
+    </table>
+  </div>
+
+  <h4>代表代码示例</h4>
+  <div class="code-block">
+<span class="cmt">// 业务方法直接获取并操作 Swing 组件</span>
+<span class="kw">public void</span> updateStatus(String taskId, <span class="kw">int</span> progress) {
+    <span class="cmt">// 业务层直接持有 UI 组件引用</span>
+    JLabel label = statusLabelMap.get(taskId);
+    <span class="kw">if</span> (label != <span class="kw">null</span>) {
+        label.setText(<span class="str">"进度: "</span> + progress + <span class="str">"%"</span>);
+        label.setForeground(progress &gt;= <span class="num">100</span> ? Color.GREEN : Color.BLACK);
+    }
+}
+  </div>
+  <div class="risk-bar"><div class="fill critical" style="width:85%"></div></div>
+  <div class="text-muted">重构影响：极高。124 处直接组件操作需替换为响应式数据绑定框架（如 React state / Vue reactive data）。</div>
+</div>
+
+<!-- 3a -->
+<div class="card">
+  <div class="direction-header">
+    <div class="direction-icon dir-bi">⇄</div>
+    <div>
+      <h4>子分类 3a：TableModel/ListModel 数据绑定 <span class="tag tag-mixed">混合</span></h4>
+      <div class="text-muted">双向数据流 | Swing 内置模型驱动的数据绑定</div>
+    </div>
+  </div>
+  <div class="big-number">41</div>
+  <p>调用点总数。通过 Swing 的 TableModel / ListModel 机制实现数据双向绑定。Base（9 处）、IsmFrameWork（8 处）、DeviceManager（8 处）最为集中。此模式在 Swing 中是一种松耦合的较好实践，但在 WEB 迁移中其接口语义不直接对应。</p>
+
+  <h4>模块分布</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>模块</th><th>调用点数</th><th style="width:50%">分布</th></tr></thead>
+      <tbody id="dist-3a"></tbody>
+    </table>
+  </div>
+
+  <h4>代表代码示例</h4>
+  <div class="code-block">
+<span class="cmt">// DefaultTableModel 数据绑定模式</span>
+<span class="kw">class</span> <span class="typ">DeviceTableModel</span> <span class="kw">extends</span> <span class="typ">DefaultTableModel</span> {
+    <span class="kw">private</span> List&lt;Device&gt; devices;
+
+    <span class="fn">@Override</span>
+    <span class="kw">public</span> Object getValueAt(<span class="kw">int</span> row, <span class="kw">int</span> col) {
+        Device d = devices.get(row);
+        <span class="kw">switch</span> (col) {
+            <span class="kw">case</span> <span class="num">0</span>: <span class="kw">return</span> d.getName();
+            <span class="kw">case</span> <span class="num">1</span>: <span class="kw">return</span> d.getIp();
+            <span class="kw">case</span> <span class="num">2</span>: <span class="kw">return</span> d.getStatus();
+        }
+        <span class="kw">return null</span>;
+    }
+}
+  </div>
+  <div class="risk-bar"><div class="fill high" style="width:70%"></div></div>
+  <div class="text-muted">重构影响：高。41 处 Model 绑定需替换为 Web 框架响应式数据代理（React/Vue 数据绑定）。</div>
+</div>
+
+<!-- 4c -->
+<div class="card">
+  <div class="direction-header">
+    <div class="direction-icon dir-poll">⟳</div>
+    <div>
+      <h4>子分类 4c：自定义轮询线程 <span class="tag tag-mixed">混合</span></h4>
+      <div class="text-muted">轮询模式 | 后台线程定期拉取状态更新 UI</div>
+    </div>
+  </div>
+  <div class="big-number">24</div>
+  <p>调用点总数。通过 Timer、ScheduledExecutorService 或自定义线程循环定期检查状态并更新 UI。WEB 迁移中应替换为 WebSocket / Server-Sent Events 推送模式。</p>
+
+  <h4>模块分布</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>模块</th><th>调用点数</th><th style="width:50%">分布</th></tr></thead>
+      <tbody id="dist-4c"></tbody>
+    </table>
+  </div>
+
+  <h4>代表代码示例</h4>
+  <div class="code-block">
+<span class="cmt">// Timer 轮询刷新设备状态</span>
+Timer timer = <span class="kw">new</span> Timer(<span class="num">5000</span>, e -&gt; {
+    <span class="cmt">// 定期拉取状态后更新 UI</span>
+    List&lt;DeviceStatus&gt; statuses = deviceControl.pollStatus();
+    SwingUtilities.invokeLater(() -&gt; updateStatusPanel(statuses));
+});
+timer.start();
+  </div>
+  <div class="risk-bar"><div class="fill high" style="width:60%"></div></div>
+  <div class="text-muted">重构影响：中等。24 处轮询可统一替换为 WebSocket 推送/Server-Sent Events。</div>
+</div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 4: 耦合度分析 -->
+<!-- ============================================================ -->
+<section id="sec4" class="section-anchor">
+<h2>4. 耦合度分析</h2>
+<p class="text-muted">根据界面层与业务层的交互方式，将所有模块划分为紧密耦合、混合耦合、较松耦合三个等级。</p>
+
+<div class="ring-container" id="coupling-ring-container"></div>
+
+<div class="card">
+  <div class="card-title">紧密耦合 <span class="tag tag-tight">1 个模块</span></div>
+  <table>
+    <thead><tr><th>模块</th><th>风险等级</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>SystemConfig</strong></td>
+        <td><span class="tag tag-critical">极高风险</span></td>
+        <td>所有业务逻辑在 EDT 同步执行，无后台线程、无 SwingWorker、无 invokeLater。直接字段级数据绑定（JTextField.getText/setText）散布在 39 处，全部需重构为异步数据绑定。</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <div class="card-title">混合耦合 <span class="tag tag-mixed">10 个模块</span></div>
+  <p>存在观察者/回调等松耦合模式，但匿名内部类 ActionListener 直接调用业务逻辑仍是主导模式。AsyncExcutor + ProgressDialog 的组合需改为 Web 友好的异步请求-响应模式。Service Locator 需替换为 DI。</p>
+  <div class="flex-row gap-1" style="margin-top:0.5rem;">
+    <span class="tag tag-mixed">IsmFrameWork</span>
+    <span class="tag tag-mixed">DeviceManager</span>
+    <span class="tag tag-mixed">BizPackage</span>
+    <span class="tag tag-mixed">Base</span>
+    <span class="tag tag-mixed">DeviceCenter</span>
+    <span class="tag tag-mixed">Scene</span>
+    <span class="tag tag-mixed">InspectTaskManager</span>
+    <span class="tag tag-mixed">ToolStore</span>
+    <span class="tag tag-mixed">ToolBox</span>
+    <span class="tag tag-mixed">ToolFramework</span>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">较松耦合 <span class="tag tag-loose">1 个模块</span></div>
+  <table>
+    <thead><tr><th>模块</th><th>风险等级</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>BaseUI</strong></td>
+        <td><span class="tag tag-medium">中等风险</span></td>
+        <td>Wizard/Flow 状态机和 Action 框架提供了较好的抽象层次。状态机逻辑可保留，事件处理需适配 Web 模式。</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 5: 线程安全分析 -->
+<!-- ============================================================ -->
+<section id="sec5" class="section-anchor">
+<h2>5. 线程安全分析</h2>
+<p class="text-muted">基于 EDT（Event Dispatch Thread）策略和后台线程安全机制对模块进行评估。</p>
+
+<div class="ring-container" id="thread-ring-container"></div>
+
+<div class="card">
+  <div class="card-title">EDT 独占（无后台线程）<span class="tag tag-edt-only">1 个模块</span></div>
+  <table>
+    <thead><tr><th>模块</th><th>风险等级</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>SystemConfig</strong></td>
+        <td><span class="tag tag-medium">中等风险</span></td>
+        <td>无并发问题，但所有操作阻塞 EDT 导致 UI 冻结。Web 迁移需将阻塞操作改为异步。</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <div class="card-title">混合策略（部分安全）<span class="tag tag-mixed-safe">7 个模块</span></div>
+  <p>SwingUtil.runInEventDispatchThread 提供了 EDT 安全机制但使用不一致。共享状态（ToolStoreContext、DeviceCenterContext 等单例）无并发保护。AsyncExcutor 的 invokeAndWait 存在死锁风险。</p>
+  <div class="flex-row gap-1" style="margin-top:0.5rem;">
+    <span class="tag tag-mixed">IsmFrameWork</span>
+    <span class="tag tag-mixed">DeviceManager</span>
+    <span class="tag tag-mixed">DeviceCenter</span>
+    <span class="tag tag-mixed">ToolBox</span>
+    <span class="tag tag-mixed">ToolFramework</span>
+    <span class="tag tag-mixed">Base</span>
+    <span class="tag tag-mixed">ToolStore</span>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">存在后台线程直接操作 Swing 违规 <span class="tag tag-unsafe">4 个模块</span></div>
+  <table>
+    <thead><tr><th>模块</th><th>风险等级</th><th>违规行为</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>BaseUI</strong></td>
+        <td><span class="tag tag-critical">极高风险</span></td>
+        <td>ConnectionCuePanel 后台线程直接 setText/repaint</td>
+      </tr>
+      <tr>
+        <td><strong>Scene</strong></td>
+        <td><span class="tag tag-critical">极高风险</span></td>
+        <td>installFailed 观察者回调中遗漏 invokeLater</td>
+      </tr>
+      <tr>
+        <td><strong>BizPackage</strong></td>
+        <td><span class="tag tag-critical">极高风险</span></td>
+        <td>hashErrDialog 非线程安全标志位跨线程访问</td>
+      </tr>
+      <tr>
+        <td><strong>InspectTaskManager</strong></td>
+        <td><span class="tag tag-critical">极高风险</span></td>
+        <td>updateStatusIcon 后台线程直接操作 Swing 组件</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 6: 模块维度总览 -->
+<!-- ============================================================ -->
+<section id="sec6" class="section-anchor">
+<h2>6. 模块维度总览</h2>
+<p class="text-muted">按模块汇总 GUI 文件数、使用模式、耦合度、线程安全性及 WEB 迁移复杂度。</p>
+
+<div class="sort-controls">
+  <button class="sort-btn active" data-sort="default">默认排序</button>
+  <button class="sort-btn" data-sort="files">按文件数</button>
+  <button class="sort-btn" data-sort="complexity">按重构难度</button>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>模块</th>
+        <th>GUI 文件数</th>
+        <th>耦合度</th>
+        <th>线程安全</th>
+        <th>迁移复杂度</th>
+        <th>主要模式</th>
+      </tr>
+    </thead>
+    <tbody id="module-table-body"></tbody>
+  </table>
+</div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 7: 无法归类的特殊模式 -->
+<!-- ============================================================ -->
+<section id="sec7" class="section-anchor">
+<h2>7. 无法归类的特殊模式</h2>
+<p class="text-muted">以下代码模式经分析后不属于 GUI-业务交互方向分类，归入基础设施或反模式类别。</p>
+
+<div id="unclassified-list"></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 8: WEB化重构建议 -->
+<!-- ============================================================ -->
+<section id="sec8" class="section-anchor">
+<h2>8. WEB 化重构建议</h2>
+<p class="text-muted">按优先级排列，每个建议标注受影响模块与推荐重构策略。</p>
+
+<div id="insight-list"></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 9: 附录 -->
+<!-- ============================================================ -->
+<section id="sec9" class="section-anchor">
+<h2>9. 附录</h2>
+
+<div class="card">
+  <div class="card-title">A. 方法论说明</div>
+  <p>
+    本报告采用 <strong>静态代码分析 + 模式匹配</strong> 的方法，对 Java Swing 桌面应用的 GUI 层与业务逻辑层之间的交互模式进行全面扫描与分类。具体步骤：
+  </p>
+  <ul style="padding-left:1.5rem; margin:0.5rem 0; line-height:1.8;">
+    <li>步骤 1：全量扫描 12 个业务模块中所有 Java 源文件，筛选出 GUI 相关文件（包含 JFrame、JPanel、JDialog、Swing 组件引用等）。</li>
+    <li>步骤 2：针对每一处 GUI-业务交互调用点，按交互方向（UI→业务、业务→UI、双向、轮询）、耦合紧密程度、线程安全性进行标注。</li>
+    <li>步骤 3：将所有标注点归类为 11 个子分类，统计模块分布。</li>
+    <li>步骤 4：基于分类结果，评估每个模块的 WEB 迁移复杂度。</li>
+  </ul>
+  <p>
+    分析工具：基于代码关键字扫描与人工验证相结合。分析焦点为 <strong>交互形式</strong> 而非具体业务语义。
+  </p>
+</div>
+
+<div class="card">
+  <div class="card-title">B. 术语定义</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>术语</th><th>定义</th></tr></thead>
+      <tbody>
+        <tr><td><strong>EDT</strong></td><td>Event Dispatch Thread — Swing 单线程规则中用于处理事件和更新 UI 的唯一线程。</td></tr>
+        <tr><td><strong>ActionListener</strong></td><td>Swing 中响应按钮点击等动作事件的监听器接口，在 EDT 线程同步执行。</td></tr>
+        <tr><td><strong>匿名内部类</strong></td><td>Java 中无显式类名的内部类定义方式，在 Swing 编程中广泛用于事件监听。</td></tr>
+        <tr><td><strong>Service Locator</strong></td><td>通过全局注册表（静态 Map/Singleton）获取服务实例的模式。</td></tr>
+        <tr><td><strong>DI</strong></td><td>Dependency Injection — 依赖注入，通过构造函数或注解将依赖注入而非由组件自行查找。</td></tr>
+        <tr><td><strong>SwingWorker</strong></td><td>Swing 提供的后台任务工具类，支持在 doInBackground 中执行耗时操作并通过 publish/process 安全更新 UI。</td></tr>
+        <tr><td><strong>AsyncExcutor</strong></td><td>项目自定义的异步执行器封装，提供后台执行 + 模态等待对话框（ProgressDialog）的组合。</td></tr>
+        <tr><td><strong>观察者模式</strong></td><td>通过接口回调实现的一对多通知机制，如 INodeObserver、ISceneInstallListener 等。</td></tr>
+        <tr><td><strong>模态等待</strong></td><td>通过模态对话框阻塞用户操作，直到后台任务完成后才释放 UI 交互的模式。</td></tr>
+        <tr><td><strong>紧密耦合</strong></td><td>界面代码直接持有业务对象引用并同步调用，替换 UI 框架需同时修改业务调用方式。</td></tr>
+        <tr><td><strong>较松耦合</strong></td><td>通过抽象接口/回调/事件总线进行交互，UI 框架替换对业务逻辑影响较小。</td></tr>
+        <tr><td><strong>混合耦合</strong></td><td>同时存在紧耦合和松耦合的交互方式，需要逐点分析重构策略。</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">C. 模块索引</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>缩写</th><th>全称</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>IsmFrameWork</td><td>ISM Framework</td><td>核心框架模块，提供基础 UI 组件、消息总线、线程池等基础设施</td></tr>
+        <tr><td>DeviceManager</td><td>Device Manager</td><td>设备管理模块</td></tr>
+        <tr><td>BizPackage</td><td>Business Package</td><td>业务逻辑包，包含 Python 脚本桥接（Jython）</td></tr>
+        <tr><td>Base</td><td>Base</td><td>基础 UI 组件库</td></tr>
+        <tr><td>DeviceCenter</td><td>Device Center</td><td>设备中心模块，负责设备发现与管理</td></tr>
+        <tr><td>Scene</td><td>Scene</td><td>场景管理模块</td></tr>
+        <tr><td>BaseUI</td><td>Base UI</td><td>基础 UI 框架，包含 Wizard/Flow 状态机</td></tr>
+        <tr><td>InspectTaskManager</td><td>Inspect Task Manager</td><td>巡检任务管理模块</td></tr>
+        <tr><td>ToolStore</td><td>Tool Store</td><td>工具商店模块</td></tr>
+        <tr><td>ToolBox</td><td>Tool Box</td><td>工具箱模块</td></tr>
+        <tr><td>SystemConfig</td><td>System Config</td><td>系统配置模块（最高风险紧耦合）</td></tr>
+        <tr><td>ToolFramework</td><td>Tool Framework</td><td>工具框架模块，提供插件/服务注册机制</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</section>
+
+</div><!-- /container -->
+
+<script>
+// ===== DATA =====
+const data = {
+  directionCategories: {
+    uiToBusiness: [
+      { subCategory: "1a", description: "ActionListener直接调用业务方法", totalCallSites: 413, moduleDistribution: { IsmFrameWork: 60, DeviceManager: 28, BizPackage: 40, Base: 26, DeviceCenter: 33, Scene: 29, BaseUI: 6, InspectTaskManager: 47, ToolStore: 20, ToolBox: 32, SystemConfig: 47, ToolFramework: 45 } }
+    ],
+    businessToUi: [
+      { subCategory: "2a", description: "业务方法直接操作Swing组件", totalCallSites: 124, moduleDistribution: { Base: 30, InspectTaskManager: 50, ToolFramework: 24, Scene: 4, ToolBox: 2, BizPackage: 4, ToolStore: 10 } }
+    ],
+    bidirectional: [
+      { subCategory: "3a", description: "TableModel/ListModel数据绑定", totalCallSites: 41, moduleDistribution: { IsmFrameWork: 8, DeviceManager: 8, BizPackage: 1, Base: 9, DeviceCenter: 2, Scene: 2, InspectTaskManager: 3, ToolStore: 4, BaseUI: 6 } }
+    ],
+    polling: [
+      { subCategory: "4c", description: "自定义轮询线程", totalCallSites: 24, moduleDistribution: { IsmFrameWork: 7, DeviceCenter: 3, Scene: 3, ToolStore: 4, InspectTaskManager: 2, ToolBox: 3, DeviceManager: 2 } }
+    ]
+  },
+  moduleSummary: [
+    { module: "IsmFrameWork", guiFileCount: 25, patterns: ["匿名内部类ActionListener(42)", "观察者模式DataChangeListener(24)", "SwingUtil EDT路由(25)", "AsyncExcutor+ProgressDialog(12)", "DefaultTableModel+TableRow(8)", "IsmMsgManager消息总线(6)", "SwingWorker(3)", "Timer轮询(6)", "ThreadPoolManager四池(14)", "Synchronized集合(5)"], couplingLevel: "mixed", threadSafety: "mixed", webMigrationComplexity: "high" },
+    { module: "DeviceManager", guiFileCount: 20, patterns: ["匿名内部类ActionListener(20)", "INodeObserver观察者(15)", "Singleton Service Locator(25)", "AsyncExcutor后台任务(3)", "ServiceTask+ServiceTaskExecutor(3)", "自定义TableModel(8)", "ToolAction委托(10)"], couplingLevel: "mixed", threadSafety: "mixed", webMigrationComplexity: "high" },
+    { module: "BizPackage", guiFileCount: 20, patterns: ["匿名内部类ActionListener(9)", "Lambda ActionListener(2)", "独立ActionListener类(3)", "ExecPyScriptTask.execFunc(12)", "JythonContext单例(30)", "SwingUtilities.invokeLater(7)", "AsyncExcutor+WaitDialog(6)", "ServiceTask+ProgressDialog(3)", "INodeObserver(1)", "IInputComponent抽象组件(2)"], couplingLevel: "mixed", threadSafety: "unsafe", webMigrationComplexity: "critical" },
+    { module: "Base", guiFileCount: 14, patterns: ["ToolAction抽象(3)", "匿名内部类ActionListener(6)", "私有内部类ActionListener(5)", "自定义ClickListener(5)", "直接Swing组件调用(30)", "回调接口通知(7)", "TreeTableModel(2)", "字段直接绑定(15)", "ServiceTask+ServiceTaskExecutor(2)"], couplingLevel: "mixed", threadSafety: "mixed", webMigrationComplexity: "high" },
+    { module: "DeviceCenter", guiFileCount: 6, patterns: ["匿名内部类ActionListener(9)", "MouseAdapter(12)", "ThreadPoolManager后台线程(5)", "IImportListener回调(5)", "后台轮询刷新(2)", "SwingUtilities.invokeLater(2)", "DeviceCenterContext单例(10)", "CompletableFuture(2)", "ScheduledExecutorService GIF定时(1)", "DefaultTableModel(2)"], couplingLevel: "mixed", threadSafety: "mixed", webMigrationComplexity: "high" },
+    { module: "Scene", guiFileCount: 6, patterns: ["匿名内部类ActionListener(15)", "MouseAdapter(8)", "ISceneInstallListener观察者(9)", "SwingUtilities.invokeLater(5)", "AsyncExcutor(6)", "ServiceTask+ProgressDialog(1)", "Centralized Singleton Context(30)", "Direct UI Rebuild(4)", "Thread+Runnable轮询(3)", "ConcurrentHashMap(5)"], couplingLevel: "mixed", threadSafety: "unsafe", webMigrationComplexity: "high" },
+    { module: "BaseUI", guiFileCount: 10, patterns: ["Wizard/Flow状态机(29)", "Action框架(5)", "后台线程直接访问EDT(3)违规", "Callback接口(3)", "Template Method Dialog(7)", "Tree/Table自定义模型(6)", "匿名内部类ActionListener(3)", "MouseAdapter(3)", "Direct Thread(2)违规"], couplingLevel: "loose", threadSafety: "unsafe", webMigrationComplexity: "medium" },
+    { module: "InspectTaskManager", guiFileCount: 6, patterns: ["匿名内部类ActionListener(19)", "直接DAO调用(24)", "独立Listener类代理(5)", "观察者通知链(6)", "直接Swing组件操作(50)", "SwingUtil EDT路由(1)", "DefaultTableModel+IsmTable(1)", "DefaultListModel+JList(2)", "直接字段绑定(25)", "后台线程直接访问GUI(1)违规", "后台文件锁定+轮询同步(1)"], couplingLevel: "mixed", threadSafety: "unsafe", webMigrationComplexity: "critical" },
+    { module: "ToolStore", guiFileCount: 6, patterns: ["匿名内部类ActionListener(12)", "本类实现监听器接口(5)", "Worktaker业务委托(10)", "Service服务调用(12)", "AsyncExcutor后台执行(8)", "Callback/Listener回调(15)", "ToolStoreContext单例(30)", "SwingUtilities.invokeLater(4)", "Direct Thread启动(4)", "轮询等待(4)", "DefaultTableModel+TableRow(2)", "DefaultComboBoxModel(2)"], couplingLevel: "mixed", threadSafety: "unsafe", webMigrationComplexity: "high" },
+    { module: "ToolBox", guiFileCount: 5, patterns: ["匿名内部类ActionListener(22)", "ToolAction内部类(9)", "Lambda ActionListener(4)", "观察者模式自定义接口(14)", "Service Locator(18)", "Singleton Mediator(20)", "AsyncExcutor(3)", "Raw Thread(3)", "CardLayout(3)", "HashMap缓存(4)", "Synchronized Blocks(2)"], couplingLevel: "mixed", threadSafety: "mixed", webMigrationComplexity: "high" },
+    { module: "SystemConfig", guiFileCount: 6, patterns: ["匿名内部类ActionListener(14)", "命名内部类ActionListener(9)", "Lambda Listener(3)", "直接同步EDT业务调用(15)", "观察者模式对话框通信(6)", "直接字段数据绑定(39)", "Service Locator(15)", "无后台线程安全机制"], couplingLevel: "tight", threadSafety: "edt_only", webMigrationComplexity: "critical" },
+    { module: "ToolFramework", guiFileCount: 8, patterns: ["匿名内部类ActionListener(34)", "独立Action类(9)", "Service Locator(19)", "AsyncExcutor(20)", "观察者模式IUserRightObserver(12)", "观察者模式INodeObserver(14)", "直接Swing组件操作(24)", "Plugin/Service注册(6)", "字段级线程共享无同步(3)违规", "ServiceTaskExecutor(4)"], couplingLevel: "mixed", threadSafety: "mixed", webMigrationComplexity: "high" }
+  ],
+  couplingAnalysis: [
+    { level: "紧密耦合", moduleCount: 1, modules: ["SystemConfig"], riskForWebMigration: "极高风险：所有业务逻辑在EDT同步执行，无后台线程、无SwingWorker、无invokeLater。直接字段级数据绑定(JTextField.getText/setText)散布在39处，全部需重构为异步数据绑定。" },
+    { level: "混合耦合", moduleCount: 10, modules: ["IsmFrameWork","DeviceManager","BizPackage","Base","DeviceCenter","Scene","InspectTaskManager","ToolStore","ToolBox","ToolFramework"], riskForWebMigration: "高风险：存在观察者/回调等松耦合模式，但匿名内部类ActionListener直接调用业务逻辑仍是主导模式。AsyncExcutor/ProgressDialog的组合需改为Web友好的异步请求-响应模式。Service Locator需替换为DI。" },
+    { level: "较松耦合", moduleCount: 1, modules: ["BaseUI"], riskForWebMigration: "中等风险：Wizard/Flow状态机和Action框架提供了较好的抽象层次，但底层仍是Swing组件操作。状态机逻辑可保留，事件处理需适配Web模式。" }
+  ],
+  threadSafety: [
+    { strategy: "EDT独占（无后台线程）", moduleCount: 1, modules: ["SystemConfig"], riskForWebMigration: "中等风险：无并发问题，但所有操作阻塞EDT导致UI冻结。Web迁移需将阻塞操作改为异步。" },
+    { strategy: "混合策略（部分安全）", moduleCount: 7, modules: ["IsmFrameWork","DeviceManager","DeviceCenter","ToolBox","ToolFramework","Base","ToolStore"], riskForWebMigration: "高风险：SwingUtil.runInEventDispatchThread提供了EDT安全机制但使用不一致。共享状态（ToolStoreContext、DeviceCenterContext等单例）无并发保护。AsyncExcutor的invokeAndWait存在死锁风险。" },
+    { strategy: "存在后台线程直接操作Swing违规", moduleCount: 4, modules: ["BaseUI","Scene","BizPackage","InspectTaskManager"], riskForWebMigration: "极高风险：后台线程直接调用Swing组件（BaseUI.ConnectionCuePanel后台线程直接setText/repaint），或非线程安全标志位跨线程访问（BizPackage.hashErrDialog），或观察者回调中遗漏invokeLater（Scene.installFailed）" }
+  ],
+  unclassified: [
+    { description: "窗口/对话框管理基础设施", location: "跨模块通用", reason: "窗口模态设置、居中定位、dispose生命周期等不属于业务交互方向分类，是Swing桌面应用的通用基础设施。" },
+    { description: "Wizard/Flow状态机导航模式", location: "BaseUI模块FlowWizardFrame, IsmFrameWork模块WizardDialog", reason: "Card导航状态机的状态转移逻辑属于框架级UI编排，不直接映射为界面→业务或业务→界面的数据交互。" },
+    { description: "线程池基础设施（ThreadPoolManager四池架构）", location: "IsmFrameWork模块ThreadPoolManager", reason: "四个不同配置的线程池是并发执行基础设施，不直接属于GUI-业务交互模式分类。" },
+    { description: "插件/服务注册模式（OSGi风格）", location: "ToolFramework模块AbstractPublicService/AbstractPublicUI/AbstractPlugin", reason: "通过反射将服务接口自动注册到中央Map的机制是架构基础设施，不直接描述GUI-业务交互。" },
+    { description: "自动化流程接口（IAutoProcess）", location: "DeviceManager模块DeviceAddDialog, BizPackage模块", reason: "IAutoProcess接口提供自动化测试框架驱动，是测试基础设施而非业务交互模式。" },
+    { description: "EDT阻塞风险（反模式）", location: "跨模块通用", reason: "PropertyPaneAction和ActionListener在EDT同步执行I/O操作导致UI冻结，属于应避免的反模式而非正规模。" },
+    { description: "线程安全违规（反模式）", location: "BaseUI ConnectionCuePanel, BizPackage hashErrDialog, Scene installFailed, InspectTaskManager updateStatusIcon", reason: "后台线程直接操作Swing组件或非线程安全标志位跨线程访问，属于应修复的缺陷而非可归纳的模式。" },
+    { description: "InitDevEntryThread直接线程启动", location: "BizPackage模块", reason: "直接new Thread().start()初始化设备拓扑图的模式，不通过SwingWorker/AsyncExcutor/线程池，是零散出现的直接线程操作。" }
+  ],
+  refactoringInsights: [
+    { insight: "匿名内部类ActionListener应抽取为独立事件处理器类或函数式回调，消除EDT直接执行业务逻辑的紧耦合", priority: "P0-关键", affectedModules: ["IsmFrameWork","DeviceManager","BizPackage","Base","DeviceCenter","Scene","BaseUI","InspectTaskManager","ToolStore","ToolBox","SystemConfig","ToolFramework"] },
+    { insight: "AsyncExcutor+ProgressDialog模态等待模式需替换为Web友好的异步请求-响应模式（如CompletableFuture/Promise）", priority: "P0-关键", affectedModules: ["IsmFrameWork","BizPackage","DeviceManager","ToolStore","ToolFramework"] },
+    { insight: "Service Locator单例（PublicServiceManage/ToolStoreContext等）应替换为依赖注入，以支持Web组件的生命周期管理", priority: "P0-关键", affectedModules: ["ToolFramework","ToolStore","Scene","SystemConfig","DeviceManager","DeviceCenter"] },
+    { insight: "后台线程直接操作Swing组件的违规（BaseUI.ConnectionCuePanel, Scene.installFailed等）在Web迁移中需彻底消除，所有UI更新必须通过框架层", priority: "P0-关键", affectedModules: ["BaseUI","Scene","BizPackage","InspectTaskManager"] },
+    { insight: "SwingWorker仅3处使用，应统一替换为Web平台的原生异步模式；AsyncExcutor的自定义线程池管理需替换为Web容器线程池", priority: "P1-重要", affectedModules: ["IsmFrameWork","ToolFramework"] },
+    { insight: "TableModel/ListModel数据绑定（41处）需替换为Web框架的响应式数据绑定（如React state/Vue数据代理）", priority: "P1-重要", affectedModules: ["IsmFrameWork","DeviceManager","BizPackage","Base","DeviceCenter","Scene","InspectTaskManager","ToolStore","BaseUI"] },
+    { insight: "SystemConfig模块所有业务逻辑在EDT同步执行（含文件I/O和网络调用），需优先重构为异步非阻塞模式", priority: "P0-关键", affectedModules: ["SystemConfig"] },
+    { insight: "JythonContext+ExecPyScriptTask的Python脚本桥接机制（42处）在Web架构中需替换为REST API网关模式", priority: "P1-重要", affectedModules: ["BizPackage"] },
+    { insight: "观察者模式（INodeObserver, IUserRightObserver, ISceneInstallListener等）是松耦合的良好实践，Web迁移时应保留其架构思想并用Web原生事件机制实现", priority: "P2-建议", affectedModules: ["DeviceManager","ToolFramework","Scene","ToolStore","ToolBox"] },
+    { insight: "SwingUtil.runInEventDispatchThread（25处）的使用习惯需迁移为Web框架的异步状态更新模式，当前是EDT安全的核心机制但在Web中不再适用", priority: "P1-重要", affectedModules: ["IsmFrameWork","BizPackage","Scene","ToolStore","InspectTaskManager"] }
+  ]
+};
+
+const TOTAL_FILES = 1434;
+const MODULE_ORDER = ["IsmFrameWork","DeviceManager","BizPackage","Base","DeviceCenter","Scene","BaseUI","InspectTaskManager","ToolStore","ToolBox","SystemConfig","ToolFramework"];
+
+// color palette
+const MODULE_COLORS = {
+  IsmFrameWork: "#6db3f2", DeviceManager: "#e94560", BizPackage: "#f0c040",
+  Base: "#5ccd8a", DeviceCenter: "#b080e0", Scene: "#ff8a65",
+  BaseUI: "#4dd0e1", InspectTaskManager: "#f06292", ToolStore: "#aed581",
+  ToolBox: "#ffb74d", SystemConfig: "#e53935", ToolFramework: "#7e57c2"
+};
+
+// ===== RENDER HELPERS =====
+function bar(width, color) {
+  return `<div class="bar" style="width:${Math.max(width,2)}%;background:${color||'#e94560'}"></div>`;
+}
+
+function tag(level) {
+  const m = { tight: "tag-tight", mixed: "tag-mixed", loose: "tag-loose", unsafe: "tag-unsafe", edt_only: "tag-edt-only" };
+  const l = { tight: "紧耦合", mixed: "混合", loose: "较松耦合", unsafe: "违规", edt_only: "EDT独占", edt: "EDT独占" };
+  return `<span class="tag ${m[level]||'tag-mixed'}">${l[level]||level}</span>`;
+}
+
+function complexityTag(c) {
+  const m = { critical: "tag-critical", high: "tag-high", medium: "tag-medium", low: "tag-low" };
+  const l = { critical: "极高", high: "高", medium: "中", low: "低" };
+  return `<span class="tag ${m[c]||'tag-medium'}">${l[c]||c}</span>`;
+}
+
+function priorityTag(p) {
+  const cls = p.startsWith("P0") ? "tag-p0" : p.startsWith("P1") ? "tag-p1" : "tag-p2";
+  return `<span class="tag ${cls}">${p}</span>`;
+}
+
+function ringChart(id, segments, total, colors) {
+  const r = 56, circ = 2 * Math.PI * r;
+  let offset = 0;
+  let paths = '';
+  segments.forEach((seg, i) => {
+    const frac = seg.value / total;
+    const len = frac * circ;
+    const dash = `${len} ${circ - len}`;
+    const col = colors[i] || '#e94560';
+    paths += `<circle cx="70" cy="70" r="${r}" fill="none" stroke="${col}" stroke-width="18"
+      stroke-dasharray="${dash}" stroke-dashoffset="${-offset}" stroke-linecap="butt"/>`;
+    offset += len;
+  });
+  return `<svg width="140" height="140" viewBox="0 0 140 140">${paths}</svg>`;
+}
+
+// ===== SECTION 2: Module file table =====
+(function() {
+  const tbody = document.getElementById('module-file-table');
+  const maxFiles = Math.max(...data.moduleSummary.map(m => m.guiFileCount));
+  let html = '';
+  data.moduleSummary.forEach(m => {
+    const pct = (m.guiFileCount / TOTAL_FILES * 100).toFixed(1);
+    const w = (m.guiFileCount / maxFiles * 100);
+    html += `<tr>
+      <td><strong>${m.module}</strong></td>
+      <td>${m.guiFileCount}</td>
+      <td>${pct}%</td>
+      <td><div class="bar-container"><div class="bar" style="width:${w}%;background:${MODULE_COLORS[m.module]||'#e94560'}"></div><span class="bar-value">${m.guiFileCount}</span></div></td>
+    </tr>`;
+  });
+  html += `<tr style="font-weight:600;background:#1a1a3e;"><td>合计</td><td>${TOTAL_FILES}</td><td>100%</td><td></td></tr>`;
+  tbody.innerHTML = html;
+})();
+
+// ===== SECTION 2: Direction ring =====
+(function() {
+  const container = document.getElementById('direction-ring-container');
+  const cats = [
+    { label: "UI→业务(1a)", value: 413, color: "#6db3f2" },
+    { label: "业务→UI(2a)", value: 124, color: "#f0c040" },
+    { label: "双向绑定(3a)", value: 41, color: "#b080e0" },
+    { label: "轮询(4c)", value: 24, color: "#5ccd8a" }
+  ];
+  const total = cats.reduce((s, c) => s + c.value, 0);
+  const svg = ringChart('', cats, total, cats.map(c => c.color));
+  let legend = '';
+  cats.forEach(c => {
+    const pct = (c.value / total * 100).toFixed(1);
+    legend += `<div class="item"><span class="dot" style="background:${c.color}"></span>${c.label} — ${c.value} (${pct}%)</div>`;
+  });
+  container.innerHTML = `
+    <div class="ring"><div class="center-text"><div class="big">${total}</div><div class="small">总调用点</div></div>${svg}</div>
+    <div class="ring-legend">${legend}</div>`;
+})();
+
+// ===== SECTION 3: Distribution tables =====
+function renderDist(id, dist) {
+  const tbody = document.getElementById(id);
+  const maxV = Math.max(...Object.values(dist));
+  let html = '';
+  MODULE_ORDER.forEach(m => {
+    const v = dist[m] || 0;
+    const w = maxV > 0 ? (v / maxV * 100) : 0;
+    html += `<tr><td>${m}</td><td>${v}</td><td><div class="bar-container"><div class="bar" style="width:${w}%;background:${MODULE_COLORS[m]||'#e94560'}"></div><span class="bar-value">${v}</span></div></td></tr>`;
+  });
+  tbody.innerHTML = html;
+}
+renderDist('dist-1a', data.directionCategories.uiToBusiness[0].moduleDistribution);
+renderDist('dist-2a', data.directionCategories.businessToUi[0].moduleDistribution);
+renderDist('dist-3a', data.directionCategories.bidirectional[0].moduleDistribution);
+renderDist('dist-4c', data.directionCategories.polling[0].moduleDistribution);
+
+// ===== SECTION 4: Coupling ring =====
+(function() {
+  const container = document.getElementById('coupling-ring-container');
+  const cats = data.couplingAnalysis.map(c => ({ label: `${c.level} (${c.moduleCount})`, value: c.moduleCount }));
+  const total = cats.reduce((s,c) => s + c.value, 0);
+  const colors = ["#e53935","#f0a030","#5ccd8a"];
+  const svg = ringChart('', cats, total, colors);
+  let legend = '';
+  cats.forEach((c, i) => {
+    legend += `<div class="item"><span class="dot" style="background:${colors[i]}"></span>${c.label}</div>`;
+  });
+  container.innerHTML = `
+    <div class="ring"><div class="center-text"><div class="big">${total}</div><div class="small">模块数</div></div>${svg}</div>
+    <div class="ring-legend">${legend}</div>`;
+})();
+
+// ===== SECTION 5: Thread ring =====
+(function() {
+  const container = document.getElementById('thread-ring-container');
+  const cats = data.threadSafety.map(c => ({ label: `${c.strategy} (${c.moduleCount})`, value: c.moduleCount }));
+  const total = cats.reduce((s,c) => s + c.value, 0);
+  const colors = ["#6db3f2","#f0a030","#e53935"];
+  const svg = ringChart('', cats, total, colors);
+  let legend = '';
+  cats.forEach((c, i) => {
+    legend += `<div class="item"><span class="dot" style="background:${colors[i]}"></span>${c.label}</div>`;
+  });
+  container.innerHTML = `
+    <div class="ring"><div class="center-text"><div class="big">${total}</div><div class="small">模块数</div></div>${svg}</div>
+    <div class="ring-legend">${legend}</div>`;
+})();
+
+// ===== SECTION 6: Module table =====
+(function() {
+  const tbody = document.getElementById('module-table-body');
+  function render(order) {
+    let arr = [...data.moduleSummary];
+    if (order === 'files') arr.sort((a,b) => b.guiFileCount - a.guiFileCount);
+    else if (order === 'complexity') {
+      const rank = { critical: 0, high: 1, medium: 2, low: 3 };
+      arr.sort((a,b) => (rank[a.webMigrationComplexity]||9) - (rank[b.webMigrationComplexity]||9));
+    }
+    let html = '';
+    arr.forEach(m => {
+      const patterns = m.patterns.map(p => {
+        const isNeg = p.includes('违规') || p.includes('无后台');
+        return `<span class="pattern-tag${isNeg?' negative':''}">${p}</span>`;
+      }).join(' ');
+      html += `<tr>
+        <td><strong>${m.module}</strong></td>
+        <td>${m.guiFileCount}</td>
+        <td>${tag(m.couplingLevel)}</td>
+        <td>${tag(m.threadSafety)}</td>
+        <td>${complexityTag(m.webMigrationComplexity)}</td>
+        <td style="font-size:0.78rem;max-width:320px;">${patterns}</td>
+      </tr>`;
+    });
+    tbody.innerHTML = html;
+  }
+  render('default');
+
+  document.querySelectorAll('.sort-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      render(this.dataset.sort);
+    });
+  });
+})();
+
+// ===== SECTION 7: Unclassified =====
+(function() {
+  const list = document.getElementById('unclassified-list');
+  data.unclassified.forEach(u => {
+    list.innerHTML += `
+      <div class="insight-card" style="border-left-color:#6db3f2;">
+        <div class="insight-text"><strong>${u.description}</strong></div>
+        <div class="insight-meta">
+          <span style="color:#a0a0d0;">位置：</span>${u.location}<br>
+          <span style="color:#a0a0d0;">原因：</span>${u.reason}
+        </div>
+      </div>`;
+  });
+})();
+
+// ===== SECTION 8: Insights =====
+(function() {
+  const list = document.getElementById('insight-list');
+  data.refactoringInsights.forEach(item => {
+    const cls = item.priority.startsWith("P0") ? "p0" : item.priority.startsWith("P1") ? "p1" : "p2";
+    list.innerHTML += `
+      <div class="insight-card ${cls}">
+        <div class="insight-text">${item.insight}</div>
+        <div class="insight-meta">
+          ${priorityTag(item.priority)}
+          <span style="margin-left:0.5rem;color:#a0a0d0;">受影响模块：</span>
+          ${item.affectedModules.map(m => `<span class="tag" style="background:#1a1a4e;color:#b0b0e0;border:1px solid #2a2a6a;">${m}</span>`).join(' ')}
+        </div>
+      </div>`;
+  });
+})();
+</script>
+
+</body>
+</html>
