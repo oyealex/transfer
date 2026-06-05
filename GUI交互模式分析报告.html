@@ -1037,28 +1037,47 @@ const data = {
     ]
   },
   moduleSummary: [
-    { module: "IsmFrameWork", guiFileCount: 25, patterns: ["匿名内部类ActionListener(42)", "观察者模式DataChangeListener(24)", "SwingUtil EDT路由(25)", "AsyncExcutor+ProgressDialog(12)", "DefaultTableModel+TableRow(8)", "IsmMsgManager消息总线(6)", "SwingWorker(3)", "Timer轮询(6)", "ThreadPoolManager四池(14)", "Synchronized集合(5)"], couplingLevel: "mixed", threadSafety: "mixed", webMigrationComplexity: "high" },
-    { module: "DeviceManager", guiFileCount: 20, patterns: ["匿名内部类ActionListener(20)", "INodeObserver观察者(15)", "Singleton Service Locator(25)", "AsyncExcutor后台任务(3)", "ServiceTask+ServiceTaskExecutor(3)", "自定义TableModel(8)", "ToolAction委托(10)"], couplingLevel: "mixed", threadSafety: "mixed", webMigrationComplexity: "high" },
-    { module: "BizPackage", guiFileCount: 20, patterns: ["匿名内部类ActionListener(9)", "Lambda ActionListener(2)", "独立ActionListener类(3)", "ExecPyScriptTask.execFunc(12)", "JythonContext单例(30)", "SwingUtilities.invokeLater(7)", "AsyncExcutor+WaitDialog(6)", "ServiceTask+ProgressDialog(3)", "INodeObserver(1)", "IInputComponent抽象组件(2)"], couplingLevel: "mixed", threadSafety: "unsafe", webMigrationComplexity: "critical" },
-    { module: "Base", guiFileCount: 14, patterns: ["ToolAction抽象(3)", "匿名内部类ActionListener(6)", "私有内部类ActionListener(5)", "自定义ClickListener(5)", "直接Swing组件调用(30)", "回调接口通知(7)", "TreeTableModel(2)", "字段直接绑定(15)", "ServiceTask+ServiceTaskExecutor(2)"], couplingLevel: "mixed", threadSafety: "mixed", webMigrationComplexity: "high" },
-    { module: "DeviceCenter", guiFileCount: 6, patterns: ["匿名内部类ActionListener(9)", "MouseAdapter(12)", "ThreadPoolManager后台线程(5)", "IImportListener回调(5)", "后台轮询刷新(2)", "SwingUtilities.invokeLater(2)", "DeviceCenterContext单例(10)", "CompletableFuture(2)", "ScheduledExecutorService GIF定时(1)", "DefaultTableModel(2)"], couplingLevel: "mixed", threadSafety: "mixed", webMigrationComplexity: "high" },
-    { module: "Scene", guiFileCount: 6, patterns: ["匿名内部类ActionListener(15)", "MouseAdapter(8)", "ISceneInstallListener观察者(9)", "SwingUtilities.invokeLater(5)", "AsyncExcutor(6)", "ServiceTask+ProgressDialog(1)", "Centralized Singleton Context(30)", "Direct UI Rebuild(4)", "Thread+Runnable轮询(3)", "ConcurrentHashMap(5)"], couplingLevel: "mixed", threadSafety: "unsafe", webMigrationComplexity: "high" },
-    { module: "BaseUI", guiFileCount: 10, patterns: ["Wizard/Flow状态机(29)", "Action框架(5)", "后台线程直接访问EDT(3)违规", "Callback接口(3)", "Template Method Dialog(7)", "Tree/Table自定义模型(6)", "匿名内部类ActionListener(3)", "MouseAdapter(3)", "Direct Thread(2)违规"], couplingLevel: "loose", threadSafety: "unsafe", webMigrationComplexity: "medium" },
-    { module: "InspectTaskManager", guiFileCount: 6, patterns: ["匿名内部类ActionListener(19)", "直接DAO调用(24)", "独立Listener类代理(5)", "观察者通知链(6)", "直接Swing组件操作(50)", "SwingUtil EDT路由(1)", "DefaultTableModel+IsmTable(1)", "DefaultListModel+JList(2)", "直接字段绑定(25)", "后台线程直接访问GUI(1)违规", "后台文件锁定+轮询同步(1)"], couplingLevel: "mixed", threadSafety: "unsafe", webMigrationComplexity: "critical" },
-    { module: "ToolStore", guiFileCount: 6, patterns: ["匿名内部类ActionListener(12)", "本类实现监听器接口(5)", "Worktaker业务委托(10)", "Service服务调用(12)", "AsyncExcutor后台执行(8)", "Callback/Listener回调(15)", "ToolStoreContext单例(30)", "SwingUtilities.invokeLater(4)", "Direct Thread启动(4)", "轮询等待(4)", "DefaultTableModel+TableRow(2)", "DefaultComboBoxModel(2)"], couplingLevel: "mixed", threadSafety: "unsafe", webMigrationComplexity: "high" },
-    { module: "ToolBox", guiFileCount: 5, patterns: ["匿名内部类ActionListener(22)", "ToolAction内部类(9)", "Lambda ActionListener(4)", "观察者模式自定义接口(14)", "Service Locator(18)", "Singleton Mediator(20)", "AsyncExcutor(3)", "Raw Thread(3)", "CardLayout(3)", "HashMap缓存(4)", "Synchronized Blocks(2)"], couplingLevel: "mixed", threadSafety: "mixed", webMigrationComplexity: "high" },
-    { module: "SystemConfig", guiFileCount: 6, patterns: ["匿名内部类ActionListener(14)", "命名内部类ActionListener(9)", "Lambda Listener(3)", "直接同步EDT业务调用(15)", "观察者模式对话框通信(6)", "直接字段数据绑定(39)", "Service Locator(15)", "无后台线程安全机制"], couplingLevel: "tight", threadSafety: "edt_only", webMigrationComplexity: "critical" },
-    { module: "ToolFramework", guiFileCount: 8, patterns: ["匿名内部类ActionListener(34)", "独立Action类(9)", "Service Locator(19)", "AsyncExcutor(20)", "观察者模式IUserRightObserver(12)", "观察者模式INodeObserver(14)", "直接Swing组件操作(24)", "Plugin/Service注册(6)", "字段级线程共享无同步(3)违规", "ServiceTaskExecutor(4)"], couplingLevel: "mixed", threadSafety: "mixed", webMigrationComplexity: "high" }
+    // === 深度分析模块（12个）===
+    { module: "IsmFrameWork", guiFileCount: 398, analyzedFiles: 25, patterns: ["匿名内部类ActionListener(42)", "观察者模式DataChangeListener(24)", "SwingUtil EDT路由(25)", "AsyncExcutor+ProgressDialog(12)", "DefaultTableModel+TableRow(8)", "IsmMsgManager消息总线(6)", "SwingWorker(3)", "Timer轮询(6)", "ThreadPoolManager四池(14)", "Synchronized集合(5)"], couplingLevel: "mixed", threadSafety: "mixed", webMigrationComplexity: "high" },
+    { module: "DeviceManager", guiFileCount: 148, analyzedFiles: 20, patterns: ["匿名内部类ActionListener(20)", "INodeObserver观察者(15)", "Singleton Service Locator(25)", "AsyncExcutor后台任务(3)", "ServiceTask+ServiceTaskExecutor(3)", "自定义TableModel(8)", "ToolAction委托(10)"], couplingLevel: "mixed", threadSafety: "mixed", webMigrationComplexity: "high" },
+    { module: "BizPackage", guiFileCount: 103, analyzedFiles: 20, patterns: ["匿名内部类ActionListener(9)", "Lambda ActionListener(2)", "独立ActionListener类(3)", "ExecPyScriptTask.execFunc(12)", "JythonContext单例(30)", "SwingUtilities.invokeLater(7)", "AsyncExcutor+WaitDialog(6)", "ServiceTask+ProgressDialog(3)", "INodeObserver(1)", "IInputComponent抽象组件(2)"], couplingLevel: "mixed", threadSafety: "unsafe", webMigrationComplexity: "critical" },
+    { module: "Base", guiFileCount: 90, analyzedFiles: 14, patterns: ["ToolAction抽象(3)", "匿名内部类ActionListener(6)", "私有内部类ActionListener(5)", "自定义ClickListener(5)", "直接Swing组件调用(30)", "回调接口通知(7)", "TreeTableModel(2)", "字段直接绑定(15)", "ServiceTask+ServiceTaskExecutor(2)"], couplingLevel: "mixed", threadSafety: "mixed", webMigrationComplexity: "high" },
+    { module: "DeviceCenter", guiFileCount: 81, analyzedFiles: 6, patterns: ["匿名内部类ActionListener(9)", "MouseAdapter(12)", "ThreadPoolManager后台线程(5)", "IImportListener回调(5)", "后台轮询刷新(2)", "SwingUtilities.invokeLater(2)", "DeviceCenterContext单例(10)", "CompletableFuture(2)", "ScheduledExecutorService GIF定时(1)", "DefaultTableModel(2)"], couplingLevel: "mixed", threadSafety: "mixed", webMigrationComplexity: "high" },
+    { module: "Scene", guiFileCount: 79, analyzedFiles: 6, patterns: ["匿名内部类ActionListener(15)", "MouseAdapter(8)", "ISceneInstallListener观察者(9)", "SwingUtilities.invokeLater(5)", "AsyncExcutor(6)", "ServiceTask+ProgressDialog(1)", "Centralized Singleton Context(30)", "Direct UI Rebuild(4)", "Thread+Runnable轮询(3)", "ConcurrentHashMap(5)"], couplingLevel: "mixed", threadSafety: "unsafe", webMigrationComplexity: "high" },
+    { module: "BaseUI", guiFileCount: 72, analyzedFiles: 10, patterns: ["Wizard/Flow状态机(29)", "Action框架(5)", "后台线程直接访问EDT(3)违规", "Callback接口(3)", "Template Method Dialog(7)", "Tree/Table自定义模型(6)", "匿名内部类ActionListener(3)", "MouseAdapter(3)", "Direct Thread(2)违规"], couplingLevel: "loose", threadSafety: "unsafe", webMigrationComplexity: "medium" },
+    { module: "InspectTaskManager", guiFileCount: 74, analyzedFiles: 6, patterns: ["匿名内部类ActionListener(19)", "直接DAO调用(24)", "独立Listener类代理(5)", "观察者通知链(6)", "直接Swing组件操作(50)", "SwingUtil EDT路由(1)", "DefaultTableModel+IsmTable(1)", "DefaultListModel+JList(2)", "直接字段绑定(25)", "后台线程直接访问GUI(1)违规", "后台文件锁定+轮询同步(1)"], couplingLevel: "mixed", threadSafety: "unsafe", webMigrationComplexity: "critical" },
+    { module: "ToolStore", guiFileCount: 65, analyzedFiles: 6, patterns: ["匿名内部类ActionListener(12)", "本类实现监听器接口(5)", "Worktaker业务委托(10)", "Service服务调用(12)", "AsyncExcutor后台执行(8)", "Callback/Listener回调(15)", "ToolStoreContext单例(30)", "SwingUtilities.invokeLater(4)", "Direct Thread启动(4)", "轮询等待(4)", "DefaultTableModel+TableRow(2)", "DefaultComboBoxModel(2)"], couplingLevel: "mixed", threadSafety: "unsafe", webMigrationComplexity: "high" },
+    { module: "ToolBox", guiFileCount: 44, analyzedFiles: 5, patterns: ["匿名内部类ActionListener(22)", "ToolAction内部类(9)", "Lambda ActionListener(4)", "观察者模式自定义接口(14)", "Service Locator(18)", "Singleton Mediator(20)", "AsyncExcutor(3)", "Raw Thread(3)", "CardLayout(3)", "HashMap缓存(4)", "Synchronized Blocks(2)"], couplingLevel: "mixed", threadSafety: "mixed", webMigrationComplexity: "high" },
+    { module: "SystemConfig", guiFileCount: 41, analyzedFiles: 6, patterns: ["匿名内部类ActionListener(14)", "命名内部类ActionListener(9)", "Lambda Listener(3)", "直接同步EDT业务调用(15)", "观察者模式对话框通信(6)", "直接字段数据绑定(39)", "Service Locator(15)", "无后台线程安全机制"], couplingLevel: "tight", threadSafety: "edt_only", webMigrationComplexity: "critical" },
+    { module: "ToolFramework", guiFileCount: 41, analyzedFiles: 8, patterns: ["匿名内部类ActionListener(34)", "独立Action类(9)", "Service Locator(19)", "AsyncExcutor(20)", "观察者模式IUserRightObserver(12)", "观察者模式INodeObserver(14)", "直接Swing组件操作(24)", "Plugin/Service注册(6)", "字段级线程共享无同步(3)违规", "ServiceTaskExecutor(4)"], couplingLevel: "mixed", threadSafety: "mixed", webMigrationComplexity: "high" },
+    // === 仅统计文件数、未深度分析的模块（15个）===
+    { module: "Update", guiFileCount: 33, patterns: ["未深度分析"], couplingLevel: "unknown", threadSafety: "unknown", webMigrationComplexity: "unknown" },
+    { module: "ServiceInformation", guiFileCount: 26, patterns: ["未深度分析"], couplingLevel: "unknown", threadSafety: "unknown", webMigrationComplexity: "unknown" },
+    { module: "ProductManage", guiFileCount: 17, patterns: ["未深度分析"], couplingLevel: "unknown", threadSafety: "unknown", webMigrationComplexity: "unknown" },
+    { module: "FileUpload", guiFileCount: 13, patterns: ["未深度分析"], couplingLevel: "unknown", threadSafety: "unknown", webMigrationComplexity: "unknown" },
+    { module: "CommonDeviceGraph", guiFileCount: 12, patterns: ["未深度分析"], couplingLevel: "unknown", threadSafety: "unknown", webMigrationComplexity: "unknown" },
+    { module: "LogSupport", guiFileCount: 9, patterns: ["未深度分析"], couplingLevel: "unknown", threadSafety: "unknown", webMigrationComplexity: "unknown" },
+    { module: "LoadExtTool", guiFileCount: 8, patterns: ["未深度分析"], couplingLevel: "unknown", threadSafety: "unknown", webMigrationComplexity: "unknown" },
+    { module: "jython-standalone", guiFileCount: 6, patterns: ["未深度分析"], couplingLevel: "unknown", threadSafety: "unknown", webMigrationComplexity: "unknown" },
+    { module: "FeedBack", guiFileCount: 6, patterns: ["未深度分析"], couplingLevel: "unknown", threadSafety: "unknown", webMigrationComplexity: "unknown" },
+    { module: "UserActionCollection", guiFileCount: 4, patterns: ["未深度分析"], couplingLevel: "unknown", threadSafety: "unknown", webMigrationComplexity: "unknown" },
+    { module: "PublicService", guiFileCount: 4, patterns: ["未深度分析"], couplingLevel: "unknown", threadSafety: "unknown", webMigrationComplexity: "unknown" },
+    { module: "umate-base-smartkit", guiFileCount: 3, patterns: ["未深度分析"], couplingLevel: "unknown", threadSafety: "unknown", webMigrationComplexity: "unknown" },
+    { module: "business-common-smartkit", guiFileCount: 3, patterns: ["未深度分析"], couplingLevel: "unknown", threadSafety: "unknown", webMigrationComplexity: "unknown" },
+    { module: "RightControl", guiFileCount: 1, patterns: ["未深度分析"], couplingLevel: "unknown", threadSafety: "unknown", webMigrationComplexity: "unknown" },
+    { module: "Protocol", guiFileCount: 1, patterns: ["未深度分析"], couplingLevel: "unknown", threadSafety: "unknown", webMigrationComplexity: "unknown" }
   ],
   couplingAnalysis: [
     { level: "紧密耦合", moduleCount: 1, modules: ["SystemConfig"], riskForWebMigration: "极高风险：所有业务逻辑在EDT同步执行，无后台线程、无SwingWorker、无invokeLater。直接字段级数据绑定(JTextField.getText/setText)散布在39处，全部需重构为异步数据绑定。" },
     { level: "混合耦合", moduleCount: 10, modules: ["IsmFrameWork","DeviceManager","BizPackage","Base","DeviceCenter","Scene","InspectTaskManager","ToolStore","ToolBox","ToolFramework"], riskForWebMigration: "高风险：存在观察者/回调等松耦合模式，但匿名内部类ActionListener直接调用业务逻辑仍是主导模式。AsyncExcutor/ProgressDialog的组合需改为Web友好的异步请求-响应模式。Service Locator需替换为DI。" },
-    { level: "较松耦合", moduleCount: 1, modules: ["BaseUI"], riskForWebMigration: "中等风险：Wizard/Flow状态机和Action框架提供了较好的抽象层次，但底层仍是Swing组件操作。状态机逻辑可保留，事件处理需适配Web模式。" }
+    { level: "较松耦合", moduleCount: 1, modules: ["BaseUI"], riskForWebMigration: "中等风险：Wizard/Flow状态机和Action框架提供了较好的抽象层次，但底层仍是Swing组件操作。状态机逻辑可保留，事件处理需适配Web模式。" },
+    { level: "未分析", moduleCount: 15, modules: ["Update","ServiceInformation","ProductManage","FileUpload","CommonDeviceGraph","LogSupport","LoadExtTool","jython-standalone","FeedBack","UserActionCollection","PublicService","umate-base-smartkit","business-common-smartkit","RightControl","Protocol"], riskForWebMigration: "待评估：这些模块合计180个GUI文件，占总量13%。多数为辅助功能模块（更新、日志、反馈等），预计重构难度中等偏低，但需逐一确认。" }
   ],
   threadSafety: [
     { strategy: "EDT独占（无后台线程）", moduleCount: 1, modules: ["SystemConfig"], riskForWebMigration: "中等风险：无并发问题，但所有操作阻塞EDT导致UI冻结。Web迁移需将阻塞操作改为异步。" },
     { strategy: "混合策略（部分安全）", moduleCount: 7, modules: ["IsmFrameWork","DeviceManager","DeviceCenter","ToolBox","ToolFramework","Base","ToolStore"], riskForWebMigration: "高风险：SwingUtil.runInEventDispatchThread提供了EDT安全机制但使用不一致。共享状态（ToolStoreContext、DeviceCenterContext等单例）无并发保护。AsyncExcutor的invokeAndWait存在死锁风险。" },
-    { strategy: "存在后台线程直接操作Swing违规", moduleCount: 4, modules: ["BaseUI","Scene","BizPackage","InspectTaskManager"], riskForWebMigration: "极高风险：后台线程直接调用Swing组件（BaseUI.ConnectionCuePanel后台线程直接setText/repaint），或非线程安全标志位跨线程访问（BizPackage.hashErrDialog），或观察者回调中遗漏invokeLater（Scene.installFailed）" }
+    { strategy: "存在后台线程直接操作Swing违规", moduleCount: 4, modules: ["BaseUI","Scene","BizPackage","InspectTaskManager"], riskForWebMigration: "极高风险：后台线程直接调用Swing组件（BaseUI.ConnectionCuePanel后台线程直接setText/repaint），或非线程安全标志位跨线程访问（BizPackage.hashErrDialog），或观察者回调中遗漏invokeLater（Scene.installFailed）" },
+    { strategy: "未分析", moduleCount: 15, modules: ["Update","ServiceInformation","ProductManage","FileUpload","CommonDeviceGraph","LogSupport","LoadExtTool","jython-standalone","FeedBack","UserActionCollection","PublicService","umate-base-smartkit","business-common-smartkit","RightControl","Protocol"], riskForWebMigration: "待评估" }
   ],
   unclassified: [
     { description: "窗口/对话框管理基础设施", location: "跨模块通用", reason: "窗口模态设置、居中定位、dispose生命周期等不属于业务交互方向分类，是Swing桌面应用的通用基础设施。" },
@@ -1084,15 +1103,21 @@ const data = {
   ]
 };
 
-const TOTAL_FILES = 1434;
-const MODULE_ORDER = ["IsmFrameWork","DeviceManager","BizPackage","Base","DeviceCenter","Scene","BaseUI","InspectTaskManager","ToolStore","ToolBox","SystemConfig","ToolFramework"];
+const TOTAL_FILES = 1382;
+const MODULE_ORDER = ["IsmFrameWork","DeviceManager","BizPackage","Base","DeviceCenter","Scene","BaseUI","InspectTaskManager","ToolStore","ToolBox","SystemConfig","ToolFramework","Update","ServiceInformation","ProductManage","FileUpload","CommonDeviceGraph","LogSupport","LoadExtTool","jython-standalone","FeedBack","UserActionCollection","PublicService","umate-base-smartkit","business-common-smartkit","RightControl","Protocol"];
 
 // color palette
 const MODULE_COLORS = {
   IsmFrameWork: "#6db3f2", DeviceManager: "#e94560", BizPackage: "#f0c040",
   Base: "#5ccd8a", DeviceCenter: "#b080e0", Scene: "#ff8a65",
   BaseUI: "#4dd0e1", InspectTaskManager: "#f06292", ToolStore: "#aed581",
-  ToolBox: "#ffb74d", SystemConfig: "#e53935", ToolFramework: "#7e57c2"
+  ToolBox: "#ffb74d", SystemConfig: "#e53935", ToolFramework: "#7e57c2",
+  Update: "#90a4ae", ServiceInformation: "#a1887f", ProductManage: "#80cbc4",
+  FileUpload: "#ce93d8", CommonDeviceGraph: "#ef9a9a", LogSupport: "#80deea",
+  LoadExtTool: "#ffe082", "jython-standalone": "#9fa8da", FeedBack: "#f48fb1",
+  UserActionCollection: "#a5d6a7", PublicService: "#bcaaa4",
+  "umate-base-smartkit": "#ffcc80", "business-common-smartkit": "#b39ddb",
+  RightControl: "#c5e1a5", Protocol: "#b0bec5"
 };
 
 // ===== RENDER HELPERS =====
