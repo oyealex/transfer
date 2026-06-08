@@ -1,0 +1,124 @@
+# ~/.bash_prompt: executed by bash(1) for non-login shells.
+# ==============================
+# Bash Prompt: command timer + exit code + git branch
+# ==============================
+
+# 只在交互式 shell 中启用
+case $- in
+    *i*) ;;
+    *) return ;;
+esac
+
+# ---------- 颜色定义 ----------
+S_BOLD='\e[1m'
+S_BLUE_F='\e[34m'
+S_CYAN_F='\e[36m'
+S_BROWN_F='\e[33m'
+S_GREEN_F='\e[32m'
+S_PURPLE_F='\e[35m'
+S_RED_F='\e[31m'
+S_RESET='\e[0m'
+
+# ---------- 初始变量 ----------
+_bash_command_timer_show="0.000s"
+_bash_command_code=0
+_bash_command_timer=""
+
+# ---------- 时间格式化 ----------
+_format_duration() {
+    local cost_ms=$1
+    (( cost_ms < 0 )) && cost_ms=0
+
+    local ms seconds minutes hours days
+    local result=""
+
+    ms=$(( cost_ms % 1000 ))
+    seconds=$(( (cost_ms / 1000) % 60 ))
+    minutes=$(( (cost_ms / 60000) % 60 ))
+    hours=$(( (cost_ms / 3600000) % 24 ))
+    days=$(( cost_ms / 86400000 ))
+
+    [ "$days" -gt 0 ] && result="${result}${days}d"
+    [ "$hours" -gt 0 ] && result="${result}${hours}h"
+    [ "$minutes" -gt 0 ] && result="${result}${minutes}m"
+
+    # 小于 1 分钟时显示毫秒；超过 1 分钟后只显示到秒
+    if [ "$days" -eq 0 ] && [ "$hours" -eq 0 ] && [ "$minutes" -eq 0 ]; then
+        result="${result}$(printf "%d.%03ds" "$seconds" "$ms")"
+    else
+        result="${result}${seconds}s"
+    fi
+
+    echo "${result:-0.000s}"
+}
+
+# ---------- 命令执行前 ----------
+_before_bash_command() {
+    # 避免 DEBUG trap 在函数内部重复覆盖开始时间
+    if [[ -z ${_bash_command_timer+x} || -z "$_bash_command_timer" ]]; then
+        _bash_command_timer=$(date +%s%3N)
+    fi
+}
+
+# ---------- 命令执行后 ----------
+_after_bash_command() {
+    local last_code=$?
+    local now elapsed
+
+    _bash_command_code=$last_code
+
+    if [ -n "$_bash_command_timer" ]; then
+        now=$(date +%s%3N)
+        elapsed=$(( now - _bash_command_timer ))
+        _bash_command_timer_show=$(_format_duration "$elapsed")
+        unset _bash_command_timer
+    else
+        _bash_command_timer_show="0.000s"
+    fi
+
+    return "$last_code"
+}
+
+# ---------- Git 分支显示 ----------
+# 尝试加载 git prompt
+if ! declare -F __git_ps1 >/dev/null 2>&1; then
+    for git_prompt in \
+        /usr/share/git/completion/git-prompt.sh \
+        /etc/bash_completion.d/git-prompt \
+        /usr/local/etc/bash_completion.d/git-prompt.sh \
+        /opt/homebrew/etc/bash_completion.d/git-prompt.sh
+    do
+        if [ -f "$git_prompt" ]; then
+            # shellcheck source=/dev/null
+            source "$git_prompt"
+            break
+        fi
+    done
+fi
+
+__git_ps1_ext() {
+    local output=""
+
+    if declare -F __git_ps1 >/dev/null 2>&1; then
+        output=$(__git_ps1 2>/dev/null)
+    fi
+
+    if [[ $output =~ ^([[:blank:]]*)\((.*)\)$ ]]; then
+        echo "${BASH_REMATCH[1]}${BASH_REMATCH[2]}"
+    else
+        echo "$output"
+    fi
+}
+
+# ---------- Hook 安装 ----------
+trap '_before_bash_command' DEBUG
+
+# 不直接覆盖已有 PROMPT_COMMAND
+if [[ "$PROMPT_COMMAND" != *"_after_bash_command"* ]]; then
+    PROMPT_COMMAND="_after_bash_command${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
+fi
+
+# ---------- Prompt ----------
+PS1="\[$S_BOLD\]\[$S_BLUE_F\]\# \[$S_CYAN_F\]\t \[$S_BROWN_F\]\w\[$S_GREEN_F\]\$(__git_ps1_ext)\[$S_PURPLE_F\] \${_bash_command_timer_show}\[$S_RED_F\] \${_bash_command_code}\n\[$S_PURPLE_F\]\$ \[$S_RESET\]"
+
+PS2="\[$S_BOLD\]\[$S_PURPLE_F\]> \[$S_RESET\]"
