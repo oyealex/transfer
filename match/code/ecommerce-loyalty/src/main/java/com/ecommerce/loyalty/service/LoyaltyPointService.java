@@ -141,14 +141,13 @@ public class LoyaltyPointService implements LoyaltyQueryService, LoyaltyCommandS
     /**
      * Calculate order points.
      *
-     * <p>Missing the activityMultiplier factor.
-     * The design spec says: orderPoints = amount * levelMultiplier * activityMultiplier.
-     * This implementation only multiplies by the level multiplier, ignoring the
-     * activity parameter entirely. Promotional double-points events will have no effect.
+     * <p>The calculation multiplies the paid amount by the points-per-yuan
+     * rate, member-level multiplier, request activity multiplier, and runtime
+     * configured activity multiplier.
      *
      * @param amount             the order payable amount
      * @param userId             the user ID
-     * @param activityMultiplier promotional activity coefficient (default 1.0) — IGNORED
+     * @param activityMultiplier promotional activity coefficient (default 1.0)
      * @return calculated points
      */
     public int calcOrderPoints(BigDecimal amount, Long userId, double activityMultiplier) {

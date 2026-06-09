@@ -37,9 +37,6 @@ class OrderPaidEventListenerTest {
      * Verifies that when an order is paid, the listener calculates points
      * via {@link LoyaltyPointService#calcOrderPoints} and awards them via
      * {@link LoyaltyPointService#earnPoints}.
-     *
-     * <p>calcOrderPoints ignores the activityMultiplier
-     * parameter, so promotional point-earning events will have no effect.
      */
     @Test
     void testEarnPointsOnOrderPaid() {
@@ -49,7 +46,7 @@ class OrderPaidEventListenerTest {
 
         OrderPaidEvent event = new OrderPaidEvent(new Object(), orderId, userId, payableAmount);
 
-        // Mock calcOrderPoints (activityMultiplier=1.0 is passed but ignored)
+        // Mock calcOrderPoints with the default activity multiplier.
         when(loyaltyPointService.calcOrderPoints(payableAmount, userId, 1.0))
                 .thenReturn(16500);
 

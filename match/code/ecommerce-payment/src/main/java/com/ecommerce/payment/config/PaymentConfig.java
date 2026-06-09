@@ -7,10 +7,6 @@ import java.math.BigDecimal;
 
 /**
  * Payment module configuration.
- *
- * <p>The refund-fee-rate of 0.02 (2%) matches the design specification.
- * The public doc (09-支付服务设计.md) originally stated 1% (0.99 factor) which was a
- * discrepancy in the documentation. The code keeps the 0.98 factor.
  */
 @Configuration
 @ConfigurationProperties(prefix = "payment")

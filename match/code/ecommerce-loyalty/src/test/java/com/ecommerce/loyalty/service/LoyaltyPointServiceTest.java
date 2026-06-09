@@ -45,12 +45,7 @@ class LoyaltyPointServiceTest {
     // ======================== calcOrderPoints ========================
 
     /**
-     * calcOrderPoints ignores the activityMultiplier parameter.
-     * The design spec says points = amount * levelMultiplier * activityMultiplier,
-     * but the implementation only uses amount * levelMultiplier.
-     *
-     * <p>This test passes activityMultiplier=2.0 and verifies the result
-     * verifies activity multiplier handling.
+     * calcOrderPoints applies the activityMultiplier parameter.
      */
     @Test
     void testCalcOrderPoints_withActivityCoefficient() {

@@ -20,8 +20,6 @@ import static org.mockito.Mockito.when;
  * Unit tests for {@link FreightCalculator}.
  *
  * <p>Verifies the freight calculation logic.
- * of greater-than-or-equal (&gt;=). An order with itemTotal of exactly 199.00
- * will still be charged 8.00 freight.
  */
 @ExtendWith(MockitoExtension.class)
 class FreightCalculatorTest {
@@ -38,13 +36,13 @@ class FreightCalculatorTest {
     }
 
     /**
-     * itemTotal=199.00 does NOT qualify for free shipping
+     * itemTotal=199.00 qualifies for free shipping.
      * Verifies threshold boundary behavior.
      */
     @Test
-    void testCalculate_exactly199_chargesShipping() {
+    void testCalculate_exactly199_freeShipping() {
         BigDecimal result = calculator.calculateFreight(new BigDecimal("199.00"));
-        assertEquals(new BigDecimal("8.00"), result,
+        assertEquals(BigDecimal.ZERO, result,
                 "itemTotal=199.00 boundary result");
     }
 
@@ -98,8 +96,8 @@ class FreightCalculatorTest {
         BigDecimal result = calculator.calculateFreight(new BigDecimal("250.00"));
         assertEquals(new BigDecimal("15.00"), result);
 
-        // 300.00 > 299.00 threshold, free shipping
-        BigDecimal result2 = calculator.calculateFreight(new BigDecimal("300.00"));
+        // 299.00 reaches the threshold, free shipping
+        BigDecimal result2 = calculator.calculateFreight(new BigDecimal("299.00"));
         assertEquals(BigDecimal.ZERO, result2);
     }
 
@@ -117,8 +115,8 @@ class FreightCalculatorTest {
         BigDecimal result = calculator.calculateFreight(new BigDecimal("400.00"), 1L);
         assertEquals(new BigDecimal("20.00"), result);
 
-        // 600.00 > 500.00 threshold, free shipping
-        BigDecimal result2 = calculator.calculateFreight(new BigDecimal("600.00"), 1L);
+        // 500.00 reaches the threshold, free shipping
+        BigDecimal result2 = calculator.calculateFreight(new BigDecimal("500.00"), 1L);
         assertEquals(BigDecimal.ZERO, result2);
     }
 

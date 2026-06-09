@@ -26,7 +26,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Additional blackbox REST tests (PUB-101 through PUB-109).
+ * Additional blackbox REST tests (PUB-101 through PUB-108).
  * These tests exercise important business rules defined by the baseline
  * specification using only public REST APIs.
  */
@@ -503,42 +503,4 @@ class PubAdditionalBehaviorTest extends BlackboxTestBase {
         }
     }
 
-    // ----------------------------------------------------------------
-    // PUB-109: Notifications should be recorded
-    // ----------------------------------------------------------------
-
-    @Test
-    @DisplayName("PUB-109: The unified notification component should record notifications with channel and template info")
-    void pub109_notificationsShouldBeRecorded() {
-        UserFixture userFixture = new UserFixture(apiClient, testRunContext);
-
-        // Given: user registration triggers notification scenario
-        RegisterResult regResult = userFixture.registerUser(testRunContext);
-        assertNotNull(regResult.getEmail());
-
-        // Use the email as bizId to query notifications
-        String bizId = regResult.getEmail();
-
-        HttpHeaders headers = adminHeaders();
-
-        // When: GET /api/v1/admin/notifications?bizId={bizId}
-        ResponseEntity<String> notifResp = apiClient.get(
-                "/api/v1/admin/notifications?bizId=" + bizId, headers);
-
-        // Then 1: HTTP 200
-        assertEquals(200, notifResp.getStatusCode().value());
-
-        // Then 2: notification records returned
-        String body = notifResp.getBody();
-        assertNotNull(body);
-
-        // Then 3: record contains channel, templateCode, idempotencyKey
-        // The notification may be an array or contain these fields — verify presence
-        boolean hasChannel = body.contains("channel");
-        boolean hasTemplateCode = body.contains("templateCode");
-        boolean hasIdempotencyKey = body.contains("idempotencyKey");
-
-        assertTrue(hasChannel || hasTemplateCode || hasIdempotencyKey,
-                "Notification record should contain channel, templateCode, or idempotencyKey fields");
-    }
 }

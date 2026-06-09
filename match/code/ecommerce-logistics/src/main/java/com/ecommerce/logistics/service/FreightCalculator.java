@@ -50,8 +50,8 @@ public class FreightCalculator {
             BigDecimal freight = template.getDefaultFreight() != null
                     ? template.getDefaultFreight() : DEFAULT_FREIGHT;
 
-            if (itemTotal.compareTo(threshold) > 0) {
-                log.info("Free shipping: itemTotal={} strictly exceeds threshold={}", itemTotal, threshold);
+            if (itemTotal.compareTo(threshold) >= 0) {
+                log.info("Free shipping: itemTotal={} reaches threshold={}", itemTotal, threshold);
                 return BigDecimal.ZERO;
             }
             log.info("Freight charged: itemTotal={}, threshold={}, freight={}", itemTotal, threshold, freight);
@@ -59,8 +59,8 @@ public class FreightCalculator {
         }
 
         // Fallback to default rules
-        if (itemTotal.compareTo(DEFAULT_FREE_SHIPPING_THRESHOLD) > 0) {
-            log.info("Free shipping (default): itemTotal={} strictly exceeds threshold={}",
+        if (itemTotal.compareTo(DEFAULT_FREE_SHIPPING_THRESHOLD) >= 0) {
+            log.info("Free shipping (default): itemTotal={} reaches threshold={}",
                     itemTotal, DEFAULT_FREE_SHIPPING_THRESHOLD);
             return BigDecimal.ZERO;
         }
@@ -83,7 +83,7 @@ public class FreightCalculator {
                     BigDecimal freight = template.getDefaultFreight() != null
                             ? template.getDefaultFreight() : DEFAULT_FREIGHT;
 
-                    if (itemTotal != null && itemTotal.compareTo(threshold) > 0) {
+                    if (itemTotal != null && itemTotal.compareTo(threshold) >= 0) {
                         return BigDecimal.ZERO;
                     }
                     return freight;
