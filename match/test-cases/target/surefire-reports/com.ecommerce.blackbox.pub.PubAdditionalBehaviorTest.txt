@@ -1,0 +1,78 @@
+-------------------------------------------------------------------------------
+Test set: com.ecommerce.blackbox.pub.PubAdditionalBehaviorTest
+-------------------------------------------------------------------------------
+Tests run: 9, Failures: 6, Errors: 0, Skipped: 0, Time elapsed: 11.69 s <<< FAILURE! -- in com.ecommerce.blackbox.pub.PubAdditionalBehaviorTest
+com.ecommerce.blackbox.pub.PubAdditionalBehaviorTest.pub104_orderTotalShouldIncludeShipping -- Time elapsed: 0.296 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: payableAmount should be sum of all fees minus deductions ==> expected: <0> but was: <1>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:150)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:563)
+	at com.ecommerce.blackbox.pub.PubAdditionalBehaviorTest.pub104_orderTotalShouldIncludeShipping(PubAdditionalBehaviorTest.java:256)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.ecommerce.blackbox.pub.PubAdditionalBehaviorTest.pub108_paymentSuccessShouldNotBeBlockedByPostActions -- Time elapsed: 0.315 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <SUCCESS> but was: <PENDING>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:182)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:177)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1145)
+	at com.ecommerce.blackbox.pub.PubAdditionalBehaviorTest.pub108_paymentSuccessShouldNotBeBlockedByPostActions(PubAdditionalBehaviorTest.java:482)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.ecommerce.blackbox.pub.PubAdditionalBehaviorTest.pub102_createOrderShouldReturn201 -- Time elapsed: 0.247 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: Order creation should return HTTP 201 per baseline design ==> expected: <201> but was: <200>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:150)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:563)
+	at com.ecommerce.blackbox.pub.PubAdditionalBehaviorTest.pub102_createOrderShouldReturn201(PubAdditionalBehaviorTest.java:141)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.ecommerce.blackbox.pub.PubAdditionalBehaviorTest.pub101_couponDiscountShouldBeCorrect -- Time elapsed: 0.285 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: discountAmount should be 20.00 for an 80%-off coupon on a 100.00 item ==> expected: <0> but was: <-1>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:150)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:563)
+	at com.ecommerce.blackbox.pub.PubAdditionalBehaviorTest.pub101_couponDiscountShouldBeCorrect(PubAdditionalBehaviorTest.java:88)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.ecommerce.blackbox.pub.PubAdditionalBehaviorTest.pub109_notificationsShouldBeRecorded -- Time elapsed: 0.127 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: Notification record should contain channel, templateCode, or idempotencyKey fields ==> expected: <true> but was: <false>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertTrue.failNotTrue(AssertTrue.java:63)
+	at org.junit.jupiter.api.AssertTrue.assertTrue(AssertTrue.java:36)
+	at org.junit.jupiter.api.Assertions.assertTrue(Assertions.java:214)
+	at com.ecommerce.blackbox.pub.PubAdditionalBehaviorTest.pub109_notificationsShouldBeRecorded(PubAdditionalBehaviorTest.java:541)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.ecommerce.blackbox.pub.PubAdditionalBehaviorTest.pub105_unactivatedUserCannotLogin -- Time elapsed: 0.169 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <403> but was: <200>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:150)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:145)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:531)
+	at com.ecommerce.blackbox.pub.PubAdditionalBehaviorTest.pub105_unactivatedUserCannotLogin(PubAdditionalBehaviorTest.java:284)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
