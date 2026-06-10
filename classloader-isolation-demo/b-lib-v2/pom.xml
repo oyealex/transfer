@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+        ★ 注意：此 POM 独立构建，不在父 reactor 中。
+        原因：与 b-lib-v1 共享同一个 artifactId (b-lib)，
+        仅版本号不同 (2.0 vs 1.0)，Maven reactor 不允许重复 artifactId。
+
+        GAV: com.example:b-lib:2.0
+    -->
+    <groupId>com.example</groupId>
+    <artifactId>b-lib</artifactId>
+    <version>2.0</version>
+    <packaging>jar</packaging>
+    <name>B-lib 2.0 (小写字符串工具)</name>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+</project>

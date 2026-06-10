@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.example</groupId>
+        <artifactId>classloader-isolation-demo</artifactId>
+        <version>1.0</version>
+    </parent>
+
+    <!--
+        Jar C — 共享工具库，只有唯一一个版本。
+        被 A-lib 1.0 和 A-lib 2.0 共同依赖。
+        GAV: com.example:c-lib:1.0
+    -->
+    <artifactId>c-lib</artifactId>
+    <name>C-lib 1.0 (共享日志工具)</name>
+</project>

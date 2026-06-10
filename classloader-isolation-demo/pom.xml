@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example</groupId>
+    <artifactId>classloader-isolation-demo</artifactId>
+    <version>1.0</version>
+    <packaging>pom</packaging>
+
+    <name>ClassLoader Isolation Demo</name>
+    <description>
+        演示 Java 同名 Jar 多版本隔离 — 自定义 parent-last ClassLoader。
+        A 库有 1.0 / 2.0 两个版本，B 库有 1.0 / 2.0 两个版本，
+        C 库只有 1.0。主程序以 v1 为高频调用（原生 import），
+        v2 为低频调用（IsolatedClassLoader + 反射 / MethodHandle）。
+    </description>
+
+    <!--
+        重要：a-lib-v2 和 b-lib-v2 不在 reactor 中！
+        因为它们与 v1 共享同一个 artifactId（a-lib / b-lib），
+        Maven 不允许同一 reactor 中有重复 artifactId。
+        v2 的 jar 由 build.sh 单独构建。
+    -->
+    <modules>
+        <module>c-lib</module>
+        <module>b-lib-v1</module>
+        <module>a-lib-v1</module>
+        <module>main-app</module>
+    </modules>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+</project>

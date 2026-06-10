@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.example</groupId>
+        <artifactId>classloader-isolation-demo</artifactId>
+        <version>1.0</version>
+    </parent>
+
+    <artifactId>main-app</artifactId>
+    <name>主程序 (ClassLoader 隔离演示)</name>
+
+    <dependencies>
+        <!--
+            高频版本：直接依赖 a-lib:1.0。
+            a-lib:1.0 自身依赖 b-lib:1.0 和 c-lib:1.0，
+            因此这三个 jar 都会被 AppClassLoader 加载。
+
+            低频版本 a-lib:2.0 + b-lib:2.0 不在此声明，
+            由 IsolatedClassLoader 在运行时从 target/lib/ 动态加载。
+        -->
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>a-lib</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>c-lib</artifactId>
+            <version>1.0</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!--
+                将低频版本的 Jar (a-lib:2.0, b-lib:2.0) 复制到 target/lib/。
+                v2 的 jar 文件由 build.sh 提前构建好。
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-isolated-jars</id>
+                        <phase>prepare-package</phase>
+                        <goals><goal>run</goal></goals>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${project.build.directory}/lib"/>
+                                <copy todir="${project.build.directory}/lib" flatten="true" failonerror="false">
+                                    <fileset dir="${project.basedir}/../a-lib-v2/target" includes="a-lib-*.jar"/>
+                                    <fileset dir="${project.basedir}/../b-lib-v2/target" includes="b-lib-*.jar"/>
+                                </copy>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

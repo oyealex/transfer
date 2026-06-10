@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.example</groupId>
+        <artifactId>classloader-isolation-demo</artifactId>
+        <version>1.0</version>
+    </parent>
+
+    <!--
+        Jar A 版本 1.0 — 高频版本，大写问候。
+        GAV: com.example:a-lib:1.0
+
+        依赖：b-lib:1.0 (大写), c-lib:1.0 (日志)
+    -->
+    <artifactId>a-lib</artifactId>
+    <version>1.0</version>
+    <name>A-lib 1.0 (大写问候 — 高频版本)</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>b-lib</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>c-lib</artifactId>
+            <version>1.0</version>
+        </dependency>
+    </dependencies>
+</project>
