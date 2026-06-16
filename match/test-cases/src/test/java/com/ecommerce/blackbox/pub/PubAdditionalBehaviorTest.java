@@ -71,6 +71,14 @@ class PubAdditionalBehaviorTest extends BlackboxTestBase {
                 testRunContext, user.getToken(), coupon.getCouponTemplateId());
         assertNotNull(claim.getCouponId());
 
+        // Given: disable member discount for this isolated coupon test
+        Map<String, Object> configBody = new LinkedHashMap<>();
+        configBody.put("value", "1.0");
+        HttpHeaders configHeaders = new HttpHeaders();
+        configHeaders.setContentType(MediaType.APPLICATION_JSON);
+        configHeaders.setBearerAuth(adminToken);
+        apiClient.put("/api/v1/admin/system/configs/member.discount-rate", configBody, configHeaders);
+
         String skuIdStr = String.valueOf(skuResult.getSkuId());
         String addressIdStr = String.valueOf(addressResult.getAddressId());
 
