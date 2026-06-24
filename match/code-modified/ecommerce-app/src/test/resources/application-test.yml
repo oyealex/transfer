@@ -1,0 +1,47 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DATABASE_TO_UPPER=false
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+  cache:
+    type: caffeine
+  task:
+    scheduling:
+      enabled: false
+
+security:
+  jwt:
+    issuer: test-issuer
+    secret: this-is-a-very-long-secret-key-for-testing-purposes-only
+    expire-minutes: 60
+
+order:
+  expire-minutes: 60
+  max-items: 30
+  packaging-fee: 2.00
+  free-shipping-threshold: 199.00
+
+payment:
+  retry-times: 5
+  refund-fee-rate: 0.02
+  callback-timeout-seconds: 5
+
+invoice:
+  tax-rate: 0.06
+
+cart:
+  ttl-days: 7
+  max-items: 100
+
+loyalty:
+  points-per-yuan: 1
+  redeem-rate: 100
+  max-redeem-points-per-order: 10000
+  max-redeem-ratio: 0.5
+  expire-months: 12
+  review-reward-points: 20
