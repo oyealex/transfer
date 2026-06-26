@@ -1,6 +1,6 @@
 ---
 name: score-shophub-submission
-description: 在选手 Agent 完成 ShopHub/match3 项目修复后使用。该 skill 会安装选手修改后的 Maven 工程，只使用本 skill references 中的公开和非公开黑盒用例判题，并在正常评分时只返回逐用例通过结果的严格 JSON。
+description: 在选手 Agent 完成 ShopHub 项目修复后使用。该 skill 会安装选手修改后的 Maven 工程，只使用本 skill references 中的公开和非公开黑盒用例判题，并在正常评分时只返回逐用例通过结果的严格 JSON。
 ---
 
 # ShopHub 提交评分
