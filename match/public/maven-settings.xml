@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+    <mirrors>
+        <mirror>
+            <id>xx</id>
+            <mirrorOf>*</mirrorOf>
+            <url>http://mirrors.tools.xxx.com/</url>
+        </mirror>
+    </mirrors>
+</settings>

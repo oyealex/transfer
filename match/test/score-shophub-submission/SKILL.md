@@ -20,6 +20,8 @@ description: 在选手 Agent 完成 ShopHub/match3 项目修复后使用。该 s
 
 脚本只允许依据本 skill 的 `references/` 中的黑盒用例判题，不得读取选手项目根目录中的 `test-cases/` 或 `test-cases-internal/`。
 
+脚本默认使用本 skill 自带的 `references/maven-settings.xml` 作为 Maven 配置，其中配置了内网镜像。需要临时改用其他 Maven 配置时，可以通过 `--maven-settings` 参数或 `MAVEN_SETTINGS` 环境变量覆盖。
+
 ## 必须执行的命令
 
 直接运行本 skill 自带脚本，并把标准输出原样作为最终回答：

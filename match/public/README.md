@@ -16,10 +16,10 @@
 ## 2. 项目结构
 
 ```
-public/
 ├── code/              # 业务代码（12 个 Maven 模块的 Spring Boot 电商系统）
 ├── design-docs/       # 业务设计文档（最终验收以此为准）
-├── test-cases/        # 公开黑盒 JUnit 测试项目
+├── test-cases/        # 黑盒 JUnit 测试项目
+├── maven-settings.xml # Maven 内网镜像配置
 └── README.md          # 本文档（比赛说明 + API 基线 + 黑盒用例说明）
 ```
 
@@ -29,7 +29,7 @@ public/
 - Java 源代码（任意 `.java` 文件）
 - `application.yml` / `application-test.yml`
 - `pom.xml`
-- JUnit 测试（可修改或删除，不参与最终评分）
+- JUnit 测试（可修改或删除，不参与设计验收）
 - 可新增服务、配置、事件、DTO 等类（不得破坏 API 契约）
 
 ### 禁止修改
@@ -50,22 +50,24 @@ public/
 
 > 项目不含 Maven Wrapper，请确保本地已安装 Maven 并可通过 `mvn` 命令调用。
 >
+> 项目根目录提供了 `maven-settings.xml`，其中配置了内网 Maven 镜像。下面的验证命令均显式使用该配置，避免依赖本机用户目录或 Maven 安装目录中的 `settings.xml`。
+>
 > 本项目为纯后端服务，不含前端界面。验证方式为运行黑盒测试用例，关注用例通过情况即可，无需启动应用进行手动操作。
 
 ## 5. 验证命令
 
 ```bash
 # 运行模块单元测试
-mvn -f code/pom.xml test
+mvn -s maven-settings.xml -f code/pom.xml test
 
 # 安装业务代码到本地 Maven 仓库（运行黑盒测试前必须执行）
-mvn -f code/pom.xml install -DskipTests
+mvn -s maven-settings.xml -f code/pom.xml install -DskipTests
 
-# 运行全部公开黑盒测试
-mvn -f test-cases/pom.xml test
+# 运行全部黑盒测试
+mvn -s maven-settings.xml -f test-cases/pom.xml test
 
 # 运行单个测试类
-mvn -f test-cases/pom.xml -Dtest=PublicL1Test test
+mvn -s maven-settings.xml -f test-cases/pom.xml -Dtest=PublicL1Test test
 ```
 
 > `test-cases/` 是独立 Maven 测试项目，不在 `code/pom.xml` 的 reactor 中。运行黑盒测试前必须先 `install` 业务代码。不需要修改任何 POM 来运行黑盒测试。
@@ -230,11 +232,11 @@ mvn -f test-cases/pom.xml -Dtest=PublicL1Test test
 
 ## 8. 黑盒测试用例
 
-### 公开用例
+### 用例概览
 
-公开黑盒用例共 25 个，分为 16 个基础链路用例和 8 个补充业务场景用例。每个用例独立运行，使用随机 H2 内存库（测试 profile），通过 `testRunId` 隔离数据。
+黑盒用例共 25 个，分为 16 个基础链路用例和 8 个补充业务场景用例。每个用例独立运行，使用随机 H2 内存库（测试 profile），通过 `testRunId` 隔离数据。
 
-公开用例用于帮助验证关键 REST 场景，但**不覆盖全部验收范围**——除此之外还有非公开的黑盒测试用例，参赛者不可见。通过公开用例不代表实现已完整符合设计。
+这些用例用于帮助验证关键 REST 场景。通过用例不代表实现已完整符合设计，最终仍应以设计文档和 API 契约为准。
 
 **通用执行约束：**
 - BeforeEach：启动新 Spring Boot 上下文（随机 H2 + 测试 profile）→ seed 管理员 → 生成 testRunId → 获取 adminToken
@@ -278,4 +280,4 @@ mvn -f test-cases/pom.xml -Dtest=PublicL1Test test
 
 ## 9. 关键原则
 
-> **设计文档是验收基准，代码必须按设计修正。** 不要因代码当前行为或公开测试现状去修改设计文档。最终评分基于黑盒用例通过情况——包括公开用例和非公开用例。
+> **设计文档是验收基准，代码必须按设计修正。** 不要因代码当前行为或黑盒测试现状去修改设计文档。

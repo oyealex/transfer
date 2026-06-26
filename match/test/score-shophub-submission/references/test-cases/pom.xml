@@ -11,11 +11,11 @@
         <relativePath>../code/pom.xml</relativePath>
     </parent>
 
-    <artifactId>ecommerce-public-blackbox-tests</artifactId>
-    <name>Ecommerce Public Blackbox Tests</name>
+    <artifactId>ecommerce-blackbox-tests</artifactId>
+    <name>Ecommerce Blackbox Tests</name>
     <description>
-        Public blackbox REST API tests for contestants. These tests exercise
-        the full ShopHub application via HTTP only.
+        Blackbox REST API tests. These tests exercise the full ShopHub
+        application via HTTP only.
     </description>
 
     <!--

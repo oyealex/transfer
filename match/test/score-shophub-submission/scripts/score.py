@@ -355,6 +355,17 @@ def score(args: argparse.Namespace) -> dict:
     code_pom = project_root / "code" / "pom.xml"
 
     maven = shlex.split(args.maven_cmd or os.environ.get("MAVEN_CMD", "mvn")) or ["mvn"]
+    default_maven_settings = skill_root / "references" / "maven-settings.xml"
+    maven_settings_value = args.maven_settings or os.environ.get("MAVEN_SETTINGS")
+    if maven_settings_value:
+        maven_settings = Path(maven_settings_value).expanduser().resolve()
+    elif default_maven_settings.is_file():
+        maven_settings = default_maven_settings.resolve()
+    else:
+        maven_settings = None
+    maven_command = [*maven]
+    if maven_settings is not None:
+        maven_command.extend(["-s", str(maven_settings)])
     timeout_seconds = int(args.timeout_seconds or os.environ.get("JUDGE_TIMEOUT_SECONDS", "1200"))
     surefire_version = args.surefire_version or os.environ.get("JUDGE_SUREFIRE_VERSION", "3.2.5")
     maven_quiet = [] if args.debug else ["-q"]
@@ -362,7 +373,8 @@ def score(args: argparse.Namespace) -> dict:
     debug(args, f"project root: {project_root}")
     debug(args, f"skill root: {skill_root}")
     debug(args, f"code pom: {code_pom}")
-    debug(args, f"maven command prefix: {shlex.join(maven)}")
+    debug(args, f"maven settings: {maven_settings if maven_settings else '(default Maven settings)'}")
+    debug(args, f"maven command prefix: {shlex.join(maven_command)}")
     debug(args, f"timeout seconds: {timeout_seconds}")
     debug(args, f"surefire version: {surefire_version}")
 
@@ -394,7 +406,7 @@ def score(args: argparse.Namespace) -> dict:
         debug(args, f"initial result count: {len(statuses)}")
 
         install_rc = run_command(
-            maven + ["-B", *maven_quiet, "-f", str(code_pom), "-Dmaven.test.skip=true", "install"],
+            maven_command + ["-B", *maven_quiet, "-f", str(code_pom), "-Dmaven.test.skip=true", "install"],
             project_root,
             logs_dir / "install.log",
             timeout_seconds,
@@ -404,7 +416,7 @@ def score(args: argparse.Namespace) -> dict:
         if install_rc == 0:
             if public_project is not None:
                 public_rc = run_command(
-                    maven
+                    maven_command
                     + [
                         "-B",
                         *maven_quiet,
@@ -425,7 +437,7 @@ def score(args: argparse.Namespace) -> dict:
 
             if hidden_project is not None:
                 hidden_rc = run_command(
-                    maven
+                    maven_command
                     + [
                         "-B",
                         *maven_quiet,
@@ -473,6 +485,7 @@ def main() -> None:
     parser.add_argument("--keep-work-dir", action="store_true", help="keep copied test projects and logs")
     parser.add_argument("--log-dir", default=None, help="write Maven logs to this directory")
     parser.add_argument("--maven-cmd", default=None, help="override Maven command prefix")
+    parser.add_argument("--maven-settings", default=None, help="override Maven settings.xml path")
     parser.add_argument("--timeout-seconds", default=None, help="per-command timeout")
     parser.add_argument("--surefire-version", default=None, help="Surefire plugin version used for JUnit 5 tests")
     args = parser.parse_args()
