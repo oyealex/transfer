@@ -52,22 +52,24 @@
 >
 > 项目根目录提供了 `maven-settings.xml`，其中配置了内网 Maven 镜像。下面的验证命令均显式使用该配置，避免依赖本机用户目录或 Maven 安装目录中的 `settings.xml`。
 >
+> 所有 Maven 命令都必须显式指定 `-Dmaven.repo.local=./maven-repo`，即使用当前工作目录下的 `maven-repo/` 作为本地仓库。
+>
 > 本项目为纯后端服务，不含前端界面。验证方式为运行黑盒测试用例，关注用例通过情况即可，无需启动应用进行手动操作。
 
 ## 5. 验证命令
 
 ```bash
 # 运行模块单元测试
-mvn -s maven-settings.xml -f code/pom.xml test
+mvn -s maven-settings.xml -Dmaven.repo.local=./maven-repo -f code/pom.xml test
 
 # 安装业务代码到本地 Maven 仓库（运行黑盒测试前必须执行）
-mvn -s maven-settings.xml -f code/pom.xml install -DskipTests
+mvn -s maven-settings.xml -Dmaven.repo.local=./maven-repo -f code/pom.xml install -DskipTests
 
 # 运行全部黑盒测试
-mvn -s maven-settings.xml -f test-cases/pom.xml test
+mvn -s maven-settings.xml -Dmaven.repo.local=./maven-repo -f test-cases/pom.xml test
 
 # 运行单个测试类
-mvn -s maven-settings.xml -f test-cases/pom.xml -Dtest=PublicL1Test test
+mvn -s maven-settings.xml -Dmaven.repo.local=./maven-repo -f test-cases/pom.xml -Dtest=PublicL1Test test
 ```
 
 > `test-cases/` 是独立 Maven 测试项目，不在 `code/pom.xml` 的 reactor 中。运行黑盒测试前必须先 `install` 业务代码。不需要修改任何 POM 来运行黑盒测试。
