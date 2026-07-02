@@ -369,12 +369,18 @@ def score(args: argparse.Namespace) -> dict:
     timeout_seconds = int(args.timeout_seconds or os.environ.get("JUDGE_TIMEOUT_SECONDS", "1200"))
     surefire_version = args.surefire_version or os.environ.get("JUDGE_SUREFIRE_VERSION", "3.2.5")
     maven_quiet = [] if args.debug else ["-q"]
+    maven_repo_local = (Path.cwd() / "maven-repo").resolve()
+    maven_run_command = [
+        *maven_command,
+        f"-Dmaven.repo.local={maven_repo_local}",
+    ]
 
     debug(args, f"project root: {project_root}")
     debug(args, f"skill root: {skill_root}")
     debug(args, f"code pom: {code_pom}")
     debug(args, f"maven settings: {maven_settings if maven_settings else '(default Maven settings)'}")
     debug(args, f"maven command prefix: {shlex.join(maven_command)}")
+    debug(args, f"maven local repository: {maven_repo_local}")
     debug(args, f"timeout seconds: {timeout_seconds}")
     debug(args, f"surefire version: {surefire_version}")
 
@@ -406,7 +412,7 @@ def score(args: argparse.Namespace) -> dict:
         debug(args, f"initial result count: {len(statuses)}")
 
         install_rc = run_command(
-            maven_command + ["-B", *maven_quiet, "-f", str(code_pom), "-Dmaven.test.skip=true", "install"],
+            maven_run_command + ["-B", *maven_quiet, "-f", str(code_pom), "-Dmaven.test.skip=true", "install"],
             project_root,
             logs_dir / "install.log",
             timeout_seconds,
@@ -416,7 +422,7 @@ def score(args: argparse.Namespace) -> dict:
         if install_rc == 0:
             if public_project is not None:
                 public_rc = run_command(
-                    maven_command
+                    maven_run_command
                     + [
                         "-B",
                         *maven_quiet,
@@ -437,7 +443,7 @@ def score(args: argparse.Namespace) -> dict:
 
             if hidden_project is not None:
                 hidden_rc = run_command(
-                    maven_command
+                    maven_run_command
                     + [
                         "-B",
                         *maven_quiet,

@@ -22,6 +22,8 @@ description: 在选手 Agent 完成 ShopHub 项目修复后使用。该 skill �
 
 脚本默认使用本 skill 自带的 `references/maven-settings.xml` 作为 Maven 配置，其中配置了内网镜像。需要临时改用其他 Maven 配置时，可以通过 `--maven-settings` 参数或 `MAVEN_SETTINGS` 环境变量覆盖。
 
+脚本固定使用当前工作目录下的 `maven-repo/` 作为 Maven 本地仓库，即自动向 Maven 命令追加 `-Dmaven.repo.local=<cwd>/maven-repo`。
+
 ## 必须执行的命令
 
 直接运行本 skill 自带脚本，并把标准输出原样作为最终回答：
