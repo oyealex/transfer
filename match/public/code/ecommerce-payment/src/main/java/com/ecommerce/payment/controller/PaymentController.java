@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -50,7 +51,12 @@ public class PaymentController {
      * POST /api/v1/payment/callback -> 200 OK (authenticated via signature, not JWT)
      */
     @PostMapping("/callback")
-    public ResponseEntity<String> callback(@RequestBody PaymentCallbackRequest request) {
+    public ResponseEntity<String> callback(
+            @RequestBody PaymentCallbackRequest request,
+            @RequestHeader(value = "X-Payment-Signature", required = false) String signatureHeader) {
+        if (signatureHeader != null) {
+            request.setSignature(signatureHeader);
+        }
         log.info("Payment callback received: paymentNo={}, status={}",
                 request.getPaymentNo(), request.getStatus());
         paymentCallbackService.processCallback(request);

@@ -1,0 +1,752 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.ecommerce.blackbox.hidden.l1.HiddenL1Test" time="11.988" tests="9" errors="0" skipped="0" failures="0">
+  <properties>
+    <property name="java.specification.version" value="21"/>
+    <property name="sun.jnu.encoding" value="UTF-8"/>
+    <property name="java.class.path" value="/home/oyealex/project/match3/02-04-scoring/references/test-cases-internal/target/test-classes:/home/oyealex/project/match3/02-04-scoring/references/test-cases-internal/target/classes:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-app/1.0.0-SNAPSHOT/ecommerce-app-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-common/1.0.0-SNAPSHOT/ecommerce-common-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter-data-jpa/3.2.6/spring-boot-starter-data-jpa-3.2.6.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter-aop/3.2.6/spring-boot-starter-aop-3.2.6.jar:/home/oyealex/.m2/repository/org/aspectj/aspectjweaver/1.9.22/aspectjweaver-1.9.22.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter-jdbc/3.2.6/spring-boot-starter-jdbc-3.2.6.jar:/home/oyealex/.m2/repository/com/zaxxer/HikariCP/5.0.1/HikariCP-5.0.1.jar:/home/oyealex/.m2/repository/org/springframework/spring-jdbc/6.1.8/spring-jdbc-6.1.8.jar:/home/oyealex/.m2/repository/org/hibernate/orm/hibernate-core/6.4.8.Final/hibernate-core-6.4.8.Final.jar:/home/oyealex/.m2/repository/jakarta/persistence/jakarta.persistence-api/3.1.0/jakarta.persistence-api-3.1.0.jar:/home/oyealex/.m2/repository/jakarta/transaction/jakarta.transaction-api/2.0.1/jakarta.transaction-api-2.0.1.jar:/home/oyealex/.m2/repository/org/jboss/logging/jboss-logging/3.5.3.Final/jboss-logging-3.5.3.Final.jar:/home/oyealex/.m2/repository/org/hibernate/common/hibernate-commons-annotations/6.0.6.Final/hibernate-commons-annotations-6.0.6.Final.jar:/home/oyealex/.m2/repository/io/smallrye/jandex/3.1.2/jandex-3.1.2.jar:/home/oyealex/.m2/repository/com/fasterxml/classmate/1.6.0/classmate-1.6.0.jar:/home/oyealex/.m2/repository/org/glassfish/jaxb/jaxb-runtime/4.0.5/jaxb-runtime-4.0.5.jar:/home/oyealex/.m2/repository/org/glassfish/jaxb/jaxb-core/4.0.5/jaxb-core-4.0.5.jar:/home/oyealex/.m2/repository/org/eclipse/angus/angus-activation/2.0.2/angus-activation-2.0.2.jar:/home/oyealex/.m2/repository/org/glassfish/jaxb/txw2/4.0.5/txw2-4.0.5.jar:/home/oyealex/.m2/repository/com/sun/istack/istack-commons-runtime/4.1.2/istack-commons-runtime-4.1.2.jar:/home/oyealex/.m2/repository/jakarta/inject/jakarta.inject-api/2.0.1/jakarta.inject-api-2.0.1.jar:/home/oyealex/.m2/repository/org/antlr/antlr4-runtime/4.13.0/antlr4-runtime-4.13.0.jar:/home/oyealex/.m2/repository/org/springframework/data/spring-data-jpa/3.2.6/spring-data-jpa-3.2.6.jar:/home/oyealex/.m2/repository/org/springframework/data/spring-data-commons/3.2.6/spring-data-commons-3.2.6.jar:/home/oyealex/.m2/repository/org/springframework/spring-orm/6.1.8/spring-orm-6.1.8.jar:/home/oyealex/.m2/repository/org/springframework/spring-tx/6.1.8/spring-tx-6.1.8.jar:/home/oyealex/.m2/repository/org/springframework/spring-aspects/6.1.8/spring-aspects-6.1.8.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter-cache/3.2.6/spring-boot-starter-cache-3.2.6.jar:/home/oyealex/.m2/repository/org/springframework/spring-context-support/6.1.8/spring-context-support-6.1.8.jar:/home/oyealex/.m2/repository/com/github/ben-manes/caffeine/caffeine/3.1.8/caffeine-3.1.8.jar:/home/oyealex/.m2/repository/org/checkerframework/checker-qual/3.37.0/checker-qual-3.37.0.jar:/home/oyealex/.m2/repository/com/google/errorprone/error_prone_annotations/2.21.1/error_prone_annotations-2.21.1.jar:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-user/1.0.0-SNAPSHOT/ecommerce-user-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter-validation/3.2.6/spring-boot-starter-validation-3.2.6.jar:/home/oyealex/.m2/repository/org/hibernate/validator/hibernate-validator/8.0.1.Final/hibernate-validator-8.0.1.Final.jar:/home/oyealex/.m2/repository/jakarta/validation/jakarta.validation-api/3.0.2/jakarta.validation-api-3.0.2.jar:/home/oyealex/.m2/repository/io/jsonwebtoken/jjwt-api/0.12.5/jjwt-api-0.12.5.jar:/home/oyealex/.m2/repository/io/jsonwebtoken/jjwt-impl/0.12.5/jjwt-impl-0.12.5.jar:/home/oyealex/.m2/repository/io/jsonwebtoken/jjwt-jackson/0.12.5/jjwt-jackson-0.12.5.jar:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-product/1.0.0-SNAPSHOT/ecommerce-product-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-inventory/1.0.0-SNAPSHOT/ecommerce-inventory-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-cart/1.0.0-SNAPSHOT/ecommerce-cart-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-order/1.0.0-SNAPSHOT/ecommerce-order-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-payment/1.0.0-SNAPSHOT/ecommerce-payment-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-promotion/1.0.0-SNAPSHOT/ecommerce-promotion-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-logistics/1.0.0-SNAPSHOT/ecommerce-logistics-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-loyalty/1.0.0-SNAPSHOT/ecommerce-loyalty-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-review/1.0.0-SNAPSHOT/ecommerce-review-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/com/h2database/h2/2.2.224/h2-2.2.224.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter-security/3.2.6/spring-boot-starter-security-3.2.6.jar:/home/oyealex/.m2/repository/org/springframework/spring-aop/6.1.8/spring-aop-6.1.8.jar:/home/oyealex/.m2/repository/org/springframework/security/spring-security-config/6.2.4/spring-security-config-6.2.4.jar:/home/oyealex/.m2/repository/org/springframework/security/spring-security-core/6.2.4/spring-security-core-6.2.4.jar:/home/oyealex/.m2/repository/org/springframework/security/spring-security-crypto/6.2.4/spring-security-crypto-6.2.4.jar:/home/oyealex/.m2/repository/org/springframework/security/spring-security-web/6.2.4/spring-security-web-6.2.4.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter-test/3.2.6/spring-boot-starter-test-3.2.6.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter/3.2.6/spring-boot-starter-3.2.6.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot/3.2.6/spring-boot-3.2.6.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-autoconfigure/3.2.6/spring-boot-autoconfigure-3.2.6.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter-logging/3.2.6/spring-boot-starter-logging-3.2.6.jar:/home/oyealex/.m2/repository/ch/qos/logback/logback-classic/1.4.14/logback-classic-1.4.14.jar:/home/oyealex/.m2/repository/ch/qos/logback/logback-core/1.4.14/logback-core-1.4.14.jar:/home/oyealex/.m2/repository/org/apache/logging/log4j/log4j-to-slf4j/2.21.1/log4j-to-slf4j-2.21.1.jar:/home/oyealex/.m2/repository/org/apache/logging/log4j/log4j-api/2.21.1/log4j-api-2.21.1.jar:/home/oyealex/.m2/repository/org/slf4j/jul-to-slf4j/2.0.13/jul-to-slf4j-2.0.13.jar:/home/oyealex/.m2/repository/jakarta/annotation/jakarta.annotation-api/2.1.1/jakarta.annotation-api-2.1.1.jar:/home/oyealex/.m2/repository/org/yaml/snakeyaml/2.2/snakeyaml-2.2.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-test/3.2.6/spring-boot-test-3.2.6.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-test-autoconfigure/3.2.6/spring-boot-test-autoconfigure-3.2.6.jar:/home/oyealex/.m2/repository/com/jayway/jsonpath/json-path/2.9.0/json-path-2.9.0.jar:/home/oyealex/.m2/repository/org/slf4j/slf4j-api/2.0.13/slf4j-api-2.0.13.jar:/home/oyealex/.m2/repository/jakarta/xml/bind/jakarta.xml.bind-api/4.0.2/jakarta.xml.bind-api-4.0.2.jar:/home/oyealex/.m2/repository/jakarta/activation/jakarta.activation-api/2.1.3/jakarta.activation-api-2.1.3.jar:/home/oyealex/.m2/repository/net/minidev/json-smart/2.5.1/json-smart-2.5.1.jar:/home/oyealex/.m2/repository/net/minidev/accessors-smart/2.5.1/accessors-smart-2.5.1.jar:/home/oyealex/.m2/repository/org/ow2/asm/asm/9.6/asm-9.6.jar:/home/oyealex/.m2/repository/org/assertj/assertj-core/3.24.2/assertj-core-3.24.2.jar:/home/oyealex/.m2/repository/net/bytebuddy/byte-buddy/1.14.16/byte-buddy-1.14.16.jar:/home/oyealex/.m2/repository/org/awaitility/awaitility/4.2.1/awaitility-4.2.1.jar:/home/oyealex/.m2/repository/org/hamcrest/hamcrest/2.2/hamcrest-2.2.jar:/home/oyealex/.m2/repository/org/junit/jupiter/junit-jupiter/5.10.2/junit-jupiter-5.10.2.jar:/home/oyealex/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.10.2/junit-jupiter-api-5.10.2.jar:/home/oyealex/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/home/oyealex/.m2/repository/org/junit/platform/junit-platform-commons/1.10.2/junit-platform-commons-1.10.2.jar:/home/oyealex/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/oyealex/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.10.2/junit-jupiter-params-5.10.2.jar:/home/oyealex/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.10.2/junit-jupiter-engine-5.10.2.jar:/home/oyealex/.m2/repository/org/junit/platform/junit-platform-engine/1.10.2/junit-platform-engine-1.10.2.jar:/home/oyealex/.m2/repository/org/mockito/mockito-core/5.7.0/mockito-core-5.7.0.jar:/home/oyealex/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.16/byte-buddy-agent-1.14.16.jar:/home/oyealex/.m2/repository/org/objenesis/objenesis/3.3/objenesis-3.3.jar:/home/oyealex/.m2/repository/org/mockito/mockito-junit-jupiter/5.7.0/mockito-junit-jupiter-5.7.0.jar:/home/oyealex/.m2/repository/org/skyscreamer/jsonassert/1.5.1/jsonassert-1.5.1.jar:/home/oyealex/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar:/home/oyealex/.m2/repository/org/springframework/spring-core/6.1.8/spring-core-6.1.8.jar:/home/oyealex/.m2/repository/org/springframework/spring-jcl/6.1.8/spring-jcl-6.1.8.jar:/home/oyealex/.m2/repository/org/springframework/spring-test/6.1.8/spring-test-6.1.8.jar:/home/oyealex/.m2/repository/org/xmlunit/xmlunit-core/2.9.1/xmlunit-core-2.9.1.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter-web/3.2.6/spring-boot-starter-web-3.2.6.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter-json/3.2.6/spring-boot-starter-json-3.2.6.jar:/home/oyealex/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.15.4/jackson-databind-2.15.4.jar:/home/oyealex/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.15.4/jackson-annotations-2.15.4.jar:/home/oyealex/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.15.4/jackson-core-2.15.4.jar:/home/oyealex/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jdk8/2.15.4/jackson-datatype-jdk8-2.15.4.jar:/home/oyealex/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jsr310/2.15.4/jackson-datatype-jsr310-2.15.4.jar:/home/oyealex/.m2/repository/com/fasterxml/jackson/module/jackson-module-parameter-names/2.15.4/jackson-module-parameter-names-2.15.4.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter-tomcat/3.2.6/spring-boot-starter-tomcat-3.2.6.jar:/home/oyealex/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/10.1.24/tomcat-embed-core-10.1.24.jar:/home/oyealex/.m2/repository/org/apache/tomcat/embed/tomcat-embed-el/10.1.24/tomcat-embed-el-10.1.24.jar:/home/oyealex/.m2/repository/org/apache/tomcat/embed/tomcat-embed-websocket/10.1.24/tomcat-embed-websocket-10.1.24.jar:/home/oyealex/.m2/repository/org/springframework/spring-web/6.1.8/spring-web-6.1.8.jar:/home/oyealex/.m2/repository/org/springframework/spring-beans/6.1.8/spring-beans-6.1.8.jar:/home/oyealex/.m2/repository/io/micrometer/micrometer-observation/1.12.6/micrometer-observation-1.12.6.jar:/home/oyealex/.m2/repository/io/micrometer/micrometer-commons/1.12.6/micrometer-commons-1.12.6.jar:/home/oyealex/.m2/repository/org/springframework/spring-webmvc/6.1.8/spring-webmvc-6.1.8.jar:/home/oyealex/.m2/repository/org/springframework/spring-context/6.1.8/spring-context-6.1.8.jar:/home/oyealex/.m2/repository/org/springframework/spring-expression/6.1.8/spring-expression-6.1.8.jar:"/>
+    <property name="java.vm.vendor" value="Ubuntu"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="catalina.useNaming" value="false"/>
+    <property name="java.vendor.url" value="https://ubuntu.com/"/>
+    <property name="user.timezone" value="Asia/Shanghai"/>
+    <property name="org.jboss.logging.provider" value="slf4j"/>
+    <property name="os.name" value="Linux"/>
+    <property name="java.vm.specification.version" value="21"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="sun.boot.library.path" value="/usr/lib/jvm/java-21-openjdk-amd64/lib"/>
+    <property name="sun.java.command" value="/home/oyealex/project/match3/02-04-scoring/references/test-cases-internal/target/surefire/surefirebooter-20260707121326338_3.jar /home/oyealex/project/match3/02-04-scoring/references/test-cases-internal/target/surefire 2026-07-07T12-13-26_293-jvmRun1 surefire-20260707121326338_1tmp surefire_0-20260707121326338_2tmp"/>
+    <property name="jdk.debug" value="release"/>
+    <property name="surefire.test.class.path" value="/home/oyealex/project/match3/02-04-scoring/references/test-cases-internal/target/test-classes:/home/oyealex/project/match3/02-04-scoring/references/test-cases-internal/target/classes:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-app/1.0.0-SNAPSHOT/ecommerce-app-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-common/1.0.0-SNAPSHOT/ecommerce-common-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter-data-jpa/3.2.6/spring-boot-starter-data-jpa-3.2.6.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter-aop/3.2.6/spring-boot-starter-aop-3.2.6.jar:/home/oyealex/.m2/repository/org/aspectj/aspectjweaver/1.9.22/aspectjweaver-1.9.22.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter-jdbc/3.2.6/spring-boot-starter-jdbc-3.2.6.jar:/home/oyealex/.m2/repository/com/zaxxer/HikariCP/5.0.1/HikariCP-5.0.1.jar:/home/oyealex/.m2/repository/org/springframework/spring-jdbc/6.1.8/spring-jdbc-6.1.8.jar:/home/oyealex/.m2/repository/org/hibernate/orm/hibernate-core/6.4.8.Final/hibernate-core-6.4.8.Final.jar:/home/oyealex/.m2/repository/jakarta/persistence/jakarta.persistence-api/3.1.0/jakarta.persistence-api-3.1.0.jar:/home/oyealex/.m2/repository/jakarta/transaction/jakarta.transaction-api/2.0.1/jakarta.transaction-api-2.0.1.jar:/home/oyealex/.m2/repository/org/jboss/logging/jboss-logging/3.5.3.Final/jboss-logging-3.5.3.Final.jar:/home/oyealex/.m2/repository/org/hibernate/common/hibernate-commons-annotations/6.0.6.Final/hibernate-commons-annotations-6.0.6.Final.jar:/home/oyealex/.m2/repository/io/smallrye/jandex/3.1.2/jandex-3.1.2.jar:/home/oyealex/.m2/repository/com/fasterxml/classmate/1.6.0/classmate-1.6.0.jar:/home/oyealex/.m2/repository/org/glassfish/jaxb/jaxb-runtime/4.0.5/jaxb-runtime-4.0.5.jar:/home/oyealex/.m2/repository/org/glassfish/jaxb/jaxb-core/4.0.5/jaxb-core-4.0.5.jar:/home/oyealex/.m2/repository/org/eclipse/angus/angus-activation/2.0.2/angus-activation-2.0.2.jar:/home/oyealex/.m2/repository/org/glassfish/jaxb/txw2/4.0.5/txw2-4.0.5.jar:/home/oyealex/.m2/repository/com/sun/istack/istack-commons-runtime/4.1.2/istack-commons-runtime-4.1.2.jar:/home/oyealex/.m2/repository/jakarta/inject/jakarta.inject-api/2.0.1/jakarta.inject-api-2.0.1.jar:/home/oyealex/.m2/repository/org/antlr/antlr4-runtime/4.13.0/antlr4-runtime-4.13.0.jar:/home/oyealex/.m2/repository/org/springframework/data/spring-data-jpa/3.2.6/spring-data-jpa-3.2.6.jar:/home/oyealex/.m2/repository/org/springframework/data/spring-data-commons/3.2.6/spring-data-commons-3.2.6.jar:/home/oyealex/.m2/repository/org/springframework/spring-orm/6.1.8/spring-orm-6.1.8.jar:/home/oyealex/.m2/repository/org/springframework/spring-tx/6.1.8/spring-tx-6.1.8.jar:/home/oyealex/.m2/repository/org/springframework/spring-aspects/6.1.8/spring-aspects-6.1.8.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter-cache/3.2.6/spring-boot-starter-cache-3.2.6.jar:/home/oyealex/.m2/repository/org/springframework/spring-context-support/6.1.8/spring-context-support-6.1.8.jar:/home/oyealex/.m2/repository/com/github/ben-manes/caffeine/caffeine/3.1.8/caffeine-3.1.8.jar:/home/oyealex/.m2/repository/org/checkerframework/checker-qual/3.37.0/checker-qual-3.37.0.jar:/home/oyealex/.m2/repository/com/google/errorprone/error_prone_annotations/2.21.1/error_prone_annotations-2.21.1.jar:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-user/1.0.0-SNAPSHOT/ecommerce-user-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter-validation/3.2.6/spring-boot-starter-validation-3.2.6.jar:/home/oyealex/.m2/repository/org/hibernate/validator/hibernate-validator/8.0.1.Final/hibernate-validator-8.0.1.Final.jar:/home/oyealex/.m2/repository/jakarta/validation/jakarta.validation-api/3.0.2/jakarta.validation-api-3.0.2.jar:/home/oyealex/.m2/repository/io/jsonwebtoken/jjwt-api/0.12.5/jjwt-api-0.12.5.jar:/home/oyealex/.m2/repository/io/jsonwebtoken/jjwt-impl/0.12.5/jjwt-impl-0.12.5.jar:/home/oyealex/.m2/repository/io/jsonwebtoken/jjwt-jackson/0.12.5/jjwt-jackson-0.12.5.jar:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-product/1.0.0-SNAPSHOT/ecommerce-product-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-inventory/1.0.0-SNAPSHOT/ecommerce-inventory-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-cart/1.0.0-SNAPSHOT/ecommerce-cart-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-order/1.0.0-SNAPSHOT/ecommerce-order-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-payment/1.0.0-SNAPSHOT/ecommerce-payment-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-promotion/1.0.0-SNAPSHOT/ecommerce-promotion-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-logistics/1.0.0-SNAPSHOT/ecommerce-logistics-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-loyalty/1.0.0-SNAPSHOT/ecommerce-loyalty-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/com/ecommerce/ecommerce-review/1.0.0-SNAPSHOT/ecommerce-review-1.0.0-SNAPSHOT.jar:/home/oyealex/.m2/repository/com/h2database/h2/2.2.224/h2-2.2.224.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter-security/3.2.6/spring-boot-starter-security-3.2.6.jar:/home/oyealex/.m2/repository/org/springframework/spring-aop/6.1.8/spring-aop-6.1.8.jar:/home/oyealex/.m2/repository/org/springframework/security/spring-security-config/6.2.4/spring-security-config-6.2.4.jar:/home/oyealex/.m2/repository/org/springframework/security/spring-security-core/6.2.4/spring-security-core-6.2.4.jar:/home/oyealex/.m2/repository/org/springframework/security/spring-security-crypto/6.2.4/spring-security-crypto-6.2.4.jar:/home/oyealex/.m2/repository/org/springframework/security/spring-security-web/6.2.4/spring-security-web-6.2.4.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter-test/3.2.6/spring-boot-starter-test-3.2.6.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter/3.2.6/spring-boot-starter-3.2.6.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot/3.2.6/spring-boot-3.2.6.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-autoconfigure/3.2.6/spring-boot-autoconfigure-3.2.6.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter-logging/3.2.6/spring-boot-starter-logging-3.2.6.jar:/home/oyealex/.m2/repository/ch/qos/logback/logback-classic/1.4.14/logback-classic-1.4.14.jar:/home/oyealex/.m2/repository/ch/qos/logback/logback-core/1.4.14/logback-core-1.4.14.jar:/home/oyealex/.m2/repository/org/apache/logging/log4j/log4j-to-slf4j/2.21.1/log4j-to-slf4j-2.21.1.jar:/home/oyealex/.m2/repository/org/apache/logging/log4j/log4j-api/2.21.1/log4j-api-2.21.1.jar:/home/oyealex/.m2/repository/org/slf4j/jul-to-slf4j/2.0.13/jul-to-slf4j-2.0.13.jar:/home/oyealex/.m2/repository/jakarta/annotation/jakarta.annotation-api/2.1.1/jakarta.annotation-api-2.1.1.jar:/home/oyealex/.m2/repository/org/yaml/snakeyaml/2.2/snakeyaml-2.2.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-test/3.2.6/spring-boot-test-3.2.6.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-test-autoconfigure/3.2.6/spring-boot-test-autoconfigure-3.2.6.jar:/home/oyealex/.m2/repository/com/jayway/jsonpath/json-path/2.9.0/json-path-2.9.0.jar:/home/oyealex/.m2/repository/org/slf4j/slf4j-api/2.0.13/slf4j-api-2.0.13.jar:/home/oyealex/.m2/repository/jakarta/xml/bind/jakarta.xml.bind-api/4.0.2/jakarta.xml.bind-api-4.0.2.jar:/home/oyealex/.m2/repository/jakarta/activation/jakarta.activation-api/2.1.3/jakarta.activation-api-2.1.3.jar:/home/oyealex/.m2/repository/net/minidev/json-smart/2.5.1/json-smart-2.5.1.jar:/home/oyealex/.m2/repository/net/minidev/accessors-smart/2.5.1/accessors-smart-2.5.1.jar:/home/oyealex/.m2/repository/org/ow2/asm/asm/9.6/asm-9.6.jar:/home/oyealex/.m2/repository/org/assertj/assertj-core/3.24.2/assertj-core-3.24.2.jar:/home/oyealex/.m2/repository/net/bytebuddy/byte-buddy/1.14.16/byte-buddy-1.14.16.jar:/home/oyealex/.m2/repository/org/awaitility/awaitility/4.2.1/awaitility-4.2.1.jar:/home/oyealex/.m2/repository/org/hamcrest/hamcrest/2.2/hamcrest-2.2.jar:/home/oyealex/.m2/repository/org/junit/jupiter/junit-jupiter/5.10.2/junit-jupiter-5.10.2.jar:/home/oyealex/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.10.2/junit-jupiter-api-5.10.2.jar:/home/oyealex/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/home/oyealex/.m2/repository/org/junit/platform/junit-platform-commons/1.10.2/junit-platform-commons-1.10.2.jar:/home/oyealex/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/oyealex/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.10.2/junit-jupiter-params-5.10.2.jar:/home/oyealex/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.10.2/junit-jupiter-engine-5.10.2.jar:/home/oyealex/.m2/repository/org/junit/platform/junit-platform-engine/1.10.2/junit-platform-engine-1.10.2.jar:/home/oyealex/.m2/repository/org/mockito/mockito-core/5.7.0/mockito-core-5.7.0.jar:/home/oyealex/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.16/byte-buddy-agent-1.14.16.jar:/home/oyealex/.m2/repository/org/objenesis/objenesis/3.3/objenesis-3.3.jar:/home/oyealex/.m2/repository/org/mockito/mockito-junit-jupiter/5.7.0/mockito-junit-jupiter-5.7.0.jar:/home/oyealex/.m2/repository/org/skyscreamer/jsonassert/1.5.1/jsonassert-1.5.1.jar:/home/oyealex/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar:/home/oyealex/.m2/repository/org/springframework/spring-core/6.1.8/spring-core-6.1.8.jar:/home/oyealex/.m2/repository/org/springframework/spring-jcl/6.1.8/spring-jcl-6.1.8.jar:/home/oyealex/.m2/repository/org/springframework/spring-test/6.1.8/spring-test-6.1.8.jar:/home/oyealex/.m2/repository/org/xmlunit/xmlunit-core/2.9.1/xmlunit-core-2.9.1.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter-web/3.2.6/spring-boot-starter-web-3.2.6.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter-json/3.2.6/spring-boot-starter-json-3.2.6.jar:/home/oyealex/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.15.4/jackson-databind-2.15.4.jar:/home/oyealex/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.15.4/jackson-annotations-2.15.4.jar:/home/oyealex/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.15.4/jackson-core-2.15.4.jar:/home/oyealex/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jdk8/2.15.4/jackson-datatype-jdk8-2.15.4.jar:/home/oyealex/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jsr310/2.15.4/jackson-datatype-jsr310-2.15.4.jar:/home/oyealex/.m2/repository/com/fasterxml/jackson/module/jackson-module-parameter-names/2.15.4/jackson-module-parameter-names-2.15.4.jar:/home/oyealex/.m2/repository/org/springframework/boot/spring-boot-starter-tomcat/3.2.6/spring-boot-starter-tomcat-3.2.6.jar:/home/oyealex/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/10.1.24/tomcat-embed-core-10.1.24.jar:/home/oyealex/.m2/repository/org/apache/tomcat/embed/tomcat-embed-el/10.1.24/tomcat-embed-el-10.1.24.jar:/home/oyealex/.m2/repository/org/apache/tomcat/embed/tomcat-embed-websocket/10.1.24/tomcat-embed-websocket-10.1.24.jar:/home/oyealex/.m2/repository/org/springframework/spring-web/6.1.8/spring-web-6.1.8.jar:/home/oyealex/.m2/repository/org/springframework/spring-beans/6.1.8/spring-beans-6.1.8.jar:/home/oyealex/.m2/repository/io/micrometer/micrometer-observation/1.12.6/micrometer-observation-1.12.6.jar:/home/oyealex/.m2/repository/io/micrometer/micrometer-commons/1.12.6/micrometer-commons-1.12.6.jar:/home/oyealex/.m2/repository/org/springframework/spring-webmvc/6.1.8/spring-webmvc-6.1.8.jar:/home/oyealex/.m2/repository/org/springframework/spring-context/6.1.8/spring-context-6.1.8.jar:/home/oyealex/.m2/repository/org/springframework/spring-expression/6.1.8/spring-expression-6.1.8.jar:"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="user.home" value="/home/oyealex"/>
+    <property name="user.language" value="en"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.version.date" value="2026-04-21"/>
+    <property name="java.home" value="/usr/lib/jvm/java-21-openjdk-amd64"/>
+    <property name="file.separator" value="/"/>
+    <property name="basedir" value="/home/oyealex/project/match3/02-04-scoring/references/test-cases-internal"/>
+    <property name="java.vm.compressedOopsMode" value="32-bit"/>
+    <property name="line.separator" value="&#10;"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="FILE_LOG_CHARSET" value="UTF-8"/>
+    <property name="java.awt.headless" value="true"/>
+    <property name="surefire.real.class.path" value="/home/oyealex/project/match3/02-04-scoring/references/test-cases-internal/target/surefire/surefirebooter-20260707121326338_3.jar"/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="java.runtime.version" value="21.0.11+10-1-26.04.2-Ubuntu"/>
+    <property name="user.name" value="oyealex"/>
+    <property name="stdout.encoding" value="UTF-8"/>
+    <property name="path.separator" value=":"/>
+    <property name="os.version" value="6.6.114.1-microsoft-standard-WSL2"/>
+    <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
+    <property name="file.encoding" value="UTF-8"/>
+    <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
+    <property name="localRepository" value="/home/oyealex/.m2/repository"/>
+    <property name="java.vendor.url.bug" value="https://bugs.launchpad.net/ubuntu/+source/openjdk-21"/>
+    <property name="java.io.tmpdir" value="/tmp"/>
+    <property name="catalina.home" value="/tmp/tomcat.0.2902037768745770944"/>
+    <property name="com.zaxxer.hikari.pool_number" value="9"/>
+    <property name="java.version" value="21.0.11"/>
+    <property name="user.dir" value="/home/oyealex/project/match3/02-04-scoring/references/test-cases-internal"/>
+    <property name="os.arch" value="amd64"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="PID" value="16755"/>
+    <property name="CONSOLE_LOG_CHARSET" value="UTF-8"/>
+    <property name="catalina.base" value="/tmp/tomcat.0.5575956401137427749"/>
+    <property name="native.encoding" value="UTF-8"/>
+    <property name="java.library.path" value="/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib"/>
+    <property name="stderr.encoding" value="UTF-8"/>
+    <property name="java.vm.info" value="mixed mode, sharing"/>
+    <property name="java.vendor" value="Ubuntu"/>
+    <property name="java.vm.version" value="21.0.11+10-1-26.04.2-Ubuntu"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="java.class.version" value="65.0"/>
+  </properties>
+  <testcase name="l1_06_frozenUserCannotOrder" classname="com.ecommerce.blackbox.hidden.l1.HiddenL1Test" time="0.804">
+    <system-out><![CDATA[
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.6)
+
+2026-07-07T12:13:27.040+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : Starting HiddenL1Test using Java 21.0.11 with PID 16755 (started by oyealex in /home/oyealex/project/match3/02-04-scoring/references/test-cases-internal)
+2026-07-07T12:13:27.041+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : The following 1 profile is active: "test"
+2026-07-07T12:13:27.391+08:00  INFO 16755 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-07-07T12:13:27.456+08:00  INFO 16755 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 62 ms. Found 42 JPA repository interfaces.
+2026-07-07T12:13:28.053+08:00  INFO 16755 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-07-07T12:13:28.061+08:00  INFO 16755 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-07T12:13:28.061+08:00  INFO 16755 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2026-07-07T12:13:28.083+08:00  INFO 16755 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-07-07T12:13:28.084+08:00  INFO 16755 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1026 ms
+2026-07-07T12:13:28.216+08:00  INFO 16755 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-07-07T12:13:28.234+08:00  INFO 16755 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.8.Final
+2026-07-07T12:13:28.247+08:00  INFO 16755 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-07-07T12:13:28.321+08:00  INFO 16755 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-07-07T12:13:28.331+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-07-07T12:13:28.402+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:shophub-5e8f3eb3-2343-4dbc-bd87-18b75e4c76d8 user=SA
+2026-07-07T12:13:28.403+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-07-07T12:13:29.203+08:00  INFO 16755 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-07-07T12:13:29.272+08:00  INFO 16755 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-07-07T12:13:29.515+08:00  INFO 16755 --- [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-07-07T12:13:29.962+08:00  INFO 16755 --- [           main] c.ecommerce.cart.config.CartCacheConfig  : Initializing cart cache with TTL=PT168H, maxSize=10000
+2026-07-07T12:13:30.096+08:00  INFO 16755 --- [           main] c.e.order.service.OrderNumberGenerator   : OrderNumberGenerator initialized with date=20260707
+2026-07-07T12:13:30.428+08:00  WARN 16755 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 5431f76c-e643-4ad2-9dcc-0fcc47ea2fd7
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-07-07T12:13:30.556+08:00  INFO 16755 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@611f82a8, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@51f39482, org.springframework.security.web.context.SecurityContextHolderFilter@65a5458b, org.springframework.security.web.header.HeaderWriterFilter@3e1c58c9, org.springframework.web.filter.CorsFilter@60f66b9, org.springframework.security.web.authentication.logout.LogoutFilter@1d9f9c9d, com.ecommerce.user.security.JwtAuthFilter@5c16f550, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@3a8a823c, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@1235d778, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@410126b8, org.springframework.security.web.session.SessionManagementFilter@6980c9c3, org.springframework.security.web.access.ExceptionTranslationFilter@77aa1e4, org.springframework.security.web.access.intercept.AuthorizationFilter@78b5f3c6]
+2026-07-07T12:13:30.558+08:00  INFO 16755 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@7c0b71b5, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@3bb99ed3, org.springframework.security.web.context.SecurityContextHolderFilter@d0089e5, org.springframework.security.web.header.HeaderWriterFilter@5ab7ef8a, org.springframework.web.filter.CorsFilter@62fab916, org.springframework.security.web.authentication.logout.LogoutFilter@13da85f2, com.ecommerce.user.security.JwtAuthFilter@28488f2e, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@6acee861, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@f60910d, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@fe9d54b, org.springframework.security.web.session.SessionManagementFilter@38a5b985, org.springframework.security.web.access.ExceptionTranslationFilter@72a2b17d, org.springframework.security.web.access.intercept.AuthorizationFilter@5a9fa35]
+2026-07-07T12:13:30.705+08:00  INFO 16755 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 40939 (http) with context path ''
+2026-07-07T12:13:30.710+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : Started HiddenL1Test in 3.839 seconds (process running for 4.336)
+2026-07-07T12:13:31.174+08:00  INFO 16755 --- [o-auto-1-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-07T12:13:31.174+08:00  INFO 16755 --- [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-07-07T12:13:31.175+08:00  INFO 16755 --- [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-07-07T12:13:31.302+08:00  INFO 16755 --- [o-auto-1-exec-1] c.e.user.service.UserAuthService         : User logged in: id=100000, email=admin@shophub.test
+2026-07-07T12:13:31.382+08:00  INFO 16755 --- [o-auto-1-exec-2] c.e.user.service.UserRegisterService     : User registered: id=100002, email=user-9bbdd6d5@example.com, status=PENDING_ACTIVATION
+2026-07-07T12:13:31.385+08:00  INFO 16755 --- [o-auto-1-exec-2] c.e.user.service.UserRegisterService     : Activation token generated for user id=100002
+2026-07-07T12:13:31.385+08:00  INFO 16755 --- [o-auto-1-exec-2] c.e.c.n.LocalNotificationServiceImpl     : Sending notification: bizType=USER_REGISTER, bizId=100002, channel=EMAIL, template=ACTIVATION
+2026-07-07T12:13:31.386+08:00  INFO 16755 --- [o-auto-1-exec-2] c.e.common.notification.MockMailSender   : MOCK EMAIL: to=user-9bbdd6d5@example.com, subject=[USER_REGISTER] Notification, body=[ACTIVATION] {nickname=Tester, activationToken=43c5017a-e18e-4673-b71b-62f17c780a25}
+2026-07-07T12:13:31.386+08:00  INFO 16755 --- [o-auto-1-exec-2] c.e.c.n.LocalNotificationServiceImpl     : Notification sent successfully: bizType=USER_REGISTER, bizId=100002, channel=EMAIL
+2026-07-07T12:13:31.403+08:00  INFO 16755 --- [o-auto-1-exec-3] c.e.user.service.UserAuthService         : User activated: id=100002, email=user-9bbdd6d5@example.com
+2026-07-07T12:13:31.460+08:00  INFO 16755 --- [o-auto-1-exec-4] c.e.user.service.UserAuthService         : User logged in: id=100002, email=user-9bbdd6d5@example.com
+2026-07-07T12:13:31.481+08:00  INFO 16755 --- [o-auto-1-exec-5] c.ecommerce.user.service.AddressService  : Address created: id=100005, userId=100002
+2026-07-07T12:13:31.492+08:00  INFO 16755 --- [o-auto-1-exec-6] c.e.p.controller.AdminProductController  : Admin creating SPU: spuCode=SPU-9bbdd6d5-1
+2026-07-07T12:13:31.495+08:00  INFO 16755 --- [o-auto-1-exec-6] c.ecommerce.product.service.SpuService   : Created SPU: id=100006, spuCode=SPU-9bbdd6d5-1
+2026-07-07T12:13:31.511+08:00  INFO 16755 --- [o-auto-1-exec-7] c.e.p.controller.AdminProductController  : Admin creating SKU: skuCode=SKU-9bbdd6d5, spuId=100006
+2026-07-07T12:13:31.522+08:00  INFO 16755 --- [o-auto-1-exec-7] c.ecommerce.product.service.SkuService   : Created SKU: id=100007, skuCode=SKU-9bbdd6d5, spuId=100006
+2026-07-07T12:13:31.532+08:00  INFO 16755 --- [o-auto-1-exec-8] c.e.p.controller.AdminProductController  : Admin putting SKU on shelf: skuId=100007
+2026-07-07T12:13:31.534+08:00  INFO 16755 --- [o-auto-1-exec-8] c.ecommerce.product.service.SkuService   : SKU on shelf: skuId=100007, skuCode=SKU-9bbdd6d5
+2026-07-07T12:13:31.548+08:00  INFO 16755 --- [o-auto-1-exec-9] c.e.inventory.service.WarehouseService   : Warehouse created: id=100008, name=WH-9bbdd6d5
+2026-07-07T12:13:31.565+08:00  INFO 16755 --- [-auto-1-exec-10] c.e.inventory.service.InventoryService   : Inbound completed: warehouseId=100008, skuId=100007, qty=10
+2026-07-07T12:13:31.575+08:00  INFO 16755 --- [o-auto-1-exec-1] c.e.user.service.UserAuthService         : User frozen: id=100002
+2026-07-07T12:13:31.600+08:00  INFO 16755 --- [o-auto-1-exec-2] c.e.order.controller.OrderController     : POST /api/v1/orders/create: userId=100002, itemsCount=1
+2026-07-07T12:13:31.600+08:00  INFO 16755 --- [o-auto-1-exec-2] c.ecommerce.order.service.OrderService   : Creating order for userId=100002, itemsCount=1
+2026-07-07T12:13:31.604+08:00  WARN 16755 --- [o-auto-1-exec-2] c.e.c.exception.GlobalExceptionHandler   : Business exception [5ca7cd0f-1783397611604]: code=USER_FROZEN, message=User account is frozen: 100002
+2026-07-07T12:13:31.610+08:00  INFO 16755 --- [o-auto-1-exec-3] c.e.order.controller.OrderController     : GET /api/v1/orders: userId=100002, page=0, size=10
+2026-07-07T12:13:31.628+08:00  INFO 16755 --- [           main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-07-07T12:13:31.639+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-07-07T12:13:31.640+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+]]></system-out>
+    <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (/home/oyealex/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.16/byte-buddy-agent-1.14.16.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+  </testcase>
+  <testcase name="l1_05_addressFormatOrder" classname="com.ecommerce.blackbox.hidden.l1.HiddenL1Test" time="0.203">
+    <system-out><![CDATA[
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.6)
+
+2026-07-07T12:13:31.666+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : Starting HiddenL1Test using Java 21.0.11 with PID 16755 (started by oyealex in /home/oyealex/project/match3/02-04-scoring/references/test-cases-internal)
+2026-07-07T12:13:31.666+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : The following 1 profile is active: "test"
+2026-07-07T12:13:31.747+08:00  INFO 16755 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-07-07T12:13:31.767+08:00  INFO 16755 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 19 ms. Found 42 JPA repository interfaces.
+2026-07-07T12:13:31.836+08:00  INFO 16755 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-07-07T12:13:31.837+08:00  INFO 16755 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-07T12:13:31.837+08:00  INFO 16755 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2026-07-07T12:13:31.844+08:00  INFO 16755 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-07-07T12:13:31.844+08:00  INFO 16755 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 177 ms
+2026-07-07T12:13:31.896+08:00  INFO 16755 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-07-07T12:13:31.896+08:00  INFO 16755 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-07-07T12:13:31.898+08:00  INFO 16755 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-07-07T12:13:31.899+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-07-07T12:13:31.902+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection conn10: url=jdbc:h2:mem:shophub-0c355736-7a47-4ad2-a7e6-fa32634e4319 user=SA
+2026-07-07T12:13:31.903+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2026-07-07T12:13:32.123+08:00  INFO 16755 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-07-07T12:13:32.142+08:00  INFO 16755 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-07-07T12:13:32.256+08:00  INFO 16755 --- [           main] c.ecommerce.cart.config.CartCacheConfig  : Initializing cart cache with TTL=PT168H, maxSize=10000
+2026-07-07T12:13:32.292+08:00  INFO 16755 --- [           main] c.e.order.service.OrderNumberGenerator   : OrderNumberGenerator initialized with date=20260707
+2026-07-07T12:13:32.370+08:00  WARN 16755 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 7d6cc1d3-7dd6-4d86-a89a-673f5d546451
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-07-07T12:13:32.402+08:00  INFO 16755 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@5eb2e851, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@6f10b857, org.springframework.security.web.context.SecurityContextHolderFilter@8699088, org.springframework.security.web.header.HeaderWriterFilter@33872ebd, org.springframework.web.filter.CorsFilter@602ff1d9, org.springframework.security.web.authentication.logout.LogoutFilter@29d30818, com.ecommerce.user.security.JwtAuthFilter@1e2f5a2d, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@70cef1d3, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@7a36dbb1, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@5716c9d9, org.springframework.security.web.session.SessionManagementFilter@2126cfaf, org.springframework.security.web.access.ExceptionTranslationFilter@36c64bd8, org.springframework.security.web.access.intercept.AuthorizationFilter@62b389b8]
+2026-07-07T12:13:32.403+08:00  INFO 16755 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@20aef53a, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@68cebde1, org.springframework.security.web.context.SecurityContextHolderFilter@57d15bb6, org.springframework.security.web.header.HeaderWriterFilter@58313b33, org.springframework.web.filter.CorsFilter@2a76a05b, org.springframework.security.web.authentication.logout.LogoutFilter@218d34aa, com.ecommerce.user.security.JwtAuthFilter@4f911e17, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@780bc903, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@29328d92, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@18c135fa, org.springframework.security.web.session.SessionManagementFilter@678657a7, org.springframework.security.web.access.ExceptionTranslationFilter@4c1c7d22, org.springframework.security.web.access.intercept.AuthorizationFilter@3a8be13b]
+2026-07-07T12:13:32.450+08:00  INFO 16755 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 39521 (http) with context path ''
+2026-07-07T12:13:32.453+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : Started HiddenL1Test in 0.805 seconds (process running for 6.079)
+2026-07-07T12:13:32.512+08:00  INFO 16755 --- [o-auto-2-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-07T12:13:32.512+08:00  INFO 16755 --- [o-auto-2-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-07-07T12:13:32.512+08:00  INFO 16755 --- [o-auto-2-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2026-07-07T12:13:32.564+08:00  INFO 16755 --- [o-auto-2-exec-1] c.e.user.service.UserAuthService         : User logged in: id=100000, email=admin@shophub.test
+2026-07-07T12:13:32.619+08:00  INFO 16755 --- [o-auto-2-exec-2] c.e.user.service.UserRegisterService     : User registered: id=100002, email=user-9e6a0b60@example.com, status=PENDING_ACTIVATION
+2026-07-07T12:13:32.621+08:00  INFO 16755 --- [o-auto-2-exec-2] c.e.user.service.UserRegisterService     : Activation token generated for user id=100002
+2026-07-07T12:13:32.621+08:00  INFO 16755 --- [o-auto-2-exec-2] c.e.c.n.LocalNotificationServiceImpl     : Sending notification: bizType=USER_REGISTER, bizId=100002, channel=EMAIL, template=ACTIVATION
+2026-07-07T12:13:32.621+08:00  INFO 16755 --- [o-auto-2-exec-2] c.e.common.notification.MockMailSender   : MOCK EMAIL: to=user-9e6a0b60@example.com, subject=[USER_REGISTER] Notification, body=[ACTIVATION] {nickname=Tester, activationToken=4e84031f-347a-4407-9025-18fb200a9a26}
+2026-07-07T12:13:32.621+08:00  INFO 16755 --- [o-auto-2-exec-2] c.e.c.n.LocalNotificationServiceImpl     : Notification sent successfully: bizType=USER_REGISTER, bizId=100002, channel=EMAIL
+2026-07-07T12:13:32.629+08:00  INFO 16755 --- [o-auto-2-exec-3] c.e.user.service.UserAuthService         : User activated: id=100002, email=user-9e6a0b60@example.com
+2026-07-07T12:13:32.681+08:00  INFO 16755 --- [o-auto-2-exec-4] c.e.user.service.UserAuthService         : User logged in: id=100002, email=user-9e6a0b60@example.com
+2026-07-07T12:13:32.689+08:00  INFO 16755 --- [o-auto-2-exec-5] c.ecommerce.user.service.AddressService  : Address created: id=100005, userId=100002
+2026-07-07T12:13:32.700+08:00  INFO 16755 --- [           main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-07-07T12:13:32.705+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-07-07T12:13:32.706+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+]]></system-out>
+  </testcase>
+  <testcase name="l1_08_createOrderReturns201" classname="com.ecommerce.blackbox.hidden.l1.HiddenL1Test" time="0.296">
+    <system-out><![CDATA[
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.6)
+
+2026-07-07T12:13:32.720+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : Starting HiddenL1Test using Java 21.0.11 with PID 16755 (started by oyealex in /home/oyealex/project/match3/02-04-scoring/references/test-cases-internal)
+2026-07-07T12:13:32.720+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : The following 1 profile is active: "test"
+2026-07-07T12:13:32.834+08:00  INFO 16755 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-07-07T12:13:32.862+08:00  INFO 16755 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 26 ms. Found 42 JPA repository interfaces.
+2026-07-07T12:13:32.918+08:00  INFO 16755 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-07-07T12:13:32.918+08:00  INFO 16755 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-07T12:13:32.918+08:00  INFO 16755 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2026-07-07T12:13:32.923+08:00  INFO 16755 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-07-07T12:13:32.923+08:00  INFO 16755 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 202 ms
+2026-07-07T12:13:32.943+08:00  INFO 16755 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-07-07T12:13:32.943+08:00  INFO 16755 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-07-07T12:13:32.945+08:00  INFO 16755 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-07-07T12:13:32.945+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Starting...
+2026-07-07T12:13:32.950+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Added connection conn20: url=jdbc:h2:mem:shophub-1c2b302e-55e6-4f8c-9304-c41cf592042a user=SA
+2026-07-07T12:13:32.950+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Start completed.
+2026-07-07T12:13:33.121+08:00  INFO 16755 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-07-07T12:13:33.139+08:00  INFO 16755 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-07-07T12:13:33.222+08:00  INFO 16755 --- [           main] c.ecommerce.cart.config.CartCacheConfig  : Initializing cart cache with TTL=PT168H, maxSize=10000
+2026-07-07T12:13:33.255+08:00  INFO 16755 --- [           main] c.e.order.service.OrderNumberGenerator   : OrderNumberGenerator initialized with date=20260707
+2026-07-07T12:13:33.336+08:00  WARN 16755 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 18084eaf-7125-4e19-90a2-fe03f8703697
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-07-07T12:13:33.362+08:00  INFO 16755 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@4a5bf927, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@2dbf765d, org.springframework.security.web.context.SecurityContextHolderFilter@b600e79, org.springframework.security.web.header.HeaderWriterFilter@3f88ca0e, org.springframework.web.filter.CorsFilter@492fbf58, org.springframework.security.web.authentication.logout.LogoutFilter@12aeb5a4, com.ecommerce.user.security.JwtAuthFilter@5beff5f6, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@36acfcff, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@4f8d889e, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@4e68ad6d, org.springframework.security.web.session.SessionManagementFilter@69d7e75d, org.springframework.security.web.access.ExceptionTranslationFilter@698e7209, org.springframework.security.web.access.intercept.AuthorizationFilter@60de518a]
+2026-07-07T12:13:33.363+08:00  INFO 16755 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@15d3e2d4, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@b781ac4, org.springframework.security.web.context.SecurityContextHolderFilter@4eae8578, org.springframework.security.web.header.HeaderWriterFilter@6d6549c, org.springframework.web.filter.CorsFilter@765bd847, org.springframework.security.web.authentication.logout.LogoutFilter@4d8a67e5, com.ecommerce.user.security.JwtAuthFilter@17bd67e7, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@a4254b9, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@3e8483d9, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@1df2e286, org.springframework.security.web.session.SessionManagementFilter@77d7c5e2, org.springframework.security.web.access.ExceptionTranslationFilter@3aafd0e4, org.springframework.security.web.access.intercept.AuthorizationFilter@4f75de5d]
+2026-07-07T12:13:33.398+08:00  INFO 16755 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 34419 (http) with context path ''
+2026-07-07T12:13:33.400+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : Started HiddenL1Test in 0.691 seconds (process running for 7.026)
+2026-07-07T12:13:33.461+08:00  INFO 16755 --- [o-auto-3-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-07T12:13:33.461+08:00  INFO 16755 --- [o-auto-3-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-07-07T12:13:33.461+08:00  INFO 16755 --- [o-auto-3-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2026-07-07T12:13:33.515+08:00  INFO 16755 --- [o-auto-3-exec-1] c.e.user.service.UserAuthService         : User logged in: id=100000, email=admin@shophub.test
+2026-07-07T12:13:33.570+08:00  INFO 16755 --- [o-auto-3-exec-2] c.e.user.service.UserRegisterService     : User registered: id=100002, email=user-54c0f94f@example.com, status=PENDING_ACTIVATION
+2026-07-07T12:13:33.572+08:00  INFO 16755 --- [o-auto-3-exec-2] c.e.user.service.UserRegisterService     : Activation token generated for user id=100002
+2026-07-07T12:13:33.572+08:00  INFO 16755 --- [o-auto-3-exec-2] c.e.c.n.LocalNotificationServiceImpl     : Sending notification: bizType=USER_REGISTER, bizId=100002, channel=EMAIL, template=ACTIVATION
+2026-07-07T12:13:33.572+08:00  INFO 16755 --- [o-auto-3-exec-2] c.e.common.notification.MockMailSender   : MOCK EMAIL: to=user-54c0f94f@example.com, subject=[USER_REGISTER] Notification, body=[ACTIVATION] {nickname=Tester, activationToken=aa625628-8de4-4e62-b6db-d09c313739f0}
+2026-07-07T12:13:33.572+08:00  INFO 16755 --- [o-auto-3-exec-2] c.e.c.n.LocalNotificationServiceImpl     : Notification sent successfully: bizType=USER_REGISTER, bizId=100002, channel=EMAIL
+2026-07-07T12:13:33.580+08:00  INFO 16755 --- [o-auto-3-exec-3] c.e.user.service.UserAuthService         : User activated: id=100002, email=user-54c0f94f@example.com
+2026-07-07T12:13:33.631+08:00  INFO 16755 --- [o-auto-3-exec-4] c.e.user.service.UserAuthService         : User logged in: id=100002, email=user-54c0f94f@example.com
+2026-07-07T12:13:33.639+08:00  INFO 16755 --- [o-auto-3-exec-5] c.ecommerce.user.service.AddressService  : Address created: id=100005, userId=100002
+2026-07-07T12:13:33.647+08:00  INFO 16755 --- [o-auto-3-exec-6] c.e.p.controller.AdminProductController  : Admin creating SPU: spuCode=SPU-54c0f94f-2
+2026-07-07T12:13:33.650+08:00  INFO 16755 --- [o-auto-3-exec-6] c.ecommerce.product.service.SpuService   : Created SPU: id=100006, spuCode=SPU-54c0f94f-2
+2026-07-07T12:13:33.657+08:00  INFO 16755 --- [o-auto-3-exec-7] c.e.p.controller.AdminProductController  : Admin creating SKU: skuCode=SKU-54c0f94f, spuId=100006
+2026-07-07T12:13:33.661+08:00  INFO 16755 --- [o-auto-3-exec-7] c.ecommerce.product.service.SkuService   : Created SKU: id=100007, skuCode=SKU-54c0f94f, spuId=100006
+2026-07-07T12:13:33.667+08:00  INFO 16755 --- [o-auto-3-exec-8] c.e.p.controller.AdminProductController  : Admin putting SKU on shelf: skuId=100007
+2026-07-07T12:13:33.668+08:00  INFO 16755 --- [o-auto-3-exec-8] c.ecommerce.product.service.SkuService   : SKU on shelf: skuId=100007, skuCode=SKU-54c0f94f
+2026-07-07T12:13:33.675+08:00  INFO 16755 --- [o-auto-3-exec-9] c.e.inventory.service.WarehouseService   : Warehouse created: id=100008, name=WH-54c0f94f
+2026-07-07T12:13:33.686+08:00  INFO 16755 --- [-auto-3-exec-10] c.e.inventory.service.InventoryService   : Inbound completed: warehouseId=100008, skuId=100007, qty=10
+2026-07-07T12:13:33.711+08:00  INFO 16755 --- [o-auto-3-exec-2] c.e.order.controller.OrderController     : POST /api/v1/orders/create: userId=100002, itemsCount=1
+2026-07-07T12:13:33.711+08:00  INFO 16755 --- [o-auto-3-exec-2] c.ecommerce.order.service.OrderService   : Creating order for userId=100002, itemsCount=1
+2026-07-07T12:13:33.714+08:00  INFO 16755 --- [o-auto-3-exec-2] c.e.order.service.OrderRiskChecker       : Performing risk check for userId=100002, amount=50.00, itemCount=1
+2026-07-07T12:13:33.715+08:00  INFO 16755 --- [o-auto-3-exec-2] c.e.order.service.OrderTotalCalculator   : Calculated payable: itemTotal=50.00, shippingFee=8.00, packagingFee=1.00, discount=0.00, pointsDeduction=0, finalPayable=59.00
+2026-07-07T12:13:33.727+08:00  INFO 16755 --- [o-auto-3-exec-2] c.e.i.s.InventoryReservationServiceImpl  : Stock reserved for orderId=100011, itemsCount=1
+2026-07-07T12:13:33.728+08:00  INFO 16755 --- [o-auto-3-exec-2] c.e.common.event.DomainEventPublisher    : Publishing domain event: eventId=89a17cea-1cdb-4bb2-a4a4-4f5f1345005a, type=OrderCreatedEvent, occurredAt=2026-07-07T12:13:33.728211404
+2026-07-07T12:13:33.729+08:00  INFO 16755 --- [o-auto-3-exec-2] c.e.common.event.DomainEventPublisher    : Domain event published successfully: eventId=89a17cea-1cdb-4bb2-a4a4-4f5f1345005a
+2026-07-07T12:13:33.729+08:00  INFO 16755 --- [o-auto-3-exec-2] c.ecommerce.order.service.OrderService   : Order created successfully: orderId=100011, orderNo=SO202607073716, payableAmount=59.00
+2026-07-07T12:13:33.731+08:00  INFO 16755 --- [o-auto-3-exec-2] c.e.order.listener.OrderEventListener    : [OrderEventListener] Order created: orderId=100011, userId=100002, amount=59.00, eventId=89a17cea-1cdb-4bb2-a4a4-4f5f1345005a
+2026-07-07T12:13:33.740+08:00  INFO 16755 --- [           main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-07-07T12:13:33.744+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown initiated...
+2026-07-07T12:13:33.745+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown completed.
+]]></system-out>
+  </testcase>
+  <testcase name="l1_02_stockBoundaryCondition" classname="com.ecommerce.blackbox.hidden.l1.HiddenL1Test" time="0.287">
+    <system-out><![CDATA[
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.6)
+
+2026-07-07T12:13:33.758+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : Starting HiddenL1Test using Java 21.0.11 with PID 16755 (started by oyealex in /home/oyealex/project/match3/02-04-scoring/references/test-cases-internal)
+2026-07-07T12:13:33.758+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : The following 1 profile is active: "test"
+2026-07-07T12:13:33.811+08:00  INFO 16755 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-07-07T12:13:33.822+08:00  INFO 16755 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 11 ms. Found 42 JPA repository interfaces.
+2026-07-07T12:13:33.881+08:00  INFO 16755 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-07-07T12:13:33.881+08:00  INFO 16755 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-07T12:13:33.881+08:00  INFO 16755 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2026-07-07T12:13:33.885+08:00  INFO 16755 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-07-07T12:13:33.885+08:00  INFO 16755 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 126 ms
+2026-07-07T12:13:33.903+08:00  INFO 16755 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-07-07T12:13:33.904+08:00  INFO 16755 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-07-07T12:13:33.906+08:00  INFO 16755 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-07-07T12:13:33.906+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Starting...
+2026-07-07T12:13:33.907+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-4 - Added connection conn30: url=jdbc:h2:mem:shophub-299e0b7c-2804-4132-8e58-85e6e08d2e44 user=SA
+2026-07-07T12:13:33.907+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Start completed.
+2026-07-07T12:13:34.073+08:00  INFO 16755 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-07-07T12:13:34.087+08:00  INFO 16755 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-07-07T12:13:34.169+08:00  INFO 16755 --- [           main] c.ecommerce.cart.config.CartCacheConfig  : Initializing cart cache with TTL=PT168H, maxSize=10000
+2026-07-07T12:13:34.191+08:00  INFO 16755 --- [           main] c.e.order.service.OrderNumberGenerator   : OrderNumberGenerator initialized with date=20260707
+2026-07-07T12:13:34.243+08:00  WARN 16755 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 7d1b87f2-394a-4eff-9c64-f441d7060513
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-07-07T12:13:34.274+08:00  INFO 16755 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@75b15f79, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@33e607da, org.springframework.security.web.context.SecurityContextHolderFilter@747c8111, org.springframework.security.web.header.HeaderWriterFilter@2ec6dbc9, org.springframework.web.filter.CorsFilter@1052e74c, org.springframework.security.web.authentication.logout.LogoutFilter@1c2b4742, com.ecommerce.user.security.JwtAuthFilter@3fc4a9b0, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@380bd3a7, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@200b4ffc, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@40f173a6, org.springframework.security.web.session.SessionManagementFilter@41ada8a6, org.springframework.security.web.access.ExceptionTranslationFilter@5a14970c, org.springframework.security.web.access.intercept.AuthorizationFilter@d5fd93]
+2026-07-07T12:13:34.276+08:00  INFO 16755 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@7ce46a58, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@29092f4b, org.springframework.security.web.context.SecurityContextHolderFilter@6cc54b59, org.springframework.security.web.header.HeaderWriterFilter@2ba2045, org.springframework.web.filter.CorsFilter@5d256ac5, org.springframework.security.web.authentication.logout.LogoutFilter@29ef9afd, com.ecommerce.user.security.JwtAuthFilter@42428c94, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@5f69e9fe, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@c02425e, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@1dab882e, org.springframework.security.web.session.SessionManagementFilter@1faf8f10, org.springframework.security.web.access.ExceptionTranslationFilter@6d5bc88f, org.springframework.security.web.access.intercept.AuthorizationFilter@275715e0]
+2026-07-07T12:13:34.328+08:00  INFO 16755 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 34093 (http) with context path ''
+2026-07-07T12:13:34.330+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : Started HiddenL1Test in 0.581 seconds (process running for 7.956)
+2026-07-07T12:13:34.394+08:00  INFO 16755 --- [o-auto-4-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-07T12:13:34.394+08:00  INFO 16755 --- [o-auto-4-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-07-07T12:13:34.395+08:00  INFO 16755 --- [o-auto-4-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-07-07T12:13:34.447+08:00  INFO 16755 --- [o-auto-4-exec-1] c.e.user.service.UserAuthService         : User logged in: id=100000, email=admin@shophub.test
+2026-07-07T12:13:34.500+08:00  INFO 16755 --- [o-auto-4-exec-2] c.e.user.service.UserRegisterService     : User registered: id=100002, email=user-b5e25101@example.com, status=PENDING_ACTIVATION
+2026-07-07T12:13:34.503+08:00  INFO 16755 --- [o-auto-4-exec-2] c.e.user.service.UserRegisterService     : Activation token generated for user id=100002
+2026-07-07T12:13:34.503+08:00  INFO 16755 --- [o-auto-4-exec-2] c.e.c.n.LocalNotificationServiceImpl     : Sending notification: bizType=USER_REGISTER, bizId=100002, channel=EMAIL, template=ACTIVATION
+2026-07-07T12:13:34.503+08:00  INFO 16755 --- [o-auto-4-exec-2] c.e.common.notification.MockMailSender   : MOCK EMAIL: to=user-b5e25101@example.com, subject=[USER_REGISTER] Notification, body=[ACTIVATION] {nickname=Tester, activationToken=3470988a-b193-4ab7-aaf0-234dad192e8f}
+2026-07-07T12:13:34.503+08:00  INFO 16755 --- [o-auto-4-exec-2] c.e.c.n.LocalNotificationServiceImpl     : Notification sent successfully: bizType=USER_REGISTER, bizId=100002, channel=EMAIL
+2026-07-07T12:13:34.511+08:00  INFO 16755 --- [o-auto-4-exec-3] c.e.user.service.UserAuthService         : User activated: id=100002, email=user-b5e25101@example.com
+2026-07-07T12:13:34.562+08:00  INFO 16755 --- [o-auto-4-exec-4] c.e.user.service.UserAuthService         : User logged in: id=100002, email=user-b5e25101@example.com
+2026-07-07T12:13:34.571+08:00  INFO 16755 --- [o-auto-4-exec-5] c.ecommerce.user.service.AddressService  : Address created: id=100005, userId=100002
+2026-07-07T12:13:34.578+08:00  INFO 16755 --- [o-auto-4-exec-6] c.e.p.controller.AdminProductController  : Admin creating SPU: spuCode=SPU-b5e25101-3
+2026-07-07T12:13:34.581+08:00  INFO 16755 --- [o-auto-4-exec-6] c.ecommerce.product.service.SpuService   : Created SPU: id=100006, spuCode=SPU-b5e25101-3
+2026-07-07T12:13:34.589+08:00  INFO 16755 --- [o-auto-4-exec-7] c.e.p.controller.AdminProductController  : Admin creating SKU: skuCode=SKU-b5e25101, spuId=100006
+2026-07-07T12:13:34.593+08:00  INFO 16755 --- [o-auto-4-exec-7] c.ecommerce.product.service.SkuService   : Created SKU: id=100007, skuCode=SKU-b5e25101, spuId=100006
+2026-07-07T12:13:34.600+08:00  INFO 16755 --- [o-auto-4-exec-8] c.e.p.controller.AdminProductController  : Admin putting SKU on shelf: skuId=100007
+2026-07-07T12:13:34.602+08:00  INFO 16755 --- [o-auto-4-exec-8] c.ecommerce.product.service.SkuService   : SKU on shelf: skuId=100007, skuCode=SKU-b5e25101
+2026-07-07T12:13:34.612+08:00  INFO 16755 --- [o-auto-4-exec-9] c.e.inventory.service.WarehouseService   : Warehouse created: id=100008, name=WH-b5e25101
+2026-07-07T12:13:34.624+08:00  INFO 16755 --- [-auto-4-exec-10] c.e.inventory.service.InventoryService   : Inbound completed: warehouseId=100008, skuId=100007, qty=5
+2026-07-07T12:13:34.651+08:00  INFO 16755 --- [o-auto-4-exec-2] c.e.order.controller.OrderController     : POST /api/v1/orders/create: userId=100002, itemsCount=1
+2026-07-07T12:13:34.651+08:00  INFO 16755 --- [o-auto-4-exec-2] c.ecommerce.order.service.OrderService   : Creating order for userId=100002, itemsCount=1
+2026-07-07T12:13:34.653+08:00  INFO 16755 --- [o-auto-4-exec-2] c.e.order.service.OrderRiskChecker       : Performing risk check for userId=100002, amount=250.00, itemCount=1
+2026-07-07T12:13:34.654+08:00  INFO 16755 --- [o-auto-4-exec-2] c.e.order.service.OrderTotalCalculator   : Calculated payable: itemTotal=250.00, shippingFee=0, packagingFee=1.00, discount=0.00, pointsDeduction=0, finalPayable=251.00
+2026-07-07T12:13:34.662+08:00  INFO 16755 --- [o-auto-4-exec-2] c.e.i.s.InventoryReservationServiceImpl  : Stock reserved for orderId=100011, itemsCount=1
+2026-07-07T12:13:34.662+08:00  INFO 16755 --- [o-auto-4-exec-2] c.e.common.event.DomainEventPublisher    : Publishing domain event: eventId=a1a0ed16-66cd-4f23-be38-037effa08233, type=OrderCreatedEvent, occurredAt=2026-07-07T12:13:34.662737256
+2026-07-07T12:13:34.662+08:00  INFO 16755 --- [o-auto-4-exec-2] c.e.common.event.DomainEventPublisher    : Domain event published successfully: eventId=a1a0ed16-66cd-4f23-be38-037effa08233
+2026-07-07T12:13:34.662+08:00  INFO 16755 --- [o-auto-4-exec-2] c.ecommerce.order.service.OrderService   : Order created successfully: orderId=100011, orderNo=SO202607074654, payableAmount=251.00
+2026-07-07T12:13:34.664+08:00  INFO 16755 --- [o-auto-4-exec-2] c.e.order.listener.OrderEventListener    : [OrderEventListener] Order created: orderId=100011, userId=100002, amount=251.00, eventId=a1a0ed16-66cd-4f23-be38-037effa08233
+2026-07-07T12:13:34.670+08:00  INFO 16755 --- [           main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-07-07T12:13:34.672+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown initiated...
+2026-07-07T12:13:34.672+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown completed.
+]]></system-out>
+  </testcase>
+  <testcase name="l1_03_orderInvalidAmountExceptionType" classname="com.ecommerce.blackbox.hidden.l1.HiddenL1Test" time="0.2">
+    <system-out><![CDATA[
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.6)
+
+2026-07-07T12:13:34.684+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : Starting HiddenL1Test using Java 21.0.11 with PID 16755 (started by oyealex in /home/oyealex/project/match3/02-04-scoring/references/test-cases-internal)
+2026-07-07T12:13:34.684+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : The following 1 profile is active: "test"
+2026-07-07T12:13:34.734+08:00  INFO 16755 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-07-07T12:13:34.745+08:00  INFO 16755 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 11 ms. Found 42 JPA repository interfaces.
+2026-07-07T12:13:34.794+08:00  INFO 16755 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-07-07T12:13:34.794+08:00  INFO 16755 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-07T12:13:34.794+08:00  INFO 16755 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2026-07-07T12:13:34.798+08:00  INFO 16755 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-07-07T12:13:34.798+08:00  INFO 16755 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 113 ms
+2026-07-07T12:13:34.815+08:00  INFO 16755 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-07-07T12:13:34.816+08:00  INFO 16755 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-07-07T12:13:34.818+08:00  INFO 16755 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-07-07T12:13:34.818+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Starting...
+2026-07-07T12:13:34.819+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-5 - Added connection conn40: url=jdbc:h2:mem:shophub-e4e56a5e-728a-4d99-94a9-8454be637f85 user=SA
+2026-07-07T12:13:34.819+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Start completed.
+2026-07-07T12:13:34.940+08:00  INFO 16755 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-07-07T12:13:34.949+08:00  INFO 16755 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-07-07T12:13:35.028+08:00  INFO 16755 --- [           main] c.ecommerce.cart.config.CartCacheConfig  : Initializing cart cache with TTL=PT168H, maxSize=10000
+2026-07-07T12:13:35.048+08:00  INFO 16755 --- [           main] c.e.order.service.OrderNumberGenerator   : OrderNumberGenerator initialized with date=20260707
+2026-07-07T12:13:35.100+08:00  WARN 16755 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: c966d9b1-aeb7-4dfb-ab29-cbe96379d331
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-07-07T12:13:35.121+08:00  INFO 16755 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@731f4bcb, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@799688ca, org.springframework.security.web.context.SecurityContextHolderFilter@5201118e, org.springframework.security.web.header.HeaderWriterFilter@3d7465b1, org.springframework.web.filter.CorsFilter@4d846521, org.springframework.security.web.authentication.logout.LogoutFilter@3f76aeac, com.ecommerce.user.security.JwtAuthFilter@624f1057, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@16719bf4, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@8362d66, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@6b874ec6, org.springframework.security.web.session.SessionManagementFilter@3afae00f, org.springframework.security.web.access.ExceptionTranslationFilter@70292aed, org.springframework.security.web.access.intercept.AuthorizationFilter@1ca6685e]
+2026-07-07T12:13:35.122+08:00  INFO 16755 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@411c3fe1, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@7322c854, org.springframework.security.web.context.SecurityContextHolderFilter@3fb3827b, org.springframework.security.web.header.HeaderWriterFilter@560cb6a0, org.springframework.web.filter.CorsFilter@2257a299, org.springframework.security.web.authentication.logout.LogoutFilter@2cd3cbf5, com.ecommerce.user.security.JwtAuthFilter@707dd12b, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@1281bb5, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@32220486, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@50be0bf2, org.springframework.security.web.session.SessionManagementFilter@26636581, org.springframework.security.web.access.ExceptionTranslationFilter@7339a383, org.springframework.security.web.access.intercept.AuthorizationFilter@4fc3a767]
+2026-07-07T12:13:35.159+08:00  INFO 16755 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 46307 (http) with context path ''
+2026-07-07T12:13:35.160+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : Started HiddenL1Test in 0.485 seconds (process running for 8.786)
+2026-07-07T12:13:35.215+08:00  INFO 16755 --- [o-auto-5-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-07T12:13:35.215+08:00  INFO 16755 --- [o-auto-5-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-07-07T12:13:35.216+08:00  INFO 16755 --- [o-auto-5-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-07-07T12:13:35.266+08:00  INFO 16755 --- [o-auto-5-exec-1] c.e.user.service.UserAuthService         : User logged in: id=100000, email=admin@shophub.test
+2026-07-07T12:13:35.320+08:00  INFO 16755 --- [o-auto-5-exec-2] c.e.user.service.UserRegisterService     : User registered: id=100002, email=user-682fd2a4@example.com, status=PENDING_ACTIVATION
+2026-07-07T12:13:35.322+08:00  INFO 16755 --- [o-auto-5-exec-2] c.e.user.service.UserRegisterService     : Activation token generated for user id=100002
+2026-07-07T12:13:35.322+08:00  INFO 16755 --- [o-auto-5-exec-2] c.e.c.n.LocalNotificationServiceImpl     : Sending notification: bizType=USER_REGISTER, bizId=100002, channel=EMAIL, template=ACTIVATION
+2026-07-07T12:13:35.322+08:00  INFO 16755 --- [o-auto-5-exec-2] c.e.common.notification.MockMailSender   : MOCK EMAIL: to=user-682fd2a4@example.com, subject=[USER_REGISTER] Notification, body=[ACTIVATION] {nickname=Tester, activationToken=32a3b618-1c23-4219-9be0-bb9ee7254587}
+2026-07-07T12:13:35.322+08:00  INFO 16755 --- [o-auto-5-exec-2] c.e.c.n.LocalNotificationServiceImpl     : Notification sent successfully: bizType=USER_REGISTER, bizId=100002, channel=EMAIL
+2026-07-07T12:13:35.330+08:00  INFO 16755 --- [o-auto-5-exec-3] c.e.user.service.UserAuthService         : User activated: id=100002, email=user-682fd2a4@example.com
+2026-07-07T12:13:35.382+08:00  INFO 16755 --- [o-auto-5-exec-4] c.e.user.service.UserAuthService         : User logged in: id=100002, email=user-682fd2a4@example.com
+2026-07-07T12:13:35.390+08:00  INFO 16755 --- [o-auto-5-exec-5] c.ecommerce.user.service.AddressService  : Address created: id=100005, userId=100002
+2026-07-07T12:13:35.398+08:00  INFO 16755 --- [o-auto-5-exec-6] c.e.order.controller.OrderController     : POST /api/v1/orders/create: userId=100002, itemsCount=1
+2026-07-07T12:13:35.399+08:00  INFO 16755 --- [o-auto-5-exec-6] c.ecommerce.order.service.OrderService   : Creating order for userId=100002, itemsCount=1
+2026-07-07T12:13:35.400+08:00  WARN 16755 --- [o-auto-5-exec-6] c.e.c.exception.GlobalExceptionHandler   : Order validation failed [6e46cdfe-1783397615400]: Order amount must be positive, all item quantities are zero or negative
+2026-07-07T12:13:35.405+08:00  INFO 16755 --- [           main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-07-07T12:13:35.408+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Shutdown initiated...
+2026-07-07T12:13:35.409+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Shutdown completed.
+]]></system-out>
+  </testcase>
+  <testcase name="l1_07_amountRoundingHalfUp" classname="com.ecommerce.blackbox.hidden.l1.HiddenL1Test" time="0.29">
+    <system-out><![CDATA[
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.6)
+
+2026-07-07T12:13:35.420+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : Starting HiddenL1Test using Java 21.0.11 with PID 16755 (started by oyealex in /home/oyealex/project/match3/02-04-scoring/references/test-cases-internal)
+2026-07-07T12:13:35.420+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : The following 1 profile is active: "test"
+2026-07-07T12:13:35.477+08:00  INFO 16755 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-07-07T12:13:35.487+08:00  INFO 16755 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 9 ms. Found 42 JPA repository interfaces.
+2026-07-07T12:13:35.538+08:00  INFO 16755 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-07-07T12:13:35.538+08:00  INFO 16755 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-07T12:13:35.539+08:00  INFO 16755 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2026-07-07T12:13:35.548+08:00  INFO 16755 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-07-07T12:13:35.548+08:00  INFO 16755 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 128 ms
+2026-07-07T12:13:35.582+08:00  INFO 16755 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-07-07T12:13:35.582+08:00  INFO 16755 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-07-07T12:13:35.584+08:00  INFO 16755 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-07-07T12:13:35.585+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-6 - Starting...
+2026-07-07T12:13:35.586+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-6 - Added connection conn50: url=jdbc:h2:mem:shophub-8aacf0ed-b85b-4a60-a73e-f185a8798d26 user=SA
+2026-07-07T12:13:35.586+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-6 - Start completed.
+2026-07-07T12:13:35.720+08:00  INFO 16755 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-07-07T12:13:35.731+08:00  INFO 16755 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-07-07T12:13:35.803+08:00  INFO 16755 --- [           main] c.ecommerce.cart.config.CartCacheConfig  : Initializing cart cache with TTL=PT168H, maxSize=10000
+2026-07-07T12:13:35.824+08:00  INFO 16755 --- [           main] c.e.order.service.OrderNumberGenerator   : OrderNumberGenerator initialized with date=20260707
+2026-07-07T12:13:35.879+08:00  WARN 16755 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: bd90ecf6-915f-45e4-bc03-6da00427677c
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-07-07T12:13:35.910+08:00  INFO 16755 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@2c34e2dc, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@1a24d787, org.springframework.security.web.context.SecurityContextHolderFilter@1628c472, org.springframework.security.web.header.HeaderWriterFilter@1500ea8d, org.springframework.web.filter.CorsFilter@348f2ef6, org.springframework.security.web.authentication.logout.LogoutFilter@34504ecb, com.ecommerce.user.security.JwtAuthFilter@675e57ca, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@6a113bb0, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@78d7f0fd, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@6cf77bff, org.springframework.security.web.session.SessionManagementFilter@17116a39, org.springframework.security.web.access.ExceptionTranslationFilter@2e4dabb7, org.springframework.security.web.access.intercept.AuthorizationFilter@10687d50]
+2026-07-07T12:13:35.912+08:00  INFO 16755 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@1d6a899b, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@3afd41db, org.springframework.security.web.context.SecurityContextHolderFilter@79993d95, org.springframework.security.web.header.HeaderWriterFilter@2d930510, org.springframework.web.filter.CorsFilter@155f7245, org.springframework.security.web.authentication.logout.LogoutFilter@61e8db06, com.ecommerce.user.security.JwtAuthFilter@43dfb39, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@209f3d8e, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@15911708, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@4dd28c74, org.springframework.security.web.session.SessionManagementFilter@13dae445, org.springframework.security.web.access.ExceptionTranslationFilter@395c0068, org.springframework.security.web.access.intercept.AuthorizationFilter@257690bf]
+2026-07-07T12:13:35.969+08:00  INFO 16755 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 45637 (http) with context path ''
+2026-07-07T12:13:35.971+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : Started HiddenL1Test in 0.56 seconds (process running for 9.597)
+2026-07-07T12:13:36.032+08:00  INFO 16755 --- [o-auto-6-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-07T12:13:36.032+08:00  INFO 16755 --- [o-auto-6-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-07-07T12:13:36.032+08:00  INFO 16755 --- [o-auto-6-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2026-07-07T12:13:36.085+08:00  INFO 16755 --- [o-auto-6-exec-1] c.e.user.service.UserAuthService         : User logged in: id=100000, email=admin@shophub.test
+2026-07-07T12:13:36.138+08:00  INFO 16755 --- [o-auto-6-exec-2] c.e.user.service.UserRegisterService     : User registered: id=100002, email=user-01984d93@example.com, status=PENDING_ACTIVATION
+2026-07-07T12:13:36.140+08:00  INFO 16755 --- [o-auto-6-exec-2] c.e.user.service.UserRegisterService     : Activation token generated for user id=100002
+2026-07-07T12:13:36.140+08:00  INFO 16755 --- [o-auto-6-exec-2] c.e.c.n.LocalNotificationServiceImpl     : Sending notification: bizType=USER_REGISTER, bizId=100002, channel=EMAIL, template=ACTIVATION
+2026-07-07T12:13:36.140+08:00  INFO 16755 --- [o-auto-6-exec-2] c.e.common.notification.MockMailSender   : MOCK EMAIL: to=user-01984d93@example.com, subject=[USER_REGISTER] Notification, body=[ACTIVATION] {nickname=Tester, activationToken=41f88c10-ad46-4544-8c95-3b869f8998fa}
+2026-07-07T12:13:36.140+08:00  INFO 16755 --- [o-auto-6-exec-2] c.e.c.n.LocalNotificationServiceImpl     : Notification sent successfully: bizType=USER_REGISTER, bizId=100002, channel=EMAIL
+2026-07-07T12:13:36.148+08:00  INFO 16755 --- [o-auto-6-exec-3] c.e.user.service.UserAuthService         : User activated: id=100002, email=user-01984d93@example.com
+2026-07-07T12:13:36.198+08:00  INFO 16755 --- [o-auto-6-exec-4] c.e.user.service.UserAuthService         : User logged in: id=100002, email=user-01984d93@example.com
+2026-07-07T12:13:36.206+08:00  INFO 16755 --- [o-auto-6-exec-5] c.ecommerce.user.service.AddressService  : Address created: id=100005, userId=100002
+2026-07-07T12:13:36.212+08:00  INFO 16755 --- [o-auto-6-exec-6] c.e.p.controller.AdminProductController  : Admin creating SPU: spuCode=SPU-01984d93-4
+2026-07-07T12:13:36.215+08:00  INFO 16755 --- [o-auto-6-exec-6] c.ecommerce.product.service.SpuService   : Created SPU: id=100006, spuCode=SPU-01984d93-4
+2026-07-07T12:13:36.223+08:00  INFO 16755 --- [o-auto-6-exec-7] c.e.p.controller.AdminProductController  : Admin creating SKU: skuCode=SKU-01984d93, spuId=100006
+2026-07-07T12:13:36.227+08:00  INFO 16755 --- [o-auto-6-exec-7] c.ecommerce.product.service.SkuService   : Created SKU: id=100007, skuCode=SKU-01984d93, spuId=100006
+2026-07-07T12:13:36.233+08:00  INFO 16755 --- [o-auto-6-exec-8] c.e.p.controller.AdminProductController  : Admin putting SKU on shelf: skuId=100007
+2026-07-07T12:13:36.234+08:00  INFO 16755 --- [o-auto-6-exec-8] c.ecommerce.product.service.SkuService   : SKU on shelf: skuId=100007, skuCode=SKU-01984d93
+2026-07-07T12:13:36.242+08:00  INFO 16755 --- [o-auto-6-exec-9] c.e.inventory.service.WarehouseService   : Warehouse created: id=100008, name=WH-01984d93
+2026-07-07T12:13:36.252+08:00  INFO 16755 --- [-auto-6-exec-10] c.e.inventory.service.InventoryService   : Inbound completed: warehouseId=100008, skuId=100007, qty=10
+2026-07-07T12:13:36.288+08:00  INFO 16755 --- [o-auto-6-exec-3] c.e.order.controller.OrderController     : POST /api/v1/orders/create: userId=100002, itemsCount=1
+2026-07-07T12:13:36.289+08:00  INFO 16755 --- [o-auto-6-exec-3] c.ecommerce.order.service.OrderService   : Creating order for userId=100002, itemsCount=1
+2026-07-07T12:13:36.290+08:00  INFO 16755 --- [o-auto-6-exec-3] c.e.order.service.OrderRiskChecker       : Performing risk check for userId=100002, amount=1.01, itemCount=1
+2026-07-07T12:13:36.293+08:00  INFO 16755 --- [o-auto-6-exec-3] c.e.order.service.OrderTotalCalculator   : Calculated payable: itemTotal=1.01, shippingFee=8.00, packagingFee=1.00, discount=0.51, pointsDeduction=0, finalPayable=9.50
+2026-07-07T12:13:36.302+08:00  INFO 16755 --- [o-auto-6-exec-3] c.e.i.s.InventoryReservationServiceImpl  : Stock reserved for orderId=100013, itemsCount=1
+2026-07-07T12:13:36.302+08:00  INFO 16755 --- [o-auto-6-exec-3] c.e.common.event.DomainEventPublisher    : Publishing domain event: eventId=e59e928f-bd29-44ca-b5da-59dfa64a7954, type=OrderCreatedEvent, occurredAt=2026-07-07T12:13:36.302612615
+2026-07-07T12:13:36.302+08:00  INFO 16755 --- [o-auto-6-exec-3] c.e.common.event.DomainEventPublisher    : Domain event published successfully: eventId=e59e928f-bd29-44ca-b5da-59dfa64a7954
+2026-07-07T12:13:36.302+08:00  INFO 16755 --- [o-auto-6-exec-3] c.ecommerce.order.service.OrderService   : Order created successfully: orderId=100013, orderNo=SO202607076294, payableAmount=9.50
+2026-07-07T12:13:36.304+08:00  INFO 16755 --- [o-auto-6-exec-3] c.e.order.listener.OrderEventListener    : [OrderEventListener] Order created: orderId=100013, userId=100002, amount=9.50, eventId=e59e928f-bd29-44ca-b5da-59dfa64a7954
+2026-07-07T12:13:36.308+08:00  INFO 16755 --- [           main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-07-07T12:13:36.311+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-6 - Shutdown initiated...
+2026-07-07T12:13:36.312+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-6 - Shutdown completed.
+]]></system-out>
+  </testcase>
+  <testcase name="l1_01_couponDiscountCalculation" classname="com.ecommerce.blackbox.hidden.l1.HiddenL1Test" time="0.282">
+    <system-out><![CDATA[
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.6)
+
+2026-07-07T12:13:36.322+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : Starting HiddenL1Test using Java 21.0.11 with PID 16755 (started by oyealex in /home/oyealex/project/match3/02-04-scoring/references/test-cases-internal)
+2026-07-07T12:13:36.322+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : The following 1 profile is active: "test"
+2026-07-07T12:13:36.370+08:00  INFO 16755 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-07-07T12:13:36.380+08:00  INFO 16755 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 9 ms. Found 42 JPA repository interfaces.
+2026-07-07T12:13:36.421+08:00  INFO 16755 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-07-07T12:13:36.421+08:00  INFO 16755 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-07T12:13:36.421+08:00  INFO 16755 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2026-07-07T12:13:36.425+08:00  INFO 16755 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-07-07T12:13:36.425+08:00  INFO 16755 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 102 ms
+2026-07-07T12:13:36.442+08:00  INFO 16755 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-07-07T12:13:36.443+08:00  INFO 16755 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-07-07T12:13:36.444+08:00  INFO 16755 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-07-07T12:13:36.445+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-7 - Starting...
+2026-07-07T12:13:36.446+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-7 - Added connection conn60: url=jdbc:h2:mem:shophub-0dcf90f8-66b5-48a9-9041-649a10835aa5 user=SA
+2026-07-07T12:13:36.446+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-7 - Start completed.
+2026-07-07T12:13:36.562+08:00  INFO 16755 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-07-07T12:13:36.573+08:00  INFO 16755 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-07-07T12:13:36.649+08:00  INFO 16755 --- [           main] c.ecommerce.cart.config.CartCacheConfig  : Initializing cart cache with TTL=PT168H, maxSize=10000
+2026-07-07T12:13:36.668+08:00  INFO 16755 --- [           main] c.e.order.service.OrderNumberGenerator   : OrderNumberGenerator initialized with date=20260707
+2026-07-07T12:13:36.729+08:00  WARN 16755 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 497998c4-1e9c-402f-af4c-9c3d2c4ca9b3
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-07-07T12:13:36.748+08:00  INFO 16755 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@63f6557d, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@6ccb009b, org.springframework.security.web.context.SecurityContextHolderFilter@79cda8cc, org.springframework.security.web.header.HeaderWriterFilter@1ed6dae3, org.springframework.web.filter.CorsFilter@5b52d5af, org.springframework.security.web.authentication.logout.LogoutFilter@642d63e3, com.ecommerce.user.security.JwtAuthFilter@4ca09d93, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@29976e1b, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@13ea808, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@1dac64c7, org.springframework.security.web.session.SessionManagementFilter@53e45335, org.springframework.security.web.access.ExceptionTranslationFilter@1ee0c12f, org.springframework.security.web.access.intercept.AuthorizationFilter@252b6e0]
+2026-07-07T12:13:36.749+08:00  INFO 16755 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@affa955, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@41f268da, org.springframework.security.web.context.SecurityContextHolderFilter@19c426b9, org.springframework.security.web.header.HeaderWriterFilter@2a97b5a2, org.springframework.web.filter.CorsFilter@466f0156, org.springframework.security.web.authentication.logout.LogoutFilter@4af026c6, com.ecommerce.user.security.JwtAuthFilter@6ef96878, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@1dfe2cd5, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@a53b06d, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@193bd1f3, org.springframework.security.web.session.SessionManagementFilter@5575bcf5, org.springframework.security.web.access.ExceptionTranslationFilter@d413ff3, org.springframework.security.web.access.intercept.AuthorizationFilter@31432fac]
+2026-07-07T12:13:36.781+08:00  INFO 16755 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 41609 (http) with context path ''
+2026-07-07T12:13:36.782+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : Started HiddenL1Test in 0.468 seconds (process running for 10.408)
+2026-07-07T12:13:36.838+08:00  INFO 16755 --- [o-auto-7-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-07T12:13:36.838+08:00  INFO 16755 --- [o-auto-7-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-07-07T12:13:36.838+08:00  INFO 16755 --- [o-auto-7-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2026-07-07T12:13:36.888+08:00  INFO 16755 --- [o-auto-7-exec-1] c.e.user.service.UserAuthService         : User logged in: id=100000, email=admin@shophub.test
+2026-07-07T12:13:36.944+08:00  INFO 16755 --- [o-auto-7-exec-2] c.e.user.service.UserRegisterService     : User registered: id=100002, email=user-ddbc2c5d@example.com, status=PENDING_ACTIVATION
+2026-07-07T12:13:36.945+08:00  INFO 16755 --- [o-auto-7-exec-2] c.e.user.service.UserRegisterService     : Activation token generated for user id=100002
+2026-07-07T12:13:36.945+08:00  INFO 16755 --- [o-auto-7-exec-2] c.e.c.n.LocalNotificationServiceImpl     : Sending notification: bizType=USER_REGISTER, bizId=100002, channel=EMAIL, template=ACTIVATION
+2026-07-07T12:13:36.946+08:00  INFO 16755 --- [o-auto-7-exec-2] c.e.common.notification.MockMailSender   : MOCK EMAIL: to=user-ddbc2c5d@example.com, subject=[USER_REGISTER] Notification, body=[ACTIVATION] {nickname=Tester, activationToken=df984ec1-2e07-4e76-827d-3283a311ee10}
+2026-07-07T12:13:36.946+08:00  INFO 16755 --- [o-auto-7-exec-2] c.e.c.n.LocalNotificationServiceImpl     : Notification sent successfully: bizType=USER_REGISTER, bizId=100002, channel=EMAIL
+2026-07-07T12:13:36.955+08:00  INFO 16755 --- [o-auto-7-exec-3] c.e.user.service.UserAuthService         : User activated: id=100002, email=user-ddbc2c5d@example.com
+2026-07-07T12:13:37.007+08:00  INFO 16755 --- [o-auto-7-exec-4] c.e.user.service.UserAuthService         : User logged in: id=100002, email=user-ddbc2c5d@example.com
+2026-07-07T12:13:37.014+08:00  INFO 16755 --- [o-auto-7-exec-5] c.ecommerce.user.service.AddressService  : Address created: id=100005, userId=100002
+2026-07-07T12:13:37.020+08:00  INFO 16755 --- [o-auto-7-exec-6] c.e.p.controller.AdminProductController  : Admin creating SPU: spuCode=SPU-ddbc2c5d-5
+2026-07-07T12:13:37.023+08:00  INFO 16755 --- [o-auto-7-exec-6] c.ecommerce.product.service.SpuService   : Created SPU: id=100006, spuCode=SPU-ddbc2c5d-5
+2026-07-07T12:13:37.029+08:00  INFO 16755 --- [o-auto-7-exec-7] c.e.p.controller.AdminProductController  : Admin creating SKU: skuCode=SKU-ddbc2c5d, spuId=100006
+2026-07-07T12:13:37.033+08:00  INFO 16755 --- [o-auto-7-exec-7] c.ecommerce.product.service.SkuService   : Created SKU: id=100007, skuCode=SKU-ddbc2c5d, spuId=100006
+2026-07-07T12:13:37.039+08:00  INFO 16755 --- [o-auto-7-exec-8] c.e.p.controller.AdminProductController  : Admin putting SKU on shelf: skuId=100007
+2026-07-07T12:13:37.040+08:00  INFO 16755 --- [o-auto-7-exec-8] c.ecommerce.product.service.SkuService   : SKU on shelf: skuId=100007, skuCode=SKU-ddbc2c5d
+2026-07-07T12:13:37.048+08:00  INFO 16755 --- [o-auto-7-exec-9] c.e.inventory.service.WarehouseService   : Warehouse created: id=100008, name=WH-ddbc2c5d
+2026-07-07T12:13:37.057+08:00  INFO 16755 --- [-auto-7-exec-10] c.e.inventory.service.InventoryService   : Inbound completed: warehouseId=100008, skuId=100007, qty=10
+2026-07-07T12:13:37.091+08:00  INFO 16755 --- [o-auto-7-exec-4] c.e.order.controller.OrderController     : POST /api/v1/orders/create: userId=100002, itemsCount=1
+2026-07-07T12:13:37.091+08:00  INFO 16755 --- [o-auto-7-exec-4] c.ecommerce.order.service.OrderService   : Creating order for userId=100002, itemsCount=1
+2026-07-07T12:13:37.093+08:00  INFO 16755 --- [o-auto-7-exec-4] c.e.order.service.OrderRiskChecker       : Performing risk check for userId=100002, amount=100.00, itemCount=1
+2026-07-07T12:13:37.098+08:00  INFO 16755 --- [o-auto-7-exec-4] c.e.order.service.OrderTotalCalculator   : Calculated payable: itemTotal=100.00, shippingFee=8.00, packagingFee=1.00, discount=20.00, pointsDeduction=0, finalPayable=89.00
+2026-07-07T12:13:37.105+08:00  INFO 16755 --- [o-auto-7-exec-4] c.e.i.s.InventoryReservationServiceImpl  : Stock reserved for orderId=100013, itemsCount=1
+2026-07-07T12:13:37.105+08:00  INFO 16755 --- [o-auto-7-exec-4] c.e.common.event.DomainEventPublisher    : Publishing domain event: eventId=f655d7fd-3882-443f-9ef8-d33c41df7a1e, type=OrderCreatedEvent, occurredAt=2026-07-07T12:13:37.105670747
+2026-07-07T12:13:37.105+08:00  INFO 16755 --- [o-auto-7-exec-4] c.e.common.event.DomainEventPublisher    : Domain event published successfully: eventId=f655d7fd-3882-443f-9ef8-d33c41df7a1e
+2026-07-07T12:13:37.105+08:00  INFO 16755 --- [o-auto-7-exec-4] c.ecommerce.order.service.OrderService   : Order created successfully: orderId=100013, orderNo=SO202607077098, payableAmount=89.00
+2026-07-07T12:13:37.107+08:00  INFO 16755 --- [o-auto-7-exec-4] c.e.order.listener.OrderEventListener    : [OrderEventListener] Order created: orderId=100013, userId=100002, amount=89.00, eventId=f655d7fd-3882-443f-9ef8-d33c41df7a1e
+2026-07-07T12:13:37.112+08:00  INFO 16755 --- [           main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-07-07T12:13:37.113+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-7 - Shutdown initiated...
+2026-07-07T12:13:37.114+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-7 - Shutdown completed.
+]]></system-out>
+  </testcase>
+  <testcase name="l1_10_goldMemberMultiplier" classname="com.ecommerce.blackbox.hidden.l1.HiddenL1Test" time="0.317">
+    <system-out><![CDATA[
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.6)
+
+2026-07-07T12:13:37.122+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : Starting HiddenL1Test using Java 21.0.11 with PID 16755 (started by oyealex in /home/oyealex/project/match3/02-04-scoring/references/test-cases-internal)
+2026-07-07T12:13:37.122+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : The following 1 profile is active: "test"
+2026-07-07T12:13:37.168+08:00  INFO 16755 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-07-07T12:13:37.177+08:00  INFO 16755 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 9 ms. Found 42 JPA repository interfaces.
+2026-07-07T12:13:37.225+08:00  INFO 16755 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-07-07T12:13:37.225+08:00  INFO 16755 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-07T12:13:37.225+08:00  INFO 16755 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2026-07-07T12:13:37.229+08:00  INFO 16755 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-07-07T12:13:37.229+08:00  INFO 16755 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 106 ms
+2026-07-07T12:13:37.245+08:00  INFO 16755 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-07-07T12:13:37.246+08:00  INFO 16755 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-07-07T12:13:37.247+08:00  INFO 16755 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-07-07T12:13:37.248+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-8 - Starting...
+2026-07-07T12:13:37.249+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-8 - Added connection conn70: url=jdbc:h2:mem:shophub-7e973971-d7b5-4025-9589-86d43e2798ee user=SA
+2026-07-07T12:13:37.249+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-8 - Start completed.
+2026-07-07T12:13:37.344+08:00  INFO 16755 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-07-07T12:13:37.353+08:00  INFO 16755 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-07-07T12:13:37.444+08:00  INFO 16755 --- [           main] c.ecommerce.cart.config.CartCacheConfig  : Initializing cart cache with TTL=PT168H, maxSize=10000
+2026-07-07T12:13:37.468+08:00  INFO 16755 --- [           main] c.e.order.service.OrderNumberGenerator   : OrderNumberGenerator initialized with date=20260707
+2026-07-07T12:13:37.521+08:00  WARN 16755 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 83e48fa5-a89d-44c3-a66c-e0b96f4de6e1
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-07-07T12:13:37.542+08:00  INFO 16755 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@2ae7ccd6, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@273e47e2, org.springframework.security.web.context.SecurityContextHolderFilter@4294bf53, org.springframework.security.web.header.HeaderWriterFilter@42b946be, org.springframework.web.filter.CorsFilter@2a5d4308, org.springframework.security.web.authentication.logout.LogoutFilter@2385ca32, com.ecommerce.user.security.JwtAuthFilter@d88180f, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@6db50504, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@65b132ba, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@191de414, org.springframework.security.web.session.SessionManagementFilter@385339e2, org.springframework.security.web.access.ExceptionTranslationFilter@62b056cb, org.springframework.security.web.access.intercept.AuthorizationFilter@a95ace0]
+2026-07-07T12:13:37.542+08:00  INFO 16755 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@1325156c, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@11ebd65a, org.springframework.security.web.context.SecurityContextHolderFilter@749c3622, org.springframework.security.web.header.HeaderWriterFilter@52681ac9, org.springframework.web.filter.CorsFilter@45fa9b33, org.springframework.security.web.authentication.logout.LogoutFilter@31e6654f, com.ecommerce.user.security.JwtAuthFilter@52e9b0e2, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@21dffe1b, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@337316bb, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@69dc41a6, org.springframework.security.web.session.SessionManagementFilter@70fce8c5, org.springframework.security.web.access.ExceptionTranslationFilter@5d1110ea, org.springframework.security.web.access.intercept.AuthorizationFilter@447a7fd9]
+2026-07-07T12:13:37.572+08:00  INFO 16755 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 34543 (http) with context path ''
+2026-07-07T12:13:37.574+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : Started HiddenL1Test in 0.458 seconds (process running for 11.2)
+2026-07-07T12:13:37.632+08:00  INFO 16755 --- [o-auto-8-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-07T12:13:37.632+08:00  INFO 16755 --- [o-auto-8-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-07-07T12:13:37.633+08:00  INFO 16755 --- [o-auto-8-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-07-07T12:13:37.685+08:00  INFO 16755 --- [o-auto-8-exec-1] c.e.user.service.UserAuthService         : User logged in: id=100000, email=admin@shophub.test
+2026-07-07T12:13:37.739+08:00  INFO 16755 --- [o-auto-8-exec-2] c.e.user.service.UserRegisterService     : User registered: id=100002, email=user-834664d1@example.com, status=PENDING_ACTIVATION
+2026-07-07T12:13:37.740+08:00  INFO 16755 --- [o-auto-8-exec-2] c.e.user.service.UserRegisterService     : Activation token generated for user id=100002
+2026-07-07T12:13:37.740+08:00  INFO 16755 --- [o-auto-8-exec-2] c.e.c.n.LocalNotificationServiceImpl     : Sending notification: bizType=USER_REGISTER, bizId=100002, channel=EMAIL, template=ACTIVATION
+2026-07-07T12:13:37.740+08:00  INFO 16755 --- [o-auto-8-exec-2] c.e.common.notification.MockMailSender   : MOCK EMAIL: to=user-834664d1@example.com, subject=[USER_REGISTER] Notification, body=[ACTIVATION] {nickname=Tester, activationToken=0b8892f4-c62c-44fe-8b5d-df9c87e3fa37}
+2026-07-07T12:13:37.740+08:00  INFO 16755 --- [o-auto-8-exec-2] c.e.c.n.LocalNotificationServiceImpl     : Notification sent successfully: bizType=USER_REGISTER, bizId=100002, channel=EMAIL
+2026-07-07T12:13:37.747+08:00  INFO 16755 --- [o-auto-8-exec-3] c.e.user.service.UserAuthService         : User activated: id=100002, email=user-834664d1@example.com
+2026-07-07T12:13:37.797+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.user.service.UserAuthService         : User logged in: id=100002, email=user-834664d1@example.com
+2026-07-07T12:13:37.804+08:00  INFO 16755 --- [o-auto-8-exec-5] c.ecommerce.user.service.AddressService  : Address created: id=100005, userId=100002
+2026-07-07T12:13:37.810+08:00  INFO 16755 --- [o-auto-8-exec-6] c.e.a.controller.SystemAdminController   : Config set: loyalty.member-level = GOLD
+2026-07-07T12:13:37.818+08:00  INFO 16755 --- [o-auto-8-exec-7] c.e.p.controller.AdminProductController  : Admin creating SPU: spuCode=SPU-834664d1-6
+2026-07-07T12:13:37.820+08:00  INFO 16755 --- [o-auto-8-exec-7] c.ecommerce.product.service.SpuService   : Created SPU: id=100006, spuCode=SPU-834664d1-6
+2026-07-07T12:13:37.826+08:00  INFO 16755 --- [o-auto-8-exec-8] c.e.p.controller.AdminProductController  : Admin creating SKU: skuCode=SKU-834664d1, spuId=100006
+2026-07-07T12:13:37.830+08:00  INFO 16755 --- [o-auto-8-exec-8] c.ecommerce.product.service.SkuService   : Created SKU: id=100007, skuCode=SKU-834664d1, spuId=100006
+2026-07-07T12:13:37.836+08:00  INFO 16755 --- [o-auto-8-exec-9] c.e.p.controller.AdminProductController  : Admin putting SKU on shelf: skuId=100007
+2026-07-07T12:13:37.837+08:00  INFO 16755 --- [o-auto-8-exec-9] c.ecommerce.product.service.SkuService   : SKU on shelf: skuId=100007, skuCode=SKU-834664d1
+2026-07-07T12:13:37.843+08:00  INFO 16755 --- [-auto-8-exec-10] c.e.inventory.service.WarehouseService   : Warehouse created: id=100008, name=WH-834664d1
+2026-07-07T12:13:37.852+08:00  INFO 16755 --- [o-auto-8-exec-1] c.e.inventory.service.InventoryService   : Inbound completed: warehouseId=100008, skuId=100007, qty=10
+2026-07-07T12:13:37.861+08:00  INFO 16755 --- [o-auto-8-exec-2] c.e.order.controller.OrderController     : POST /api/v1/orders/create: userId=100002, itemsCount=1
+2026-07-07T12:13:37.861+08:00  INFO 16755 --- [o-auto-8-exec-2] c.ecommerce.order.service.OrderService   : Creating order for userId=100002, itemsCount=1
+2026-07-07T12:13:37.863+08:00  INFO 16755 --- [o-auto-8-exec-2] c.e.order.service.OrderRiskChecker       : Performing risk check for userId=100002, amount=100.00, itemCount=1
+2026-07-07T12:13:37.864+08:00  INFO 16755 --- [o-auto-8-exec-2] c.e.order.service.OrderTotalCalculator   : Calculated payable: itemTotal=100.00, shippingFee=8.00, packagingFee=1.00, discount=0.00, pointsDeduction=0, finalPayable=109.00
+2026-07-07T12:13:37.871+08:00  INFO 16755 --- [o-auto-8-exec-2] c.e.i.s.InventoryReservationServiceImpl  : Stock reserved for orderId=100011, itemsCount=1
+2026-07-07T12:13:37.871+08:00  INFO 16755 --- [o-auto-8-exec-2] c.e.common.event.DomainEventPublisher    : Publishing domain event: eventId=c0d10beb-f173-44f1-9ec4-68503bd34dc5, type=OrderCreatedEvent, occurredAt=2026-07-07T12:13:37.871398615
+2026-07-07T12:13:37.871+08:00  INFO 16755 --- [o-auto-8-exec-2] c.e.common.event.DomainEventPublisher    : Domain event published successfully: eventId=c0d10beb-f173-44f1-9ec4-68503bd34dc5
+2026-07-07T12:13:37.871+08:00  INFO 16755 --- [o-auto-8-exec-2] c.ecommerce.order.service.OrderService   : Order created successfully: orderId=100011, orderNo=SO202607077864, payableAmount=109.00
+2026-07-07T12:13:37.873+08:00  INFO 16755 --- [o-auto-8-exec-2] c.e.order.listener.OrderEventListener    : [OrderEventListener] Order created: orderId=100011, userId=100002, amount=109.00, eventId=c0d10beb-f173-44f1-9ec4-68503bd34dc5
+2026-07-07T12:13:37.878+08:00  INFO 16755 --- [o-auto-8-exec-3] c.e.p.controller.PaymentController       : Payment initiated for orderId=100011
+2026-07-07T12:13:37.878+08:00  INFO 16755 --- [o-auto-8-exec-3] c.e.payment.service.PaymentService       : Initiating payment for orderId=100011, amount=109.00, method=BALANCE
+2026-07-07T12:13:37.881+08:00  INFO 16755 --- [o-auto-8-exec-3] c.e.payment.service.PaymentValidator     : Payment validation passed for orderId=100011, amount=109.00
+2026-07-07T12:13:37.883+08:00  INFO 16755 --- [o-auto-8-exec-3] c.e.payment.service.PaymentService       : Payment record created: paymentNo=PAY1783397617881321DDD2D, orderId=100011
+2026-07-07T12:13:37.889+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.p.controller.PaymentController       : Payment callback received: paymentNo=PAY1783397617881321DDD2D, status=SUCCESS
+2026-07-07T12:13:37.889+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.p.service.PaymentCallbackService     : Processing payment callback: paymentNo=PAY1783397617881321DDD2D, status=SUCCESS, signature=valid-signature
+2026-07-07T12:13:37.894+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.i.s.InventoryReservationServiceImpl  : Stock deducted after payment for orderId=100011, reservationsCount=1
+2026-07-07T12:13:37.894+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.order.service.OrderQueryServiceImpl  : Inventory deducted after payment for orderId=100011
+2026-07-07T12:13:37.895+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.common.event.DomainEventPublisher    : Publishing domain event: eventId=b707f0da-c657-4a11-bd75-dea2942fa33b, type=OrderPaidEvent, occurredAt=2026-07-07T12:13:37.895108630
+2026-07-07T12:13:37.895+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.l.event.OrderPaidEventListener       : Received OrderPaidEvent: orderId=100011, userId=100002, amount=109.00
+2026-07-07T12:13:37.895+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.logistics.service.ShipmentService    : Creating shipment for orderId=100011, userId=100002
+2026-07-07T12:13:37.898+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.logistics.service.ShipmentService    : Shipment created: shipmentId=100016, shipmentNo=SH202607077895, status=CREATED
+2026-07-07T12:13:37.898+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.l.event.OrderPaidEventListener       : Shipment created for orderId=100011
+2026-07-07T12:13:37.898+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.common.event.DomainEventPublisher    : Domain event published successfully: eventId=b707f0da-c657-4a11-bd75-dea2942fa33b
+2026-07-07T12:13:37.899+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.common.event.DomainEventPublisher    : Publishing domain event: eventId=423d36b5-99fa-4903-a013-d332be06acb2, type=OrderPaidEvent, occurredAt=2026-07-07T12:13:37.899036462
+2026-07-07T12:13:37.899+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.l.event.OrderPaidEventListener       : Received OrderPaidEvent: orderId=100011, userId=100002, amount=109.00
+2026-07-07T12:13:37.909+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.loyalty.service.LoyaltyPointService  : Earned 13080 points for userId=100002, balance=13080
+2026-07-07T12:13:37.909+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.l.event.OrderPaidEventListener       : Awarded 13080 points for orderId=100011
+2026-07-07T12:13:37.909+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.common.event.DomainEventPublisher    : Domain event published successfully: eventId=423d36b5-99fa-4903-a013-d332be06acb2
+2026-07-07T12:13:37.909+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.order.service.OrderQueryServiceImpl  : Order 100011 marked as paid, paymentNo=PAY1783397617881321DDD2D, amount=109.00
+2026-07-07T12:13:37.909+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.payment.service.PaymentService       : Confirming payment: paymentNo=PAY1783397617881321DDD2D, orderId=100011
+2026-07-07T12:13:37.909+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.common.event.DomainEventPublisher    : Publishing domain event: eventId=bc968635-87df-4a76-87c5-be30ded168ba, type=PaymentSucceededEvent, occurredAt=2026-07-07T12:13:37.909847461
+2026-07-07T12:13:37.909+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.common.event.DomainEventPublisher    : Domain event published successfully: eventId=bc968635-87df-4a76-87c5-be30ded168ba
+2026-07-07T12:13:37.909+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.payment.service.PaymentService       : Payment confirmed successfully: paymentNo=PAY1783397617881321DDD2D
+2026-07-07T12:13:37.909+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.p.service.PaymentCallbackService     : Payment callback processed successfully: paymentNo=PAY1783397617881321DDD2D
+2026-07-07T12:13:37.910+08:00  INFO 16755 --- [o-auto-8-exec-4] c.e.order.listener.OrderEventListener    : [OrderEventListener] Order paid: orderId=100011, userId=100002, paymentNo=PAY1783397617881321DDD2D, amount=109.00, eventId=b707f0da-c657-4a11-bd75-dea2942fa33b
+2026-07-07T12:13:37.929+08:00  INFO 16755 --- [o-auto-8-exec-6] c.e.loyalty.service.MemberLevelService   : User 100002 membership upgraded: GOLD -> NORMAL
+2026-07-07T12:13:37.940+08:00  INFO 16755 --- [           main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-07-07T12:13:37.942+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-8 - Shutdown initiated...
+2026-07-07T12:13:37.942+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-8 - Shutdown completed.
+]]></system-out>
+  </testcase>
+  <testcase name="l1_04_invoiceTaxRateFromConfig" classname="com.ecommerce.blackbox.hidden.l1.HiddenL1Test" time="0.288">
+    <system-out><![CDATA[
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.6)
+
+2026-07-07T12:13:37.952+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : Starting HiddenL1Test using Java 21.0.11 with PID 16755 (started by oyealex in /home/oyealex/project/match3/02-04-scoring/references/test-cases-internal)
+2026-07-07T12:13:37.952+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : The following 1 profile is active: "test"
+2026-07-07T12:13:38.006+08:00  INFO 16755 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-07-07T12:13:38.014+08:00  INFO 16755 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 7 ms. Found 42 JPA repository interfaces.
+2026-07-07T12:13:38.054+08:00  INFO 16755 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-07-07T12:13:38.055+08:00  INFO 16755 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-07T12:13:38.055+08:00  INFO 16755 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2026-07-07T12:13:38.058+08:00  INFO 16755 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-07-07T12:13:38.058+08:00  INFO 16755 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 105 ms
+2026-07-07T12:13:38.075+08:00  INFO 16755 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-07-07T12:13:38.075+08:00  INFO 16755 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-07-07T12:13:38.077+08:00  INFO 16755 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-07-07T12:13:38.077+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-9 - Starting...
+2026-07-07T12:13:38.078+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-9 - Added connection conn80: url=jdbc:h2:mem:shophub-7f41d74e-6373-4fbc-bb8c-b104ce5a17f7 user=SA
+2026-07-07T12:13:38.078+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-9 - Start completed.
+2026-07-07T12:13:38.177+08:00  INFO 16755 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-07-07T12:13:38.186+08:00  INFO 16755 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-07-07T12:13:38.240+08:00  INFO 16755 --- [           main] c.ecommerce.cart.config.CartCacheConfig  : Initializing cart cache with TTL=PT168H, maxSize=10000
+2026-07-07T12:13:38.259+08:00  INFO 16755 --- [           main] c.e.order.service.OrderNumberGenerator   : OrderNumberGenerator initialized with date=20260707
+2026-07-07T12:13:38.308+08:00  WARN 16755 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 32df2b49-8646-4829-8c0d-b9a7eb02e569
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-07-07T12:13:38.328+08:00  INFO 16755 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@2d66808, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@95ae28e, org.springframework.security.web.context.SecurityContextHolderFilter@6cee122c, org.springframework.security.web.header.HeaderWriterFilter@12b657f1, org.springframework.web.filter.CorsFilter@e85b903, org.springframework.security.web.authentication.logout.LogoutFilter@632d0551, com.ecommerce.user.security.JwtAuthFilter@429ea070, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@737f52c2, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@53d69a83, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@73b91603, org.springframework.security.web.session.SessionManagementFilter@6229c3ac, org.springframework.security.web.access.ExceptionTranslationFilter@612b59e9, org.springframework.security.web.access.intercept.AuthorizationFilter@d282fec]
+2026-07-07T12:13:38.328+08:00  INFO 16755 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@c85f2c4, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@3a1ad8ec, org.springframework.security.web.context.SecurityContextHolderFilter@2c290e23, org.springframework.security.web.header.HeaderWriterFilter@39aabe7, org.springframework.web.filter.CorsFilter@78aa1e9a, org.springframework.security.web.authentication.logout.LogoutFilter@70b8c22a, com.ecommerce.user.security.JwtAuthFilter@6be19271, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@11eefb50, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@47fdbf19, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@48515e1b, org.springframework.security.web.session.SessionManagementFilter@7db5c3ea, org.springframework.security.web.access.ExceptionTranslationFilter@562d7aec, org.springframework.security.web.access.intercept.AuthorizationFilter@3cc5e3b5]
+2026-07-07T12:13:38.367+08:00  INFO 16755 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 43113 (http) with context path ''
+2026-07-07T12:13:38.368+08:00  INFO 16755 --- [           main] c.e.blackbox.hidden.l1.HiddenL1Test      : Started HiddenL1Test in 0.423 seconds (process running for 11.995)
+2026-07-07T12:13:38.424+08:00  INFO 16755 --- [o-auto-9-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-07T12:13:38.424+08:00  INFO 16755 --- [o-auto-9-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-07-07T12:13:38.424+08:00  INFO 16755 --- [o-auto-9-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2026-07-07T12:13:38.474+08:00  INFO 16755 --- [o-auto-9-exec-1] c.e.user.service.UserAuthService         : User logged in: id=100000, email=admin@shophub.test
+2026-07-07T12:13:38.480+08:00  INFO 16755 --- [o-auto-9-exec-2] c.e.a.controller.SystemAdminController   : Config set: invoice.tax-rate = 0.10
+2026-07-07T12:13:38.531+08:00  INFO 16755 --- [o-auto-9-exec-3] c.e.user.service.UserRegisterService     : User registered: id=100002, email=user-8dc01491@example.com, status=PENDING_ACTIVATION
+2026-07-07T12:13:38.533+08:00  INFO 16755 --- [o-auto-9-exec-3] c.e.user.service.UserRegisterService     : Activation token generated for user id=100002
+2026-07-07T12:13:38.533+08:00  INFO 16755 --- [o-auto-9-exec-3] c.e.c.n.LocalNotificationServiceImpl     : Sending notification: bizType=USER_REGISTER, bizId=100002, channel=EMAIL, template=ACTIVATION
+2026-07-07T12:13:38.533+08:00  INFO 16755 --- [o-auto-9-exec-3] c.e.common.notification.MockMailSender   : MOCK EMAIL: to=user-8dc01491@example.com, subject=[USER_REGISTER] Notification, body=[ACTIVATION] {nickname=Tester, activationToken=03b944a2-a150-4754-87b5-2c74c00195b6}
+2026-07-07T12:13:38.533+08:00  INFO 16755 --- [o-auto-9-exec-3] c.e.c.n.LocalNotificationServiceImpl     : Notification sent successfully: bizType=USER_REGISTER, bizId=100002, channel=EMAIL
+2026-07-07T12:13:38.540+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.user.service.UserAuthService         : User activated: id=100002, email=user-8dc01491@example.com
+2026-07-07T12:13:38.590+08:00  INFO 16755 --- [o-auto-9-exec-5] c.e.user.service.UserAuthService         : User logged in: id=100002, email=user-8dc01491@example.com
+2026-07-07T12:13:38.597+08:00  INFO 16755 --- [o-auto-9-exec-6] c.ecommerce.user.service.AddressService  : Address created: id=100005, userId=100002
+2026-07-07T12:13:38.602+08:00  INFO 16755 --- [o-auto-9-exec-7] c.e.p.controller.AdminProductController  : Admin creating SPU: spuCode=SPU-8dc01491-7
+2026-07-07T12:13:38.605+08:00  INFO 16755 --- [o-auto-9-exec-7] c.ecommerce.product.service.SpuService   : Created SPU: id=100006, spuCode=SPU-8dc01491-7
+2026-07-07T12:13:38.611+08:00  INFO 16755 --- [o-auto-9-exec-8] c.e.p.controller.AdminProductController  : Admin creating SKU: skuCode=SKU-8dc01491, spuId=100006
+2026-07-07T12:13:38.614+08:00  INFO 16755 --- [o-auto-9-exec-8] c.ecommerce.product.service.SkuService   : Created SKU: id=100007, skuCode=SKU-8dc01491, spuId=100006
+2026-07-07T12:13:38.620+08:00  INFO 16755 --- [o-auto-9-exec-9] c.e.p.controller.AdminProductController  : Admin putting SKU on shelf: skuId=100007
+2026-07-07T12:13:38.621+08:00  INFO 16755 --- [o-auto-9-exec-9] c.ecommerce.product.service.SkuService   : SKU on shelf: skuId=100007, skuCode=SKU-8dc01491
+2026-07-07T12:13:38.627+08:00  INFO 16755 --- [-auto-9-exec-10] c.e.inventory.service.WarehouseService   : Warehouse created: id=100008, name=WH-8dc01491
+2026-07-07T12:13:38.637+08:00  INFO 16755 --- [o-auto-9-exec-1] c.e.inventory.service.InventoryService   : Inbound completed: warehouseId=100008, skuId=100007, qty=10
+2026-07-07T12:13:38.645+08:00  INFO 16755 --- [o-auto-9-exec-2] c.e.order.controller.OrderController     : POST /api/v1/orders/create: userId=100002, itemsCount=1
+2026-07-07T12:13:38.645+08:00  INFO 16755 --- [o-auto-9-exec-2] c.ecommerce.order.service.OrderService   : Creating order for userId=100002, itemsCount=1
+2026-07-07T12:13:38.646+08:00  INFO 16755 --- [o-auto-9-exec-2] c.e.order.service.OrderRiskChecker       : Performing risk check for userId=100002, amount=100.00, itemCount=1
+2026-07-07T12:13:38.648+08:00  INFO 16755 --- [o-auto-9-exec-2] c.e.order.service.OrderTotalCalculator   : Calculated payable: itemTotal=100.00, shippingFee=8.00, packagingFee=1.00, discount=0.00, pointsDeduction=0, finalPayable=109.00
+2026-07-07T12:13:38.654+08:00  INFO 16755 --- [o-auto-9-exec-2] c.e.i.s.InventoryReservationServiceImpl  : Stock reserved for orderId=100011, itemsCount=1
+2026-07-07T12:13:38.655+08:00  INFO 16755 --- [o-auto-9-exec-2] c.e.common.event.DomainEventPublisher    : Publishing domain event: eventId=a7327894-8efc-4ce6-aa30-40962cd66654, type=OrderCreatedEvent, occurredAt=2026-07-07T12:13:38.655085340
+2026-07-07T12:13:38.655+08:00  INFO 16755 --- [o-auto-9-exec-2] c.e.common.event.DomainEventPublisher    : Domain event published successfully: eventId=a7327894-8efc-4ce6-aa30-40962cd66654
+2026-07-07T12:13:38.655+08:00  INFO 16755 --- [o-auto-9-exec-2] c.ecommerce.order.service.OrderService   : Order created successfully: orderId=100011, orderNo=SO202607078648, payableAmount=109.00
+2026-07-07T12:13:38.656+08:00  INFO 16755 --- [o-auto-9-exec-2] c.e.order.listener.OrderEventListener    : [OrderEventListener] Order created: orderId=100011, userId=100002, amount=109.00, eventId=a7327894-8efc-4ce6-aa30-40962cd66654
+2026-07-07T12:13:38.660+08:00  INFO 16755 --- [o-auto-9-exec-3] c.e.p.controller.PaymentController       : Payment initiated for orderId=100011
+2026-07-07T12:13:38.661+08:00  INFO 16755 --- [o-auto-9-exec-3] c.e.payment.service.PaymentService       : Initiating payment for orderId=100011, amount=109.00, method=BALANCE
+2026-07-07T12:13:38.663+08:00  INFO 16755 --- [o-auto-9-exec-3] c.e.payment.service.PaymentValidator     : Payment validation passed for orderId=100011, amount=109.00
+2026-07-07T12:13:38.664+08:00  INFO 16755 --- [o-auto-9-exec-3] c.e.payment.service.PaymentService       : Payment record created: paymentNo=PAY1783397618663D0FF976E, orderId=100011
+2026-07-07T12:13:38.668+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.p.controller.PaymentController       : Payment callback received: paymentNo=PAY1783397618663D0FF976E, status=SUCCESS
+2026-07-07T12:13:38.669+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.p.service.PaymentCallbackService     : Processing payment callback: paymentNo=PAY1783397618663D0FF976E, status=SUCCESS, signature=valid-signature
+2026-07-07T12:13:38.674+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.i.s.InventoryReservationServiceImpl  : Stock deducted after payment for orderId=100011, reservationsCount=1
+2026-07-07T12:13:38.674+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.order.service.OrderQueryServiceImpl  : Inventory deducted after payment for orderId=100011
+2026-07-07T12:13:38.674+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.common.event.DomainEventPublisher    : Publishing domain event: eventId=36feccc5-3dd9-4ca7-aa99-6ab67efcf446, type=OrderPaidEvent, occurredAt=2026-07-07T12:13:38.674215486
+2026-07-07T12:13:38.674+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.l.event.OrderPaidEventListener       : Received OrderPaidEvent: orderId=100011, userId=100002, amount=109.00
+2026-07-07T12:13:38.674+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.logistics.service.ShipmentService    : Creating shipment for orderId=100011, userId=100002
+2026-07-07T12:13:38.677+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.logistics.service.ShipmentService    : Shipment created: shipmentId=100016, shipmentNo=SH202607078674, status=CREATED
+2026-07-07T12:13:38.677+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.l.event.OrderPaidEventListener       : Shipment created for orderId=100011
+2026-07-07T12:13:38.677+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.common.event.DomainEventPublisher    : Domain event published successfully: eventId=36feccc5-3dd9-4ca7-aa99-6ab67efcf446
+2026-07-07T12:13:38.677+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.common.event.DomainEventPublisher    : Publishing domain event: eventId=f6c610f3-b6c9-4751-9676-5e61380c5e77, type=OrderPaidEvent, occurredAt=2026-07-07T12:13:38.677722465
+2026-07-07T12:13:38.677+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.l.event.OrderPaidEventListener       : Received OrderPaidEvent: orderId=100011, userId=100002, amount=109.00
+2026-07-07T12:13:38.684+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.loyalty.service.LoyaltyPointService  : Earned 10900 points for userId=100002, balance=10900
+2026-07-07T12:13:38.684+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.l.event.OrderPaidEventListener       : Awarded 10900 points for orderId=100011
+2026-07-07T12:13:38.684+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.common.event.DomainEventPublisher    : Domain event published successfully: eventId=f6c610f3-b6c9-4751-9676-5e61380c5e77
+2026-07-07T12:13:38.684+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.order.service.OrderQueryServiceImpl  : Order 100011 marked as paid, paymentNo=PAY1783397618663D0FF976E, amount=109.00
+2026-07-07T12:13:38.684+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.payment.service.PaymentService       : Confirming payment: paymentNo=PAY1783397618663D0FF976E, orderId=100011
+2026-07-07T12:13:38.684+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.common.event.DomainEventPublisher    : Publishing domain event: eventId=19f7b934-2472-4050-b9ad-196dc35b5b97, type=PaymentSucceededEvent, occurredAt=2026-07-07T12:13:38.684590047
+2026-07-07T12:13:38.684+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.common.event.DomainEventPublisher    : Domain event published successfully: eventId=19f7b934-2472-4050-b9ad-196dc35b5b97
+2026-07-07T12:13:38.684+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.payment.service.PaymentService       : Payment confirmed successfully: paymentNo=PAY1783397618663D0FF976E
+2026-07-07T12:13:38.684+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.p.service.PaymentCallbackService     : Payment callback processed successfully: paymentNo=PAY1783397618663D0FF976E
+2026-07-07T12:13:38.685+08:00  INFO 16755 --- [o-auto-9-exec-4] c.e.order.listener.OrderEventListener    : [OrderEventListener] Order paid: orderId=100011, userId=100002, paymentNo=PAY1783397618663D0FF976E, amount=109.00, eventId=36feccc5-3dd9-4ca7-aa99-6ab67efcf446
+2026-07-07T12:13:38.691+08:00  INFO 16755 --- [o-auto-9-exec-5] c.e.p.controller.InvoiceController       : Invoice requested by userId=100002, orderId=100011
+2026-07-07T12:13:38.691+08:00  INFO 16755 --- [o-auto-9-exec-5] c.e.payment.service.InvoiceService       : Generating invoice: userId=100002, orderId=100011, type=PERSONAL, requestedAmount=100.00
+2026-07-07T12:13:38.697+08:00  INFO 16755 --- [o-auto-9-exec-5] c.e.payment.service.InvoiceService       : Invoice generated: invoiceNo=INV1783397618695BFA788E3, amount=100.00, taxAmount=10.00, remaining=9.00
+2026-07-07T12:13:38.703+08:00  INFO 16755 --- [           main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-07-07T12:13:38.705+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-9 - Shutdown initiated...
+2026-07-07T12:13:38.705+08:00  INFO 16755 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-9 - Shutdown completed.
+]]></system-out>
+  </testcase>
+</testsuite>

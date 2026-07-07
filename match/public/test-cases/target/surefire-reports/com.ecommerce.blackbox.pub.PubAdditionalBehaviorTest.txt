@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.ecommerce.blackbox.pub.PubAdditionalBehaviorTest
+-------------------------------------------------------------------------------
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.98 s -- in com.ecommerce.blackbox.pub.PubAdditionalBehaviorTest

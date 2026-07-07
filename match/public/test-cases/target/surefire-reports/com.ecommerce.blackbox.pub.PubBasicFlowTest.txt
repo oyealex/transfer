@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.ecommerce.blackbox.pub.PubBasicFlowTest
+-------------------------------------------------------------------------------
+Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 10.49 s -- in com.ecommerce.blackbox.pub.PubBasicFlowTest

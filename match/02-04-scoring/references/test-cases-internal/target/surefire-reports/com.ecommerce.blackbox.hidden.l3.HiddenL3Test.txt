@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.ecommerce.blackbox.hidden.l3.HiddenL3Test
+-------------------------------------------------------------------------------
+Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.345 s -- in com.ecommerce.blackbox.hidden.l3.HiddenL3Test

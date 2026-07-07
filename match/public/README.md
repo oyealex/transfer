@@ -78,6 +78,10 @@ mvn -s maven-settings.xml -Dmaven.repo.local=./maven-repo -f test-cases/pom.xml 
 
 所有 API 前缀固定为 `/api/v1/`。以下内容均不得修改：URL 路径、HTTP Method、Request/Response 字段名和类型、成功 HTTP 状态码、错误响应结构。
 
+代码中存在但未列入本 README 接口总览或 `design-docs/附录A-API接口参考.md` 的 URL、HTTP Method、请求字段、响应字段、Header 或辅助接口，不属于需要对齐的公开 REST API 契约。
+
+接口声明一致性判断仅覆盖文档中已经声明的接口、参数、请求体、响应体、Header 和状态码。文档未声明但代码中额外存在的接口或字段，可以保持不变；只有当这些额外声明影响文档已声明接口的声明或行为时，才需要纳入分析。
+
 ### 6.1 用户模块
 
 | Method | URL | 认证 | 成功状态 |
