@@ -27,16 +27,15 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link SettlementBatchService}.
  *
- * <p>The generateBatch() method includes ALL payment records
- * regardless of their payment status. It should only include payments with
- * status SUCCESS. Verifies settlement aggregation behavior.
- * settlement totals.
+ * <p>The generateBatch() method only includes payment records with
+ * status SUCCESS in settlement totals and settlement order items.
  */
 @ExtendWith(MockitoExtension.class)
 class SettlementBatchServiceTest {
@@ -65,51 +64,41 @@ class SettlementBatchServiceTest {
         );
     }
 
-    // ---- testGenerateBatch_includesUnpaidOrders ----
+    // ---- testGenerateBatch_excludesUnpaidOrders ----
 
     @Test
-    @DisplayName("settlement includes unpaid (PENDING/FAILED) orders")
-    void testGenerateBatch_includesUnpaidOrders() {
+    @DisplayName("settlement excludes unpaid (PENDING/FAILED) orders")
+    void testGenerateBatch_excludesUnpaidOrders() {
         // Given: payments with various statuses, including non-SUCCESS
         LocalDate batchDate = LocalDate.of(2026, 6, 1);
 
         PaymentRecord paid1 = createPayment(1L, "PAY001", new BigDecimal("100.00"), PaymentStatus.SUCCESS);
         PaymentRecord paid2 = createPayment(2L, "PAY002", new BigDecimal("200.00"), PaymentStatus.SUCCESS);
-        // These non-SUCCESS payments are included
         PaymentRecord pending = createPayment(3L, "PAY003", new BigDecimal("50.00"), PaymentStatus.PENDING);
         PaymentRecord failed = createPayment(4L, "PAY004", new BigDecimal("75.00"), PaymentStatus.FAILED);
 
         when(settlementBatchRepository.findByBatchDate(batchDate))
                 .thenReturn(Optional.empty());
-        // findByPaidAtBetween has NO status filter — returns ALL payments
+        // Repository returns all records in the time window; service filters by status.
         when(paymentRecordRepository.findByPaidAtBetween(any(), any()))
                 .thenReturn(Arrays.asList(paid1, paid2, pending, failed));
         when(invoiceRecordRepository.findAll()).thenReturn(Collections.emptyList());
 
-        SettlementBatch savedBatch = new SettlementBatch();
-        savedBatch.setId(1L);
-        savedBatch.setBatchNo("BAT20260601ABC");
-        savedBatch.setBatchDate(batchDate);
-        savedBatch.setTotalPaymentAmount(new BigDecimal("425.00"));
-        savedBatch.setTotalRefundAmount(BigDecimal.ZERO);
-        savedBatch.setTotalInvoiceAmount(BigDecimal.ZERO);
-        savedBatch.setOrderCount(4);
-        savedBatch.setStatus(SettlementStatus.GENERATED);
-
         when(settlementBatchRepository.save(any(SettlementBatch.class)))
-                .thenReturn(savedBatch);
+                .thenAnswer(invocation -> invocation.getArgument(0));
         when(settlementOrderItemRepository.save(any()))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
         SettlementBatchResponse response = settlementBatchService.generateBatch(batchDate);
 
-        // Then: all 4 payments are included, including PENDING and FAILED
+        // Then: only the 2 successful payments are included.
         assertNotNull(response);
-        assertEquals(4, response.getOrderCount(),
+        assertEquals(2, response.getOrderCount(),
                 "settlement order count");
-        assertEquals(new BigDecimal("425.00"), response.getTotalPaymentAmount(),
-                "total=425 includes unpaid amounts 50.00+75.00");
+        assertEquals(new BigDecimal("300.00"), response.getTotalPaymentAmount(),
+                "total=300 excludes pending and failed amounts");
+        verify(settlementOrderItemRepository, times(2)).save(any());
     }
 
     // ---- testGenerateBatch_calculatesTotals ----
@@ -117,7 +106,7 @@ class SettlementBatchServiceTest {
     @Test
     @DisplayName("settlement batch calculates totals from included payments")
     void testGenerateBatch_calculatesTotals() {
-        // Given: payments including non-SUCCESS ones
+        // Given: payments including a non-SUCCESS record
         LocalDate batchDate = LocalDate.of(2026, 6, 2);
 
         PaymentRecord payment1 = createPayment(10L, "PAY010", new BigDecimal("150.00"), PaymentStatus.SUCCESS);
@@ -140,15 +129,17 @@ class SettlementBatchServiceTest {
         // When
         SettlementBatchResponse response = settlementBatchService.generateBatch(batchDate);
 
-        // Then: totals include all payments
-        assertEquals(3, response.getOrderCount(),
-                "3 orders (only 2 are SUCCESS, 1 is PENDING)");
-        assertEquals(new BigDecimal("600.00"), response.getTotalPaymentAmount(),
-                "150+350+100=600 (includes pending)");
+        // Then: totals include only successful payments
+        assertEquals(2, response.getOrderCount(),
+                "2 successful orders; pending order is excluded");
+        assertEquals(new BigDecimal("500.00"), response.getTotalPaymentAmount(),
+                "150+350=500");
 
         // Verify batch was saved with correct totals
         SettlementBatch captured = batchCaptor.getValue();
         assertEquals(batchDate, captured.getBatchDate());
+        assertEquals(new BigDecimal("500.00"), captured.getTotalPaymentAmount());
+        assertEquals(2, captured.getOrderCount());
         assertEquals(SettlementStatus.GENERATED, captured.getStatus());
         assertNotNull(captured.getBatchNo());
     }

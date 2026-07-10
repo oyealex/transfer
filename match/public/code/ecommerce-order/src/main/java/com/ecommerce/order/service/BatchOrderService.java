@@ -8,7 +8,6 @@ import com.ecommerce.order.dto.CreateOrderResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +16,6 @@ import java.util.List;
  * Service for batch order creation (e.g., for import or migration scenarios).
  */
 @Service
-@Transactional
 public class BatchOrderService {
 
     private static final Logger log = LoggerFactory.getLogger(BatchOrderService.class);

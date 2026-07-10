@@ -29,12 +29,9 @@ import static org.mockito.Mockito.when;
 /**
  * Tests for {@link BatchOrderService}.
  *
- * <p>The {@link BatchOrderService#createBatch(Long, BatchCreateOrderRequest)}
- * method is annotated with {@code @Transactional}, meaning the ENTIRE batch runs
- * within a single database transaction. If any single order fails, all previously
- * created orders in that batch are rolled back, even when {@code continueOnError} is true.
- *
- * <p>The intended design should process each order in its own independent transaction.
+ * <p>Batch creation reports per-order results. The batch service must not wrap
+ * the entire batch in one transaction; each order creation should rely on the
+ * single-order service transaction boundary.
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("BatchOrderService")
@@ -119,11 +116,11 @@ class BatchOrderServiceTest {
     }
 
     @Test
-    @DisplayName("@Transactional annotation exists on BatchOrderService class")
-    void testTransactionalAnnotation_present_onClass() {
+    @DisplayName("@Transactional annotation is not present on BatchOrderService class")
+    void testTransactionalAnnotation_notPresent_onClass() {
         // Verify transaction annotation placement.
         Transactional annotation = BatchOrderService.class.getAnnotation(Transactional.class);
-        assertThat(annotation).isNotNull();
+        assertThat(annotation).isNull();
     }
 
     @Test

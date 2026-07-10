@@ -1,5 +1,6 @@
 package com.ecommerce.order.service;
 
+import com.ecommerce.common.exception.OrderValidationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -19,26 +20,26 @@ class OrderValidatorTest {
     // ======================== validateAmount ========================
 
     @Test
-    @DisplayName("validateAmount with zero amount throws exception")
-    void testValidateAmount_zero_throwsIllegalArgumentException() {
+    @DisplayName("validateAmount with zero amount throws OrderValidationException")
+    void testValidateAmount_zero_throwsOrderValidationException() {
         assertThatThrownBy(() -> validator.validateAmount(BigDecimal.ZERO))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(OrderValidationException.class)
                 .hasMessageContaining("Order amount must be positive");
     }
 
     @Test
-    @DisplayName("validateAmount with negative amount throws IllegalArgumentException (should throw OrderValidationException)")
-    void testValidateAmount_negative_throwsIllegalArgumentException() {
+    @DisplayName("validateAmount with negative amount throws OrderValidationException")
+    void testValidateAmount_negative_throwsOrderValidationException() {
         assertThatThrownBy(() -> validator.validateAmount(new BigDecimal("-50.00")))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(OrderValidationException.class)
                 .hasMessageContaining("Order amount must be positive");
     }
 
     @Test
-    @DisplayName("validateAmount with null amount throws IllegalArgumentException (should throw OrderValidationException)")
-    void testValidateAmount_null_throwsIllegalArgumentException() {
+    @DisplayName("validateAmount with null amount throws OrderValidationException")
+    void testValidateAmount_null_throwsOrderValidationException() {
         assertThatThrownBy(() -> validator.validateAmount(null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(OrderValidationException.class)
                 .hasMessageContaining("Order amount must be positive");
     }
 

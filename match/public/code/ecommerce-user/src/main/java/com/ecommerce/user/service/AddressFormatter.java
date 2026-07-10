@@ -11,13 +11,13 @@ public class AddressFormatter {
     /**
      * Formats address components into: province + city + district + detail.
      *
-     * @param city     the city
      * @param province the province
+     * @param city     the city
      * @param district the district/county
      * @param detail   the street / building / doorplate detail
      * @return the formatted full address string
      */
-    public String format(String city, String province, String district, String detail) {
+    public String format(String province, String city, String district, String detail) {
         return province + city + district + detail;
     }
 }

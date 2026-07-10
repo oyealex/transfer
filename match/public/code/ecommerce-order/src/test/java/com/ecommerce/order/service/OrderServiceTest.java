@@ -1,6 +1,7 @@
 package com.ecommerce.order.service;
 
 import com.ecommerce.common.event.DomainEventPublisher;
+import com.ecommerce.common.exception.OrderValidationException;
 import com.ecommerce.inventory.query.InventoryReservationService;
 import com.ecommerce.inventory.query.ReserveItem;
 import com.ecommerce.loyalty.query.LoyaltyQueryService;
@@ -258,11 +259,11 @@ class OrderServiceTest {
         when(productQueryService.getSkuForSale(100L)).thenReturn(zeroPriceSku);
 
         // Mock validation failure after item total calculation.
-        org.mockito.Mockito.doThrow(new IllegalArgumentException("Order amount must be positive, got: 0"))
+        org.mockito.Mockito.doThrow(new OrderValidationException("Order amount must be positive, got: 0"))
                 .when(orderValidator).validateAmount(org.mockito.ArgumentMatchers.any(java.math.BigDecimal.class));
 
         assertThatThrownBy(() -> orderService.createOrder(1L, request))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(OrderValidationException.class)
                 .hasMessageContaining("Order amount must be positive");
     }
 

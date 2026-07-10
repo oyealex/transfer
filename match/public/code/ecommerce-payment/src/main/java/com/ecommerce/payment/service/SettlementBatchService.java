@@ -6,6 +6,7 @@ import com.ecommerce.payment.dto.SettlementBatchResponse;
 import com.ecommerce.payment.entity.InvoiceRecord;
 import com.ecommerce.payment.entity.InvoiceStatus;
 import com.ecommerce.payment.entity.PaymentRecord;
+import com.ecommerce.payment.entity.PaymentStatus;
 import com.ecommerce.payment.entity.SettlementBatch;
 import com.ecommerce.payment.entity.SettlementOrderItem;
 import com.ecommerce.payment.entity.SettlementStatus;
@@ -65,7 +66,10 @@ public class SettlementBatchService {
         LocalDateTime endOfDay = batchDate.atTime(LocalTime.MAX);
 
         List<PaymentRecord> payments = paymentRecordRepository.findByPaidAtBetween(
-                startOfDay, endOfDay);
+                        startOfDay, endOfDay)
+                .stream()
+                .filter(payment -> payment.getStatus() == PaymentStatus.SUCCESS)
+                .collect(Collectors.toList());
 
         if (payments.isEmpty()) {
             log.info("No payments found for date: {}", batchDate);
