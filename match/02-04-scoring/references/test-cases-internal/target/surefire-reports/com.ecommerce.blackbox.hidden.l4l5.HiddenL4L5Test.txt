@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.ecommerce.blackbox.hidden.l4l5.HiddenL4L5Test
--------------------------------------------------------------------------------
-Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.374 s -- in com.ecommerce.blackbox.hidden.l4l5.HiddenL4L5Test
