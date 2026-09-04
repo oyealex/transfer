@@ -1,0 +1,15 @@
+[package]
+name = "md-outline"
+version = "0.1.0"
+edition = "2024"
+description = "Parse and search Markdown document outlines"
+license = "MIT"
+
+[dependencies]
+clap = { version = "4.6.6", features = ["derive"] }
+pulldown-cmark = { version = "0.13.4", default-features = false }
+regex = "1.13.1"
+
+[profile.release]
+strip = true
+lto = "thin"
