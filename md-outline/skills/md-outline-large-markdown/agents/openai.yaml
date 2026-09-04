@@ -1,0 +1,4 @@
+interface:
+  display_name: "Large Markdown Outline"
+  short_description: "Locate sections in large Markdown files efficiently"
+  default_prompt: "Use $md-outline-large-markdown to locate a specific section in a large Markdown file without reading the entire document."

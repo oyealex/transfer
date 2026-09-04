@@ -69,3 +69,10 @@ cargo test --release --test performance_e2e -- --ignored --nocapture
 ```
 
 性能样本会确定性生成到 `target/performance-fixtures`，结果包含中位耗时和吞吐率。小文件运行 15 次、中型文件运行 7 次、大文件运行 3 次；测试输出丢弃到空设备，避免终端渲染影响结果。
+
+## 智能体集成
+
+- 可嵌入系统提示词的工具说明：`docs/md-outline-agent-tool-guidance.md`
+- 带 Windows x86_64 release 二进制的独立 Skill：`skills/md-outline-large-markdown`
+
+两种集成方式都将适用范围限制为大型 Markdown 的大纲读取或按章节标题定位。小型文件、需要读取全文或搜索正文内容时，应使用智能体的原生 read/search 工具。
