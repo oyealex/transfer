@@ -2,7 +2,8 @@
 
 对外契约：
 - stdout 只输出 JSON，人读信息走 stderr。
-- 退出码 0 表示成功（``warnings`` 可非空），2 表示未找到，3 表示上游不可达。
+- 退出码 0 表示成功（``warnings`` 可非空），1 表示校验或内部失败，
+  2 表示未找到，3 表示上游不可达，64 表示命令行参数错误。
 """
 
 from __future__ import annotations
@@ -10,12 +11,13 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from pathlib import Path
 from typing import Any, NoReturn, Sequence
 
 from .contracts import SCHEMA_VERSION
-from .detail import fetch_mr_change_detail
 from .index import fetch_sr_mr_index
 from .mr import fetch_mr_details
+from .stats import EvidenceError, run_stats
 
 
 class AuditError(Exception):
@@ -61,12 +63,11 @@ def _cmd_mr(args: argparse.Namespace) -> dict[str, Any]:
     return dict(fetch_mr_details(args.url))
 
 
-def _cmd_detail(args: argparse.Namespace) -> dict[str, Any]:
+def _cmd_stats(args: argparse.Namespace) -> dict[str, Any]:
     return dict(
-        fetch_mr_change_detail(
-            args.mr,
-            project_path=args.project,
-            context_lines=args.context,
+        run_stats(
+            evidence=Path(args.evidence),
+            out=Path(args.out) if args.out else None,
         )
     )
 
@@ -86,12 +87,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_mr.add_argument("--pretty", action="store_true", help="缩进输出")
     p_mr.set_defaults(handler=_cmd_mr)
 
-    p_detail = sub.add_parser("detail", help="本地仓不可达时取 MR 文件级变更")
-    p_detail.add_argument("--mr", required=True, help="MR 编号")
-    p_detail.add_argument("--project", default=None, help="仓的规范路径")
-    p_detail.add_argument("--context", type=int, default=10, help="diff 上下文行数")
-    p_detail.add_argument("--pretty", action="store_true", help="缩进输出")
-    p_detail.set_defaults(handler=_cmd_detail)
+    p_stats = sub.add_parser("stats", help="解析证据表，算指标并校验")
+    p_stats.add_argument("--evidence", required=True, help="evidence.md 路径")
+    p_stats.add_argument("--out", default=None, help="stats.json 输出路径，默认与证据表同目录")
+    p_stats.add_argument("--pretty", action="store_true", help="缩进输出")
+    p_stats.set_defaults(handler=_cmd_stats)
 
     return parser
 
@@ -104,6 +104,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         payload = args.handler(args)
     except NotImplementedError as exc:
         print(f"not implemented: {exc}", file=sys.stderr)
+        return 1
+    except EvidenceError as exc:
+        print(f"evidence error: {exc}", file=sys.stderr)
         return 1
     except NotFoundError as exc:
         print(f"not found: {exc}", file=sys.stderr)

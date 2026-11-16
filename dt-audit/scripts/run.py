@@ -4,7 +4,8 @@
 用法：
 
     python run.py index  --sr SR-1234 [--pretty]
-    python run.py detail --mr 1234 [--project group/subgroup/repo] [--context 10] [--pretty]
+    python run.py mr     --url <MR地址> [--url ...] [--pretty]
+    python run.py stats  --evidence .dt-audit/SR-1234/evidence.md [--out stats.json] [--pretty]
 
 stdout 只输出 JSON；人读信息走 stderr。
 """

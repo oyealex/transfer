@@ -15,7 +15,6 @@ from typing import Literal, TypedDict
 
 SCHEMA_VERSION = "1.0"
 
-ChangeType = Literal["added", "modified", "deleted", "renamed", "copied"]
 MrState = Literal["merged", "opened", "closed", "locked", "unknown"]
 
 
@@ -99,33 +98,3 @@ class MrDetailBatch(TypedDict):
     mrs: list[MrRef]
     warnings: list[str]
     """单个地址解析失败时逐条记录，其余地址照常返回。"""
-
-
-class FileChange(TypedDict):
-    """一个变更文件。"""
-
-    path: str
-    old_path: str | None
-    """重命名或复制时的原路径，其他情况为 ``None``。"""
-
-    change_type: ChangeType
-    is_binary: bool
-    is_submodule: bool
-    additions: int
-    deletions: int
-    truncated: bool
-    """超过 ``max_file_bytes`` 时为真。"""
-
-    diff: str | None
-    """unified diff，按 ``context_lines`` 给上下文。二进制或截断时为 ``None``。"""
-
-
-class MrChangeDetail(TypedDict):
-    """``fetch_mr_change_detail`` 的返回值。只在本地仓不可达时使用。"""
-
-    schema_version: str
-    mr_id: str
-    base_sha: str | None
-    head_sha: str | None
-    files: list[FileChange]
-    warnings: list[str]
