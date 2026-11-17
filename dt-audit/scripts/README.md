@@ -1,12 +1,15 @@
 # 脚本
 
-Skill 只依赖五个入口。`git` 只用来补读上下文，不参与取改动。
+Skill 只依赖八个入口，全部是确定性变换：取数、收敛、扫描、装配、统计、渲染。`git` 只用来补读上下文，不参与取改动。
 
 | 入口 | 什么时候用 |
 |---|---|
 | `fetch_sr_mr_index` | 检测对象是 SR / AR，用它拿关联的 MR 清单（只给元数据） |
 | `fetch_mr_details` | 检测对象是一个 MR 地址，用它拿元数据 |
 | `fetch_mr_changes` | 两种输入都走它：把 MR 的改动落成 `manifest.json` + 逐文件 diff |
+| `run_scope` | 步骤 1：按范围规则分类变更文件，输出范围表数据与体量指标 |
+| `run_scan` | 步骤 2：扫测试 diff，输出测试退化候选 |
+| `run_assemble` | 步骤 1–3：生成证据表骨架、合并枚举片、回填裁定片 |
 | `run_stats` | 步骤 5 出报告前，解析 `evidence.md`、算指标、校验一致性 |
 | `run_render` | 步骤 5 把 `stats.json` + `evidence.md` + `manifest.json` + `narrative.json` 装配成报告并落盘；带 `--check` 时先回读校验、不通过不写文件。`render_report` 是它的纯函数内核，只返回文本不落盘 |
 
@@ -23,29 +26,37 @@ scripts/
     ├── contracts.py        # 数据契约（唯一来源）
     ├── errors.py           # 异常类型（取数模块与此处共用，避免循环导入）
     ├── cli.py              # 参数解析与错误契约
-    ├── index.py            # fetch_sr_mr_index —— 待实现
-    ├── mr.py               # fetch_mr_details —— 待实现
-    ├── fetch.py            # fetch_mr_changes —— 待实现
-    ├── render.py           # render_report —— 已实现
-    └── stats.py            # run_stats —— 已实现
+    ├── index.py            # fetch_sr_mr_index
+    ├── mr.py               # fetch_mr_details
+    ├── fetch.py            # fetch_mr_changes
+    ├── scope.py            # run_scope
+    ├── scan.py             # run_scan
+    ├── assemble.py         # run_assemble
+    ├── render.py           # render_report
+    └── stats.py            # run_stats
 ```
 
-三个取数实现当前抛 `NotImplementedError`，签名与实现要点写在各自的 docstring 里；`stats` 与 `render` 是纯本地处理，已可用。
+三个取数实现负责把 MR 元数据与改动落盘；`scope` / `scan` / `assemble` / `stats` / `render` 都是纯本地处理，不下判断。
 
 `render` 只做两件事：标量替换、行块展开。它不做任何判断——选哪几条问题、影响档、措辞都来自 `narrative.json`；也不做统计——数字全部来自 `stats.json`。模板语法见 `render.py` 的模块 docstring。
 
 ## 公开 API
 
 ```python
-from dt_audit import fetch_sr_mr_index, fetch_mr_details, fetch_mr_changes, run_stats
+from dt_audit import (
+    fetch_sr_mr_index, fetch_mr_details, fetch_mr_changes,
+    run_scope, run_scan, run_assemble, run_stats,
+)
 
 index = fetch_sr_mr_index("SR-1234")        # 或 "AR-77"
 mrs   = fetch_mr_details(["https://git.corp/group/repo/-/merge_requests/1234"])
 man   = fetch_mr_changes(["https://…/-/merge_requests/1234"], ".dt-audit/SR-1234/_diffs")
+scope = run_scope(manifest=Path(".dt-audit/SR-1234/_diffs/manifest.json"))
+scan  = run_scan(manifest=Path(".dt-audit/SR-1234/_diffs/manifest.json"))
 stats = run_stats(evidence=Path(".dt-audit/SR-1234/evidence.md"))
 ```
 
-只有这五个入口。不要增加配置加载、仓库检索、diff 计算之类的出口——本地仓路径由 Skill 询问用户后自行校验，只用于补读上下文；改动内容一律由 `fetch` 产出。
+只有这八个入口。不要增加配置加载、仓库检索、diff 计算之类的出口——本地仓路径由 Skill 询问用户后自行校验，只用于补读上下文；改动内容一律由 `fetch` 产出。
 
 ## 运行
 
@@ -54,11 +65,36 @@ python run.py index --id SR-1234 --pretty
 python run.py index --id AR-77 --pretty
 python run.py mr    --url https://git.corp/group/repo/-/merge_requests/1234 --pretty
 python run.py fetch --url https://…/-/merge_requests/1234 --out .dt-audit/SR-1234/_diffs --pretty
+
+# 步骤 1：范围收敛 + 生成证据表骨架
+python run.py scope --manifest .dt-audit/SR-1234/_diffs/manifest.json --out .dt-audit/SR-1234/scope.json --pretty
+python run.py assemble --mode init --evidence .dt-audit/SR-1234/evidence.md \
+  --manifest .dt-audit/SR-1234/_diffs/manifest.json --scope .dt-audit/SR-1234/scope.json \
+  --index .dt-audit/SR-1234/index.json --tier "仅 diff" --pretty
+
+# 步骤 2：退化候选 + 合并枚举片
+python run.py scan --manifest .dt-audit/SR-1234/_diffs/manifest.json --pretty
+python run.py assemble --mode merge --evidence .dt-audit/SR-1234/evidence.md \
+  --shards .dt-audit/SR-1234/shard-01.json --pretty
+
+# 步骤 3：回填裁定片
+python run.py assemble --mode judge --evidence .dt-audit/SR-1234/evidence.md \
+  --judges .dt-audit/SR-1234/judge-01.json --pretty
+
+# 步骤 5
 python run.py stats --evidence .dt-audit/SR-1234/evidence.md --pretty
 python run.py render --stats .dt-audit/SR-1234/stats.json --evidence .dt-audit/SR-1234/evidence.md --manifest .dt-audit/SR-1234/_diffs/manifest.json --narrative .dt-audit/SR-1234/narrative.json --out .dt-audit/SR-1234/DT-AUDIT-REPORT.md --check
 ```
 
 `--url` 可重复，一次传完整批地址。`stats` 默认把 `stats.json` 写在证据表同目录，用 `--out` 覆盖。
+
+`assemble` 的三种模式：
+
+- `init`：从 manifest / scope / index 生成 `evidence.md` 骨架（概览、变更单元、范围、五张空表）。没有 `--index` 时，单元的标题 / 作者 / 提交会留空，由 Skill 补；`--meta` 可直接给 `{object_type, object_id, units:[…]}`，字段同「变更单元」表头。
+- `merge`：合并枚举片 JSON，按「位置 + 条件摘要」去重、统一编号、算「断言随动」。
+- `judge`：回填裁定片 JSON 的状态、断言证据、档位与「只验交互」。
+
+`scope` / `scan` / `assemble` 的返回都是对同一份输入的确定性变换，不含判断；判不准的内容留给 Skill 复核。
 
 或：
 
@@ -156,7 +192,7 @@ stdout 只允许 JSON。日志、进度、警告文本一律写 stderr。
     └── <扁平化路径>.diff          # 逐个文件的 unified diff
 ```
 
-`stats` 的返回结构：指标与定性在顶层 `指标`、`定性` 两个块里，问题分布取 `分布表`（已排序、只含命中项），逐类明细在 `问题分布`；证据缺口在 `证据缺口`（含 `无法获取单元数`），测试退化条数在 `测试退化`（`计入条数` / `提示条数`）。字段含义见本文「报告口径」。
+`stats` 的返回结构：指标与定性在顶层 `指标`、`定性` 两个块里，问题分布取 `分布表`（已排序、只含命中项），逐类明细在 `问题分布`；证据缺口在 `证据缺口`（含 `无法获取单元数`），测试退化条数在 `测试退化`（`计入条数` / `提示条数`）。另有 `短路`（生产改动行 = 0）与 `抽样`（3 个已断言 / 断言偏弱 + 全部未断言的编号，供步骤 4 直接用）。字段含义见本文「报告口径」。
 
 ## 报告口径
 

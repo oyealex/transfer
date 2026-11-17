@@ -326,6 +326,7 @@ def _decide_verdict(
     declared_units: int = 0,
     unable_units: int = 0,
     limited_files: int = 0,
+    prod_change_lines: int = 0,
 ) -> dict[str, Any]:
     """按顺序判定 DT 质量定性，命中即停。返回 结论 / 规则 / 依据。"""
     # 判定与展示同精度：报告按「百分比 1 位小数」展示，判定一律先舍到 3 位小数，
@@ -346,6 +347,13 @@ def _decide_verdict(
         }
 
     if total == 0:
+        if prod_change_lines == 0:
+            note = "本次变更没有生产代码改动（新增 + 删除 0 行），不涉及分支，直接记合格"
+            if limited_files:
+                note += (
+                    f"；另有 C/C++ 受限文件 {limited_files} 个，不据此判断有无行为分支"
+                )
+            return {"结论": VERDICT_PASS, "规则": "R0", "依据": note}
         if limited_files:
             return {
                 "结论": VERDICT_PASS,
@@ -482,6 +490,7 @@ def analyze(path: Path) -> dict[str, Any]:
     scope_rows = parsed["范围"]
     included_by_category: dict[tuple[str, str], dict[str, int]] = {}
     kloc_additions = 0
+    prod_change_lines = 0
     for idx, row in enumerate(scope_rows, start=1):
         where = f"范围第 {idx} 行"
         if not _norm(row.get("路径", "")):
@@ -502,6 +511,7 @@ def analyze(path: Path) -> dict[str, Any]:
         deletions = _as_int(_norm(row.get("删除", "")) or "0", where=f"{where}.删除", errors=errors)
         if category == "生产代码" and language in ("Java", "Python"):
             kloc_additions += additions
+            prod_change_lines += additions + deletions
         bucket = included_by_category.setdefault(
             (category or "未分类", language or "未标注"),
             {"文件数": 0, "新增": 0, "删除": 0},
@@ -726,6 +736,29 @@ def analyze(path: Path) -> dict[str, Any]:
                 f"{where}（{dp_id}）：状态是无法判定，「复核」列必须写 `缺失：…` 说明缺什么"
             )
 
+        if reach:
+            for name in re.split(r"[、,，;；]\s*", reach):
+                if name and name not in case_names:
+                    errors.append(
+                        f"{where}（{dp_id}）：触达用例「{name}」不在用例清单里"
+                    )
+        for part in re.split(r"[；;]", review):
+            part = part.strip()
+            if part and not part.startswith(("随动：", "缺失：", "自查：")):
+                errors.append(
+                    f"{where}（{dp_id}）：复核列只能用 `随动：` / `缺失：` / `自查：` 前缀，"
+                    f"实际「{part[:30]}」"
+                )
+        if state in ("已断言", "断言偏弱") and evidence:
+            if not any(name in evidence for name in case_names):
+                errors.append(
+                    f"{where}（{dp_id}）：断言证据必须包含用例清单里的用例名"
+                )
+            elif not re.search(r":\d+", evidence):
+                errors.append(
+                    f"{where}（{dp_id}）：断言证据必须带断言行号（形如 `文件:行号`）"
+                )
+
         source = _norm(row.get("来源", ""))
         if source not in ("新增", "修改"):
             errors.append(f"{where}（{dp_id}）：来源应为 新增 / 修改，实际「{source}」")
@@ -797,6 +830,23 @@ def analyze(path: Path) -> dict[str, Any]:
     total = len(dp_rows)
     undecidable = state_count["无法判定"]
     decidable = total - undecidable
+    # 步骤 4 的抽样清单：3 个已断言/断言偏弱 + 全部未断言，机械可算
+    positive_ids = [
+        _norm(row.get("编号", ""))
+        for row in dp_rows
+        if _norm(row.get("状态", "")) in ("已断言", "断言偏弱")
+    ]
+    unasserted_ids = [
+        _norm(row.get("编号", ""))
+        for row in dp_rows
+        if _norm(row.get("状态", "")) == "未断言"
+    ]
+    sample_ids = positive_ids[:3] + unasserted_ids
+    sampling = {
+        "数量": len(sample_ids),
+        "编号": sample_ids,
+        "说明": "3 个已断言 / 断言偏弱项 + 全部未断言项",
+    }
     if total and sum(state_count.values()) != total:
         errors.append(
             f"逻辑点状态合计 {sum(state_count.values())} 与总行数 {total} 不一致"
@@ -858,6 +908,7 @@ def analyze(path: Path) -> dict[str, Any]:
         "用例总数": case_total,
         "新增DT密度": density,
         "断言总数": assertion_total,
+        "生产改动行": prod_change_lines,
         "全部逻辑点": total,
         "可判定逻辑点数": decidable,
         "无法判定逻辑点数": undecidable,
@@ -871,6 +922,7 @@ def analyze(path: Path) -> dict[str, Any]:
     verdict = _decide_verdict(
         total=total,
         new_or_modified_cases=new_cases + modified_cases,
+        prod_change_lines=prod_change_lines,
         completeness=completeness,
         effective_rate=effective_rate,
         degrade_signals=degrade_signals,
@@ -1055,6 +1107,8 @@ def analyze(path: Path) -> dict[str, Any]:
             "只用交互验证用例数": b3,
         },
         "契约漂移数": contract_drifts if total else 0,
+        "短路": prod_change_lines == 0,
+        "抽样": sampling,
         "命中类数": sum(1 for item in distribution if item["命中"]),
         "未命中类数": DISTRIBUTION_CLASSES - sum(1 for item in distribution if item["命中"]),
         "水位": {

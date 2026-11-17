@@ -15,12 +15,15 @@ import sys
 from pathlib import Path
 from typing import Any, NoReturn, Sequence
 
+from .assemble import run_assemble
 from .contracts import SCHEMA_VERSION
 from .errors import AuditError, NotFoundError, UpstreamError
 from .fetch import fetch_mr_changes
 from .index import fetch_sr_mr_index
 from .mr import fetch_mr_details
 from .render import RenderError, run_render
+from .scan import run_scan
+from .scope import run_scope
 from .stats import EvidenceError, run_stats
 
 DEFAULT_TEMPLATE = Path(__file__).resolve().parents[2] / "references" / "报告模板.md"
@@ -76,6 +79,38 @@ def _cmd_render(args: argparse.Namespace) -> dict[str, Any]:
     )
 
 
+def _cmd_scope(args: argparse.Namespace) -> dict[str, Any]:
+    return run_scope(
+        manifest=Path(args.manifest),
+        out=Path(args.out) if args.out else None,
+    )
+
+
+def _cmd_scan(args: argparse.Namespace) -> dict[str, Any]:
+    return run_scan(
+        manifest=Path(args.manifest),
+        out=Path(args.out) if args.out else None,
+    )
+
+
+def _cmd_assemble(args: argparse.Namespace) -> dict[str, Any]:
+    return run_assemble(
+        mode=args.mode,
+        evidence=Path(args.evidence),
+        manifest=Path(args.manifest) if args.manifest else None,
+        scope=Path(args.scope) if args.scope else None,
+        index=Path(args.index) if args.index else None,
+        meta=Path(args.meta) if args.meta else None,
+        object_type=args.object_type,
+        object_id=args.object_id,
+        raw_input=args.input,
+        ability=args.ability,
+        tier=args.tier,
+        shards=[Path(p) for p in args.shards],
+        judges=[Path(p) for p in args.judges],
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = _Parser(prog="dt_audit", description="DT 质量审计取数脚本")
     parser.add_argument("--version", action="version", version=f"%(prog)s {SCHEMA_VERSION}")
@@ -113,6 +148,35 @@ def build_parser() -> argparse.ArgumentParser:
     p_render.add_argument("--check", action="store_true", help="回读校验，不通过则报错且不写文件")
     p_render.add_argument("--pretty", action="store_true", help="缩进输出")
     p_render.set_defaults(handler=_cmd_render)
+
+    p_scope = sub.add_parser("scope", help="按范围规则分类变更文件，输出范围表与体量指标")
+    p_scope.add_argument("--manifest", required=True, help="manifest.json 路径")
+    p_scope.add_argument("--out", default=None, help="scope.json 输出路径")
+    p_scope.add_argument("--pretty", action="store_true", help="缩进输出")
+    p_scope.set_defaults(handler=_cmd_scope)
+
+    p_scan = sub.add_parser("scan", help="扫测试 diff，输出测试退化候选")
+    p_scan.add_argument("--manifest", required=True, help="manifest.json 路径（diff 相对它解析）")
+    p_scan.add_argument("--out", default=None, help="scan.json 输出路径")
+    p_scan.add_argument("--pretty", action="store_true", help="缩进输出")
+    p_scan.set_defaults(handler=_cmd_scan)
+
+    p_assemble = sub.add_parser("assemble", help="生成证据表骨架、合并分片、回填裁定")
+    p_assemble.add_argument("--mode", required=True, choices=("init", "merge", "judge"))
+    p_assemble.add_argument("--evidence", required=True, help="evidence.md 路径（不存在时由 init 创建）")
+    p_assemble.add_argument("--manifest", default=None, help="manifest.json 路径")
+    p_assemble.add_argument("--scope", default=None, help="scope.json 路径；缺省则由 manifest 现算")
+    p_assemble.add_argument("--index", default=None, help="index / mr 命令的 JSON 输出")
+    p_assemble.add_argument("--meta", default=None, help="对象与变更单元的元数据 JSON")
+    p_assemble.add_argument("--object-type", default="", help="SR / AR / MR")
+    p_assemble.add_argument("--object-id", default="", help="如 SR-1234")
+    p_assemble.add_argument("--input", default="", help="用户消息里的原始输入")
+    p_assemble.add_argument("--ability", default="静态级", help="索引级 / 静态级 / 文件级")
+    p_assemble.add_argument("--tier", default="仅 diff", help="变更单元来源档位")
+    p_assemble.add_argument("--shards", action="append", default=[], help="枚举片 JSON，可重复")
+    p_assemble.add_argument("--judges", action="append", default=[], help="裁定片 JSON，可重复")
+    p_assemble.add_argument("--pretty", action="store_true", help="缩进输出")
+    p_assemble.set_defaults(handler=_cmd_assemble)
 
     return parser
 

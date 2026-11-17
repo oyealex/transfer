@@ -536,7 +536,11 @@ def build_context(
         "受限文件数": _s(metrics.get("C/C++受限文件数")),
         "无逻辑点": total == 0,
         "无逻辑点说明": (
-            "本次未枚举出 Java / Python 逻辑点（0 个）。"
+            (
+                "本次变更没有生产代码改动（新增 + 删除 0 行）。"
+                if stats.get("短路")
+                else "本次未枚举出 Java / Python 逻辑点（0 个）。"
+            )
             + (
                 f"另有 C/C++ 受限文件 {_int(metrics.get('C/C++受限文件数'))} 个，"
                 "不据此判断有无行为分支。"

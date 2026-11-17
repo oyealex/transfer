@@ -32,16 +32,24 @@
 
 要求 Python ≥ 3.8，只用标准库；`git` 可选，仅用于补读本地仓上下文。
 
-> **当前状态**：`index` / `mr` / `fetch` 三个取数入口还是空实现（抛 `NotImplementedError`），只有 `stats` 与 `render` 可用。端到端运行需要先补齐取数，或由外部流程产出同构的 `manifest.json` 与逐文件 diff 后接上。
-
 完整流程（五步）：
 
 ```bash
-# 1. 取数与范围
-python scripts/run.py index --id SR-1234 --pretty
+# 1. 取数、范围收敛、生成证据表骨架
+python scripts/run.py index --id SR-1234 --pretty > .dt-audit/SR-1234/index.json
 python scripts/run.py fetch --url https://…/-/merge_requests/1234 --out .dt-audit/SR-1234/_diffs --pretty
+python scripts/run.py scope --manifest .dt-audit/SR-1234/_diffs/manifest.json --out .dt-audit/SR-1234/scope.json
+python scripts/run.py assemble --mode init --evidence .dt-audit/SR-1234/evidence.md \
+  --manifest .dt-audit/SR-1234/_diffs/manifest.json --scope .dt-audit/SR-1234/scope.json \
+  --index .dt-audit/SR-1234/index.json
 
-# 2–4. 人工/子代理盘点、定状态、抽样自查，写入 evidence.md
+# 2–3. 盘点、裁定；有分片时合并回证据表
+python scripts/run.py scan --manifest .dt-audit/SR-1234/_diffs/manifest.json
+python scripts/run.py assemble --mode merge --evidence .dt-audit/SR-1234/evidence.md --shards …
+python scripts/run.py assemble --mode judge --evidence .dt-audit/SR-1234/evidence.md --judges …
+
+# 4. 按 stats 的「抽样」块做自查，结论写回复核列
+
 # 5. 算数 → 写判断 → 装配
 python scripts/run.py stats  --evidence .dt-audit/SR-1234/evidence.md --out .dt-audit/SR-1234/stats.json
 python scripts/run.py render --stats .dt-audit/SR-1234/stats.json \
@@ -51,7 +59,7 @@ python scripts/run.py render --stats .dt-audit/SR-1234/stats.json \
   --out .dt-audit/SR-1234/DT-AUDIT-REPORT.md --check
 ```
 
-`--check` 会回读生成的报告，核对数字、行数、章节与内部引用；不通过就不落盘。
+`scope` 分类、`scan` 扫退化候选、`assemble` 拼证据表，都是确定性变换；枚举、裁定、写判断仍由 Skill 做。`--check` 会回读生成的报告，核对数字、行数、章节与内部引用；不通过就不落盘。
 
 ## 工作方式
 
@@ -59,12 +67,13 @@ python scripts/run.py render --stats .dt-audit/SR-1234/stats.json \
 |---|---|---|
 | 1 确定范围与取数 | 拿 MR 清单、取 diff、分类收敛、按身份去重 | `evidence.md` 的概览、变更单元、范围三段 |
 | 2 盘点 | 枚举逻辑点、录用例 / 断言 / Mock 清单、扫退化信号 | 五段表；超过 800 生产改动行时派枚举片 |
-| 3 定状态 | 关联触达 → 产出对账 → 落六档之一 | 逻辑点证据补全；超过 80 点派裁定片 |
+| 3 定状态 | 关联触达 → 产出对账 → 落六档之一 | 逻辑点证据补全；超过 50 点派裁定片 |
 | 4 抽样自查 | 抽 3 个 + 全部未断言项，核对「断言读的值真来自这条分支」 | 复核列 |
 | 5 出报告 | `stats` 算数、`narrative` 写判断、`render` 装配并回读校验 | `stats.json` / 报告 |
 
-三个贯穿全程的机制：
+贯穿全程的机制：
 
+- **短路**：范围收敛后「生产改动行」（Java / Python 生产代码的新增 + 删除）= 0 时，跳过步骤 2–4，直接出报告，定性记「合格」，报告章节不变。
 - **证据来源三档**：含本地仓 / 仅 diff / 无法获取。档位只决定能读到多少上下文，不决定能不能判。
 - **逻辑点**：全流程的原子计量单位，一条被引入或修改的行为分支。枚举规则见 [references/逻辑点规则.md](references/逻辑点规则.md)。
 - **状态六档**：无测试 / 已断言 / 断言偏弱 / 实现被替换 / 未断言 / 无法判定。判档按产出对账：先看分支的产出项与决定性，再看断言读到哪一项；拿不准按「疑罪从无」维持已断言，缺证据才落无法判定。
@@ -72,7 +81,7 @@ python scripts/run.py render --stats .dt-audit/SR-1234/stats.json \
 分片（体量大时）：
 
 - 生产改动行 > 800 → 步骤 2 派**枚举片**（按生产文件簇切，每片 ≤ 500–600 行）。
-- 逻辑点 > 80 → 步骤 3 派**裁定片**（每批 ≤ 80 点，只判状态与证据，不读 diff）。
+- 逻辑点 > 50 → 步骤 3 派**裁定片**（每 50 点一批，只判状态与证据，不读 diff）。
 - 调度方式由运行的 agent 决定；协议只约束切片标准、每片的输入与输出契约。见 [references/分片协议.md](references/分片协议.md)。
 
 ## 目录
@@ -92,7 +101,13 @@ dt-audit/
 └── scripts/
     ├── run.py                   # 命令行入口
     ├── README.md                # 脚本用法、错误契约、报告口径
-    └── dt_audit/                # 取数、统计、装配
+    └── dt_audit/
+        ├── index.py / mr.py / fetch.py   # 取数
+        ├── scope.py             # 范围收敛
+        ├── scan.py              # 退化候选扫描
+        ├── assemble.py          # 证据表骨架 / 分片合并 / 裁定回填
+        ├── stats.py             # 指标、定性与校验
+        └── render.py            # 报告装配与回读校验
 ```
 
 ## 已知限制
@@ -101,7 +116,6 @@ dt-audit/
 - **只覆盖实现自证能力**：漏实现、设计缺陷不在检测范围内。
 - **C / C++ 只到文件级**：不枚举逻辑点，不进任何比率，只记受限文件数。
 - **仅 diff 档有盲区**：看不到未改动的测试与调用方，相关证据缺口会单独列出。
-- **取数未实现**：见上文「当前状态」。
 
 ## 维护
 
