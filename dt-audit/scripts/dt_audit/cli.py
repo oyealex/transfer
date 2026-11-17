@@ -1,6 +1,7 @@
 """``dt_audit`` 命令行入口。
 
 对外契约：
+
 - stdout 只输出 JSON，人读信息走 stderr。
 - 退出码 0 表示成功（``warnings`` 可非空），1 表示校验或内部失败，
   2 表示未找到，3 表示上游不可达，64 表示命令行参数错误。
@@ -15,6 +16,7 @@ from pathlib import Path
 from typing import Any, NoReturn, Sequence
 
 from .contracts import SCHEMA_VERSION
+from .fetch import fetch_mr_changes
 from .index import fetch_sr_mr_index
 from .mr import fetch_mr_details
 from .stats import EvidenceError, run_stats
@@ -27,7 +29,7 @@ class AuditError(Exception):
 
 
 class NotFoundError(AuditError):
-    """SR / MR / 仓不存在。"""
+    """SR / AR / MR / 仓不存在。"""
 
     exit_code = 2
 
@@ -56,11 +58,15 @@ def _force_utf8() -> None:
 
 
 def _cmd_index(args: argparse.Namespace) -> dict[str, Any]:
-    return dict(fetch_sr_mr_index(args.sr))
+    return dict(fetch_sr_mr_index(args.id))
 
 
 def _cmd_mr(args: argparse.Namespace) -> dict[str, Any]:
     return dict(fetch_mr_details(args.url))
+
+
+def _cmd_fetch(args: argparse.Namespace) -> dict[str, Any]:
+    return dict(fetch_mr_changes(args.url, Path(args.out)))
 
 
 def _cmd_stats(args: argparse.Namespace) -> dict[str, Any]:
@@ -77,15 +83,21 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--version", action="version", version=f"%(prog)s {SCHEMA_VERSION}")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    p_index = sub.add_parser("index", help="查询 SR 关联的 MR 索引")
-    p_index.add_argument("--sr", required=True, help="SR 编号，如 SR-1234")
+    p_index = sub.add_parser("index", help="按 SR / AR 编号查关联 MR 清单（只给元数据）")
+    p_index.add_argument("--id", required=True, help="SR 或 AR 编号，如 SR-1234 / AR-77")
     p_index.add_argument("--pretty", action="store_true", help="缩进输出")
     p_index.set_defaults(handler=_cmd_index)
 
-    p_mr = sub.add_parser("mr", help="按 MR 地址批量查询详情")
+    p_mr = sub.add_parser("mr", help="按 MR 地址查元数据（只给元数据）")
     p_mr.add_argument("--url", action="append", required=True, help="MR 地址，可重复")
     p_mr.add_argument("--pretty", action="store_true", help="缩进输出")
     p_mr.set_defaults(handler=_cmd_mr)
+
+    p_fetch = sub.add_parser("fetch", help="批量取 MR 修改内容，diff 落盘")
+    p_fetch.add_argument("--url", action="append", required=True, help="MR 地址，可重复")
+    p_fetch.add_argument("--out", required=True, help="落盘目录，如 .dt-audit/<对象>/_diffs")
+    p_fetch.add_argument("--pretty", action="store_true", help="缩进输出")
+    p_fetch.set_defaults(handler=_cmd_fetch)
 
     p_stats = sub.add_parser("stats", help="解析证据表，算指标并校验")
     p_stats.add_argument("--evidence", required=True, help="evidence.md 路径")
