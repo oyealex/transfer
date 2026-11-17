@@ -1,6 +1,6 @@
 """证据表统计与一致性校验。
 
-读取 ``.dt-audit/<对象>/evidence.md``，按 ``references/报告结构.md`` 的指标定义算出
+读取 ``.dt-audit/<对象>/evidence.md``，按 ``scripts/README.md`` 的「报告口径」算出
 全部指标、问题分布与占比、严重度升级，并校验合计与交叉关系，写出 ``stats.json``。
 
 这一层**不做任何判断**：只解析固定表头、做算术、查结构矛盾。判断（状态、
@@ -14,7 +14,7 @@ import re
 from pathlib import Path
 from typing import Any, Sequence
 
-SCHEMA_VERSION = "1.1"
+from .contracts import SCHEMA_VERSION
 
 # ------------------------------------------------------------------ 枚举
 
@@ -28,6 +28,18 @@ CATEGORY_ORDER = {"生产代码": 0, "测试代码": 1}
 LANGUAGE_ORDER = {name: index for index, name in enumerate(LANGUAGES)}
 SOURCE_TIERS = ("含本地仓", "仅 diff", "无法获取")
 MOCK_KINDS = tuple(str(i) for i in range(1, 8))
+LOGIC_KINDS = (
+    "条件分支",
+    "否则分支",
+    "三元取值",
+    "多路选择",
+    "提前返回",
+    "异常处理",
+    "参数校验",
+    "边界比较",
+    "兜底分支",
+    "不可解析",
+)
 EXCLUDE_PREFIX = "排除："
 
 # 问题类型：4 类 + 1 个提示。子类只进问题详情，不进分布表。
@@ -77,7 +89,7 @@ SIGNAL_KINDS = (SIGNAL_DEGRADE, SIGNAL_MISS)
 # Mock 清单只标契约漂移，按处计。
 MOCK_PROBLEM = "契约漂移"
 
-# 定性：优秀 / 合格 / 待改进 / 证据不足。数值与 references/报告结构.md「定性规则」同步。
+# 定性：优秀 / 合格 / 待改进 / 证据不足。数值与 scripts/README.md「定性」同步。
 VERDICT_GOOD = "优秀"
 VERDICT_PASS = "合格"
 VERDICT_IMPROVE = "待改进"
@@ -88,7 +100,7 @@ VERDICT_COMPLETENESS_FLOOR = 0.60
 VERDICT_MIN_POINTS = 8
 VERDICT_DEGRADE_LIMIT = 2  # 计入的测试退化超过这个条数才判待改进
 
-# 判定水位。数值与 references/报告结构.md §二、references/问题类型.md 保持同步。
+# 判定水位。数值与 scripts/README.md「水位」、references/问题类型.md 保持同步。
 EVIDENCE_FLOOR = 0.60
 EVIDENCE_GOOD = 0.90
 EVIDENCE_PARTIAL = 0.60
@@ -296,6 +308,14 @@ def _grade_completeness(ratio: float | None) -> str:
     return "不完整"
 
 
+def _display_ratio(raw: float | None) -> float | None:
+    """把比率舍到与报告展示一致的精度（百分比 1 位小数 = 比率 3 位小数）。
+
+    判定必须用这个精度，否则会出现「显示 59.6% 却按 60.0% 判」这类自相矛盾。
+    """
+    return None if raw is None else round(raw, 3)
+
+
 def _decide_verdict(
     *,
     total: int,
@@ -308,14 +328,10 @@ def _decide_verdict(
     limited_files: int = 0,
 ) -> dict[str, Any]:
     """按顺序判定 DT 质量定性，命中即停。返回 结论 / 规则 / 依据。"""
-    # 判定与展示同精度：报告显示 1 位小数，阈值比较也按 2 位小数，
-    # 避免出现「显示 75.0% 却判不达标」这种自相矛盾。
-    completeness_ratio = (
-        None if completeness.get("raw") is None else round(completeness["raw"], 2)
-    )
-    effective = (
-        None if effective_rate.get("raw") is None else round(effective_rate["raw"], 2)
-    )
+    # 判定与展示同精度：报告按「百分比 1 位小数」展示，判定一律先舍到 3 位小数，
+    # 避免出现「显示 59.6% 却按 60.0% 判」这种自相矛盾。
+    completeness_ratio = _display_ratio(completeness.get("raw"))
+    effective = _display_ratio(effective_rate.get("raw"))
     comp_text = completeness.get("text", "不适用")
 
     # 前置：全部单元取数失败时根本没有证据，不能落「合格」
@@ -427,7 +443,7 @@ def analyze(path: Path) -> dict[str, Any]:
         errors.append(f"变更概览.对象类型 应为 SR / AR / MR，实际「{object_type}」")
 
     # ---- 概览
-    row_count = _as_int(
+    declared_row_count = _as_int(
         overview.get("变更生产代码行数", ""), where="变更概览.变更生产代码行数", errors=errors
     )
     limited_files = _as_int(
@@ -443,6 +459,10 @@ def analyze(path: Path) -> dict[str, Any]:
         tier = _norm(row.get("来源档位", ""))
         if tier not in SOURCE_TIERS:
             errors.append(f"{where}：来源档位应为 {('/'.join(SOURCE_TIERS))}，实际「{tier}」")
+        # 报告 1.1 会原样列出这些字段；缺了就是空白格，按 warning 提示补全
+        for field in ("标题", "作者", "仓", "首个提交", "末提交"):
+            if not _norm(row.get(field, "")):
+                warnings.append(f"{where}：{field} 为空，报告 1.1 会留白")
     declared_units = _as_int(
         overview.get("变更单元数", ""), where="变更概览.变更单元数", errors=errors
     )
@@ -490,11 +510,13 @@ def analyze(path: Path) -> dict[str, Any]:
         bucket["新增"] += additions
         bucket["删除"] += deletions
 
-    if (row_count or kloc_additions) and row_count != kloc_additions:
+    if (declared_row_count or kloc_additions) and declared_row_count != kloc_additions:
         warnings.append(
-            f"变更生产代码行数写的是 {row_count}，按范围表（生产代码 + Java/Python）累加得 "
+            f"变更生产代码行数写的是 {declared_row_count}，按范围表（生产代码 + Java/Python）累加得 "
             f"{kloc_additions}，请核对"
         )
+    # 指标以范围表累加值为准：概览是申报值，只用于对账
+    row_count = kloc_additions
 
     # 生产/测试文件数与范围表对账（两个键只作对账用，不进报告正文）
     declared_prod = _as_int(
@@ -554,8 +576,9 @@ def analyze(path: Path) -> dict[str, Any]:
     case_kind_count = {kind: 0 for kind in CASE_KINDS}
     case_kind_of: dict[str, str] = {}
     case_names: set[str] = set()
-    b1 = b3 = 0
     new_cases = modified_cases = 0
+    case_assertions: dict[str, int] = {}
+    case_interaction: dict[str, str] = {}
     for idx, row in enumerate(case_rows, start=1):
         where = f"用例清单第 {idx} 行"
         name = _norm(row.get("用例", ""))
@@ -574,11 +597,8 @@ def analyze(path: Path) -> dict[str, Any]:
         interaction_only = _norm(row.get("只验交互", ""))
         if interaction_only not in ("", "是", "否"):
             errors.append(f"{where}：只验交互只填「是」「否」或留空，实际「{interaction_only}」")
-        counted = kind in ("新增", "修改")
-        if counted and assertions == 0:
-            b1 += 1
-        if counted and interaction_only == "是":
-            b3 += 1
+        case_assertions[name] = assertions
+        case_interaction[name] = interaction_only
     new_cases = case_kind_count["新增"]
     modified_cases = case_kind_count["修改"]
     case_total = new_cases + modified_cases
@@ -606,6 +626,12 @@ def analyze(path: Path) -> dict[str, Any]:
             )
         if not line_no:
             errors.append(f"{where}：断言行号为空")
+        bindings = _split_ids(row.get("绑定逻辑点", ""))
+        if not tier:
+            # 未绑定逻辑点的断言没有对账对象，档位允许留空，并且不计入档位分布
+            if bindings:
+                errors.append(f"{where}：已绑定逻辑点，档位不能为空")
+            continue
         if tier not in TIERS:
             errors.append(f"{where}：档位应为 {('/'.join(TIERS))}，实际「{tier}」")
             continue
@@ -651,6 +677,12 @@ def analyze(path: Path) -> dict[str, Any]:
         elif dp_id in dp_ids:
             errors.append(f"{where}：编号「{dp_id}」重复")
         dp_ids.add(dp_id)
+
+        kind = _norm(row.get("类型", ""))
+        if kind not in LOGIC_KINDS:
+            errors.append(
+                f"{where}（{dp_id}）：类型应为 {(' / '.join(LOGIC_KINDS))}，实际「{kind}」"
+            )
 
         state = _norm(row.get("状态", ""))
         if state not in STATES:
@@ -748,7 +780,9 @@ def analyze(path: Path) -> dict[str, Any]:
                 errors.append(f"{where}：同一位置同一信号重复登记（{position} / {signal}）")
             seen_signals.add(key)
         if not _norm(row.get("引用生产符号", "")):
-            errors.append(f"{where}：要填「引用生产符号」，三段要件的第一段靠它落点")
+            errors.append(
+                f"{where}：要填「引用生产符号」，三段计入条件的第 2 段靠它落点"
+            )
         counted = _norm(row.get("计入", ""))
         if counted not in ("是", "否"):
             errors.append(f"{where}：测试退化的「计入」应填 是 或 否，实际「{counted}」")
@@ -775,7 +809,7 @@ def analyze(path: Path) -> dict[str, Any]:
             f" + 未被断言 {unnoticed}"
         )
     if miss_signals and state_count["无测试"] != total:
-        warnings.append("测试脱靶命中时，全部逻辑点应都是「无测试」；当前不是，请核对")
+        errors.append("测试脱靶命中时，全部逻辑点应都是「无测试」；当前不是，请核对")
     if miss_signals and new_cases + modified_cases == 0:
         errors.append("测试脱靶要求本对象有新增或修改用例；当前一个都没有")
 
@@ -794,12 +828,15 @@ def analyze(path: Path) -> dict[str, Any]:
     effective_rate = _rate(state_count["已断言"], total)
     replaced_rate = _rate(state_count["实现被替换"], total)
     completeness_ratio = (decidable / total) if total else None
+    completeness_graded = _display_ratio(completeness_ratio)
     completeness = {
         "ratio": round(completeness_ratio, 4) if completeness_ratio is not None else None,
         "raw": completeness_ratio,
         "text": f"{completeness_ratio * 100:.1f}%" if completeness_ratio is not None else "不适用",
-        "档": _grade_completeness(completeness_ratio),
-        "低于下限": bool(completeness_ratio is not None and completeness_ratio < EVIDENCE_FLOOR),
+        "档": _grade_completeness(completeness_graded),
+        "低于下限": bool(
+            completeness_graded is not None and completeness_graded < EVIDENCE_FLOOR
+        ),
     }
 
     # 三个率共用分母，必然有这条链：有效断言率 ≤ 断言覆盖率 ≤ 证据完整度
@@ -820,6 +857,7 @@ def analyze(path: Path) -> dict[str, Any]:
         "既有用例数": case_kind_count["既有"],
         "用例总数": case_total,
         "新增DT密度": density,
+        "断言总数": assertion_total,
         "全部逻辑点": total,
         "可判定逻辑点数": decidable,
         "无法判定逻辑点数": undecidable,
@@ -842,7 +880,27 @@ def analyze(path: Path) -> dict[str, Any]:
     )
 
     # ---- 问题计数
-    # 断言质量低：新增或修改用例里，一条有效断言都没有的用例
+    # 断言质量低只算「触达了本次逻辑点」的用例：与本次改动无关的新增测试不进结论。
+    # 逻辑点为 0 时 touched 为空，用例类与信号类命中自然归零，不会出现「合格 + 命中」并存。
+    touched_cases: set[str] = set()
+    for row in dp_rows:
+        for name in re.split(r"[、,，;；]\s*", _norm(row.get("触达用例", ""))):
+            if name:
+                touched_cases.add(name)
+    b1 = sum(
+        1
+        for name, kind in case_kind_of.items()
+        if kind in ("新增", "修改")
+        and name in touched_cases
+        and case_assertions.get(name, 0) == 0
+    )
+    b3 = sum(
+        1
+        for name, kind in case_kind_of.items()
+        if kind in ("新增", "修改")
+        and name in touched_cases
+        and case_interaction.get(name) == "是"
+    )
     effective_per_case: dict[str, int] = {}
     for (case_name, _line_no), tier in assertion_tier.items():
         if tier == "有效":
@@ -850,14 +908,18 @@ def analyze(path: Path) -> dict[str, Any]:
     weak_cases = [
         name
         for name, kind in case_kind_of.items()
-        if kind in ("新增", "修改") and effective_per_case.get(name, 0) == 0
+        if kind in ("新增", "修改")
+        and name in touched_cases
+        and effective_per_case.get(name, 0) == 0
     ]
+    degrade_signals_eff = degrade_signals if total else 0
+    degrade_hints_eff = degrade_hints if total else 0
 
     counts = {
         CLASS_COVERAGE: state_count["无测试"] + state_count["未断言"],
         CLASS_ASSERTION: len(weak_cases),
         CLASS_OFFSET: state_count["实现被替换"],
-        CLASS_DEGRADE: degrade_signals,
+        CLASS_DEGRADE: degrade_signals_eff,
     }
     notes = {
         CLASS_COVERAGE: "另有 1 个对象全部脱靶" if miss_signals else "",
@@ -876,8 +938,8 @@ def analyze(path: Path) -> dict[str, Any]:
             + (f"、契约漂移 {contract_drifts} 处" if contract_drifts else "")
         ),
         CLASS_DEGRADE: (
-            f"计入 {degrade_signals} 条、仅提示 {degrade_hints} 条"
-            if (degrade_signals or degrade_hints)
+            f"计入 {degrade_signals_eff} 条、仅提示 {degrade_hints_eff} 条"
+            if (degrade_signals_eff or degrade_hints_eff)
             else ""
         ),
     }
@@ -925,7 +987,7 @@ def analyze(path: Path) -> dict[str, Any]:
             }
         )
 
-    # 零逻辑点：问题分布留空（报告结构 1.2 唯一口径），否则会出现「合格」与命中问题并存
+    # 零逻辑点：问题分布留空（README「零值的唯一口径」），否则会出现「合格」与命中问题并存
     if total == 0:
         distribution.clear()
 
@@ -985,17 +1047,16 @@ def analyze(path: Path) -> dict[str, Any]:
             "无法获取单元数": unable_units,
         },
         "测试退化": {
-            "计入条数": degrade_signals,
-            "提示条数": degrade_hints,
+            "计入条数": degrade_signals_eff,
+            "提示条数": degrade_hints_eff,
         },
         "断言质量": {
             "无断言用例数": b1,
             "只用交互验证用例数": b3,
         },
-        "契约漂移数": contract_drifts,
+        "契约漂移数": contract_drifts if total else 0,
         "命中类数": sum(1 for item in distribution if item["命中"]),
         "未命中类数": DISTRIBUTION_CLASSES - sum(1 for item in distribution if item["命中"]),
-        "证据": completeness,
         "水位": {
             "证据完整度下限": EVIDENCE_FLOOR,
             "证据完整度完整档": EVIDENCE_GOOD,
@@ -1003,6 +1064,8 @@ def analyze(path: Path) -> dict[str, Any]:
             "断言覆盖率良好": GOOD_COVERAGE,
             "断言覆盖率低": COVER_FLOOR,
             "实现被替换率高档": REPLACED_RATE_FLOOR,
+            "实现被替换率低档": 0,
+            "实现被替换率低档前提": "可判定逻辑点数 > 0",
             "密度参考带": [DENSITY_LOW, DENSITY_HIGH],
         },
         "校验": {"通过": not errors, "错误": errors, "警告": warnings},

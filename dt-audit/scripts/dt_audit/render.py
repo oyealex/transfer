@@ -4,18 +4,17 @@
 
 职责边界（很重要）：
 
-- **只做三件事**：标量替换、行块展开、静态段注入。
+- **只做两件事**：标量替换、行块展开。
 - **不做判断**：不决定选哪几条问题、不写措辞、不给影响档。那些由 ``narrative.json`` 提供。
 - **排序是规则驱动的**：分布表、Top3、未覆盖清单按「影响档 / 严重度」这两个已声明的枚举排序，
-  规则写在 ``references/报告结构.md``，属于确定性变换，不是判断。
+  规则写在 ``scripts/README.md`` 的「报告口径」，属于确定性变换，不是判断。
 
-模板语法（四种）：
+模板语法（三种）：
 
 ============================  ====================================================
 ``{{键}}``                   标量替换；键不存在直接报错，不静默留白
 ``{{#each 数据集}}…{{/each}}`` 行块展开；块内 ``{{字段}}`` 取当前行，取不到回落全局
 ``{{#if 键}}…{{/if}}``        真假块；空串 / None / 空列表 / 0 视为假
-``{{include: 文件名}}``       把 ``references/<文件名>.md`` 的正文逐字注入（去掉注释与 H1）
 ============================  ====================================================
 
 块可以嵌套（例如「是 SR 对象」块里再展开 MR 清单），行上下文按栈查找：先当前行，再外层，最后全局。
@@ -42,9 +41,6 @@ HINT_EVIDENCE = "证据缺口"
 
 IMPACT_RANK = {"高": 0, "中": 1, "低": 2}
 IMPACT_VALUES = ("高", "中", "低")
-
-#: 包内 references 目录，`{{include}}` 的回落位置
-DEFAULT_REFERENCES = Path(__file__).resolve().parents[2] / "references"
 
 #: 报告里 3.3 矩阵的列，从「逻辑点证据」投影而来
 MATRIX_FIELDS = ("编号", "位置", "类型", "条件摘要", "触达用例", "状态")
@@ -98,10 +94,6 @@ def _parse_until(
             continue
         if value.startswith("/"):
             raise RenderError(f"模板里有未配对的结束标记 {{{{ {value} }}}}")
-        if value.startswith("include:"):
-            nodes.append(("include", value[len("include:") :].strip()))
-            index += 1
-            continue
         nodes.append(("scalar", value))
         index += 1
     if end_tag is not None:
@@ -152,7 +144,6 @@ def _escape_cell(text: str) -> str:
 def _render_nodes(
     nodes: Sequence[tuple],
     stack: Sequence[dict[str, Any]],
-    search_dirs: Sequence[Path],
     missing: list[str],
 ) -> str:
     out: list[str] = []
@@ -162,17 +153,15 @@ def _render_nodes(
             out.append(node[1])
         elif kind == "scalar":
             out.append(_escape_cell(_as_text(_lookup(node[1], stack, missing))))
-        elif kind == "include":
-            out.append(_include(node[1], search_dirs))
         elif kind == "if":
             if _truthy(_lookup(node[1], stack, missing)):
-                out.append(_render_nodes(node[2], stack, search_dirs, missing))
+                out.append(_render_nodes(node[2], stack, missing))
         elif kind == "each":
             rows = _lookup(node[1], stack, missing)
             if not isinstance(rows, list):
                 raise RenderError(f"{{{{#each {node[1]}}}}} 绑定的不是列表，是 {type(rows).__name__}")
             rendered = [
-                _render_nodes(node[2], [*stack, row], search_dirs, missing) for row in rows
+                _render_nodes(node[2], [*stack, row], missing) for row in rows
             ]
             if rendered:
                 out.append("\n".join(rendered))
@@ -182,30 +171,16 @@ def _render_nodes(
     return "".join(out)
 
 
-def _include(name: str, search_dirs: Sequence[Path]) -> str:
-    """注入 references 下的静态段，去掉维护注释与文件级标题。
-
-    先找模板所在目录（允许自带覆盖版），再回落到包内的 references 目录。
-    """
-    path = next((d / f"{name}.md" for d in search_dirs if (d / f"{name}.md").is_file()), None)
-    if path is None:
-        searched = "、".join(str(d) for d in search_dirs)
-        raise RenderError(f"{{{{include: {name}}}}} 找不到文件，已找过：{searched}")
-    text = path.read_text(encoding="utf-8")
-    text = re.sub(r"^\s*<!--.*?-->\s*", "", text, flags=re.S)
-    lines = text.splitlines()
-    while lines and not lines[0].strip():
-        lines.pop(0)
-    if lines and lines[0].startswith("# "):
-        lines.pop(0)
-    return "\n".join(lines).strip() + "\n"
-
-
 # ------------------------------------------------------------------ 上下文
 
 
 def _s(value: Any) -> str:
     return _as_text(value).strip()
+
+
+def _no_tail(text: str) -> str:
+    """模板会在字段后补标点；作者已经写了句号或分号时去掉，避免「。。」。"""
+    return text.rstrip("。；; ")
 
 
 def _int(value: Any) -> int:
@@ -276,16 +251,21 @@ def build_context(
     attributed = sum(1 for row in dp_rows if "自查：归属成立" in _s(row.get("复核")))
     mismatched = sum(1 for row in dp_rows if "自查：归属不符" in _s(row.get("复核")))
 
-    source = obj.get("证据来源分布", {})
+    # 1.1 的证据来源与 3.1 表同源：都按「变更单元」的档位统计，避免两处打架
+    source_counts = {"含本地仓": 0, "仅 diff": 0, "无法获取": 0}
+    for row in unit_rows:
+        tier = _s(row.get("来源档位"))
+        if tier in source_counts:
+            source_counts[tier] += 1
     source_text = "含本地仓 {a} 个单元 / 仅 diff {b} / 无法获取 {c}".format(
-        a=_int(source.get("含本地仓", 0)),
-        b=_int(source.get("仅 diff", 0)),
-        c=_int(source.get("无法获取", 0)),
+        a=source_counts["含本地仓"],
+        b=source_counts["仅 diff"],
+        c=source_counts["无法获取"],
     )
 
     density = metrics.get("新增DT密度", {})
-    density_value = density.get("value")
-    density_text = "不适用" if density_value is None else f"{density_value}"
+    # 直接用 stats 给的文本：带单位（「25.0 个/KLOC」）或「不适用」
+    density_text = _s(density.get("text")) or "不适用"
 
     # ---- 分布表（位置摘要来自 narrative，其余全部来自 stats）
     summaries = narrative.get("位置摘要") or {}
@@ -324,9 +304,9 @@ def build_context(
                 "子类": _s(i.get("子类")),
                 "位置": _s(i.get("位置")),
                 "标题": _s(i.get("标题")),
-                "现象": _s(i.get("现象")),
-                "证据原文": _s(i.get("证据原文")),
-                "后果": _s(i.get("后果")),
+                "现象": _no_tail(_s(i.get("现象"))),
+                "证据原文": _no_tail(_s(i.get("证据原文"))),
+                "后果": _no_tail(_s(i.get("后果"))),
             }
             for index, i in enumerate(ordered, 1)
         ]
@@ -364,14 +344,22 @@ def build_context(
                 "子类": "无测试" if dp_state == "无测试" else "分支未断言",
                 "严重度": "严重",
                 "影响档": _s(item.get("影响档")),
-                "现象": _s(item.get("现象")),
-                "证据": _s(item.get("证据")) or "—",
-                "后果": _s(item.get("后果")),
+                "现象": _no_tail(_s(item.get("现象"))),
+                "证据": _no_tail(_s(item.get("证据"))) or "—",
+                "后果": _no_tail(_s(item.get("后果"))),
             }
         )
     uncovered.sort(key=lambda i: IMPACT_RANK.get(i["影响档"], 9))
     for index, item in enumerate(uncovered, 1):
         item["序号"] = index
+
+    # 2.3 清单必须列全，否则 1.2 的数量与 2.3 的条目对不上
+    expected_uncovered = _int(state.get("无测试")) + _int(state.get("未断言"))
+    if len(uncovered) != expected_uncovered:
+        raise RenderError(
+            f"narrative 2.3 未覆盖列了 {len(uncovered)} 条，"
+            f"但无测试 + 未断言共有 {expected_uncovered} 个；未覆盖清单不能省略，请逐条列全"
+        )
 
     # ---- 2.2 被替换清单：同一个替换者合并成一行
     replaced: dict[tuple[str, str], list[str]] = {}
@@ -464,8 +452,9 @@ def build_context(
         rows = [r for r in dp_rows if _s(r.get("类型")) == kind]
         if not rows:
             return f"0 {unit}"
-        observed = sum(1 for r in rows if _s(r.get("状态")) in ("已断言", "断言偏弱"))
-        return f"{len(rows)} {unit}，其中 {observed} 个已断言"
+        ok = sum(1 for r in rows if _s(r.get("状态")) == "已断言")
+        weak = sum(1 for r in rows if _s(r.get("状态")) == "断言偏弱")
+        return f"{len(rows)} {unit}，其中已断言 {ok} 个、断言偏弱 {weak} 个"
 
     cross_check = (
         f"全部 {total} − 无法判定 {undecidable} = 可判定 {decidable}；"
@@ -474,6 +463,22 @@ def build_context(
         f" = 实现被替换 {_int(state.get('实现被替换'))} + 未断言 {_int(state.get('未断言'))}"
         f" + 无测试 {_int(state.get('无测试'))}"
     )
+
+    # 列表类数据先算好，模板用「有/无」两个布尔量决定是否输出空标题
+    p21, p22 = problems("2.1"), problems("2.2")
+    t21, t22, t23 = tips("2.1"), tips("2.2"), tips("2.3")
+
+    # Mock 情形：全 0 时不铺七行零值，只留一句「没有 Mock 点」
+    mock_counts = {
+        i: _int((stats.get("Mock 情形分布") or {}).get(f"类{i}")) for i in range(1, 8)
+    }
+    mock_total = sum(mock_counts.values())
+    mock_parts = [f"类 {i} {n} 处" for i, n in mock_counts.items() if n]
+    mock_zero = sum(1 for n in mock_counts.values() if not n)
+    mock_text = "；".join(mock_parts)
+    if mock_zero and mock_parts:
+        mock_text += f"（其余 {mock_zero} 类为 0）"
+    hit_classes = _int(stats.get("命中类数"))
 
     ctx: dict[str, Any] = {
         # 对象
@@ -493,6 +498,9 @@ def build_context(
         "定性依据": _s(verdict.get("依据")),
         # 1.2
         "未命中类数": _s(stats.get("未命中类数")),
+        "命中类数": _s(stats.get("命中类数")),
+        "有命中": hit_classes > 0,
+        "零命中有分支": hit_classes == 0 and total > 0,
         "断言覆盖率": rate("断言覆盖率"),
         "有效断言率": rate("有效断言率"),
         "实现被替换率": rate("实现被替换率"),
@@ -511,7 +519,9 @@ def build_context(
         "无断言用例数": str(_int((stats.get("断言质量") or {}).get("无断言用例数"))),
         "只用交互验证用例数": str(_int((stats.get("断言质量") or {}).get("只用交互验证用例数"))),
         # 2.2
-        **{f"类{i}处数": str(_int(stats["Mock 情形分布"].get(f"类{i}"))) for i in range(1, 8)},
+        "Mock情形分布": mock_text,
+        "有Mock": mock_total > 0,
+        "无Mock": mock_total == 0,
         "有被替换": bool(replaced_rows),
         "契约漂移数": str(_int(stats.get("契约漂移数"))),
         # 2.3
@@ -525,6 +535,15 @@ def build_context(
         "无测试数": str(_int(state.get("无测试"))),
         "受限文件数": _s(metrics.get("C/C++受限文件数")),
         "无逻辑点": total == 0,
+        "无逻辑点说明": (
+            "本次未枚举出 Java / Python 逻辑点（0 个）。"
+            + (
+                f"另有 C/C++ 受限文件 {_int(metrics.get('C/C++受限文件数'))} 个，"
+                "不据此判断有无行为分支。"
+                if _int(metrics.get("C/C++受限文件数"))
+                else ""
+            )
+        ),
         "异常路径细分": kind_tally("异常处理", "个 catch 类逻辑点"),
         "边界比较细分": kind_tally("边界比较", "个"),
         # 3.x
@@ -575,13 +594,29 @@ def build_context(
         ],
         "分布表": distribution,
         "top3": top3,
-        "2.1问题": problems("2.1"),
-        "2.1建议": tips("2.1"),
-        "2.2问题": problems("2.2"),
-        "2.2建议": tips("2.2"),
+        "有top3": bool(top3),
+        "无top3": not top3,
+        "2.1问题": p21,
+        "有21问题": bool(p21),
+        "无21问题": not p21,
+        "2.1建议": t21,
+        "有21建议": bool(t21),
+        "无21建议": not t21,
+        "2.2问题": p22,
+        "有22问题": bool(p22),
+        "无22问题": not p22,
+        "2.2建议": t22,
+        "有22建议": bool(t22),
+        "无22建议": not t22,
         "2.2被替换": replaced_rows,
+        "有22被替换": bool(replaced_rows),
+        "无22被替换": not replaced_rows,
         "2.3未覆盖": uncovered,
-        "2.3建议": tips("2.3"),
+        "有23未覆盖": bool(uncovered),
+        "无23未覆盖": not uncovered,
+        "2.3建议": t23,
+        "有23建议": bool(t23),
+        "无23建议": not t23,
         "3.1表": unit_table,
         "3.2表": composition,
         "3.3矩阵": matrix,
@@ -625,11 +660,10 @@ def check_report(text: str, ctx: dict[str, Any], stats: dict[str, Any]) -> list[
     if "<!--" in text or "-->" in text:
         problems.append("报告里残留了 HTML 注释")
 
-    # 2. 3.4 逐字注入
-    include_marker = "#### 3.4.1"
-    include_tail = "#### 3.4.7"
-    if include_marker not in text or include_tail not in text:
-        problems.append("3.4 枚举释义没有完整注入（应包含 3.4.1 到 3.4.7）")
+    # 2. 3.4 附录完整（模板内联，3.4.1–3.4.7 必须逐节齐全）
+    missing_sections = [f"3.4.{n}" for n in range(1, 8) if f"#### 3.4.{n}" not in text]
+    if missing_sections:
+        problems.append("3.4 枚举释义不完整，缺：" + "、".join(missing_sections))
 
     # 3. 数字回读比对
     anchors = {
@@ -638,7 +672,7 @@ def check_report(text: str, ctx: dict[str, Any], stats: dict[str, Any]) -> list[
             f"断言覆盖率 {ctx['断言覆盖率']} ｜ 有效断言率 {ctx['有效断言率']} ｜ "
             f"实现被替换率 {ctx['实现被替换率']}"
         ),
-        "未命中类数": f"其余 {ctx['未命中类数']} 类未命中",
+        "未命中类数": f"4 类问题中命中 {ctx['命中类数']} 类",
         "证据缺口": ctx["证据缺口行"],
         "3.3 合计": (
             f"全部逻辑点 {ctx['全部逻辑点']} = 已断言 {ctx['已断言数']} + "
@@ -657,7 +691,7 @@ def check_report(text: str, ctx: dict[str, Any], stats: dict[str, Any]) -> list[
     if matrix_rows != expect_matrix:
         problems.append(f"3.3 矩阵 {matrix_rows} 行，逻辑点应为 {expect_matrix} 个")
 
-    dist_rows = _table_rows(_section(text, "**（1）问题分布表**", "其余 "))
+    dist_rows = _table_rows(_section(text, "**（1）问题分布表**", "**（2）证据缺口提示**"))
     expect_dist = _int(stats.get("命中类数"))
     if dist_rows != expect_dist:
         problems.append(f"1.2 分布表 {dist_rows} 行，命中类数应为 {expect_dist}")
@@ -671,6 +705,22 @@ def check_report(text: str, ctx: dict[str, Any], stats: dict[str, Any]) -> list[
     ranks = [IMPACT_RANK.get(i, 9) for i in impacts]
     if ranks != sorted(ranks):
         problems.append("1.3 条目没有按影响档降序排列")
+
+    # 6. 内部引用：报告是唯一交付物，不能指向读者拿不到的文件。
+    #    只拦「不可能是源码路径」的名字：.md / .json 不会是 Java/Python/C 源文件，
+    #    目录名（scripts/、references/）可能是仓里的真实路径，不拦，避免误伤。
+    internal = (
+        ".dt-audit",
+        "_diffs",
+        "evidence.md",
+        "narrative.json",
+        "stats.json",
+        "manifest.json",
+        "SKILL.md",
+    )
+    leaked = [token for token in internal if token in text]
+    if leaked:
+        problems.append("报告里出现了读者拿不到的内部引用：" + "、".join(leaked))
 
     # 7. 固定骨架
     for heading in ("## 一、整体结论", "## 二、DT 质量评估", "## 三、附录", "### 3.4 枚举释义"):
@@ -793,7 +843,7 @@ def render_report(
 
     nodes = _parse(_tokenize(COMMENT.sub("", template.read_text(encoding="utf-8"))))
     missing: list[str] = []
-    text = _render_nodes(nodes, [ctx], [template.parent, DEFAULT_REFERENCES], missing)
+    text = _render_nodes(nodes, [ctx], missing)
     if missing:
         raise RenderError(
             "模板引用了上下文里没有的键（拼错或数据缺字段）：" + "、".join(sorted(set(missing)))
