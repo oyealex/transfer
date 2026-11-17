@@ -18,7 +18,7 @@ from typing import Literal, TypedDict
 
 SCHEMA_VERSION = "1.1"
 
-ObjectType = Literal["SR", "AR"]
+ObjectType = Literal["SR", "AR", "MR"]
 MrState = Literal["merged", "opened", "closed", "locked", "unknown"]
 ChangeType = Literal["added", "modified", "deleted", "renamed", "copied"]
 
@@ -58,7 +58,7 @@ class MrRef(TypedDict):
     target_branch: str
     state: MrState
     linked_via: str
-    """``"SR"`` 或 ``"AR-1234"``。Skill 只原样记录，不解释 SR 与 AR 的层级关系。"""
+    """``"SR"`` / ``"AR-1234"``；直接由 MR 地址输入时为空串。Skill 只原样记录，不解释 SR 与 AR 的层级关系。"""
 
     first_commit: CommitPoint | None
     """MR 的首个提交。diff 的基准由它的第一父提交推出。"""
@@ -86,10 +86,15 @@ class SrMrIndex(TypedDict):
 class MrDetailBatch(TypedDict):
     """``fetch_mr_details`` 的返回值。
 
-    与 ``SrMrIndex`` 同构，只是入口从 SR/AR 编号换成了 MR 地址列表。
+    与 ``SrMrIndex`` 的差别只在入口：这里从 MR 地址列表进入，``object_type`` 恒为
+    ``"MR"``，``object_id`` 取单地址时的 ``MR-<编号>``；多地址时取首个并追加 ``+N``。
     """
 
     schema_version: str
+    object_type: ObjectType
+    object_id: str
+    """``MR-1234``（单地址）或 ``MR-1234+2``（多地址表示另有 2 个）。"""
+
     fetched_at: str
     """ISO8601，带时区。"""
 

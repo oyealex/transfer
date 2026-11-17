@@ -3,7 +3,7 @@
 读取 ``.dt-audit/<对象>/evidence.md``，按 ``references/报告结构.md`` 的指标定义算出
 全部指标、问题分布与占比、严重度升级，并校验合计与交叉关系，写出 ``stats.json``。
 
-这一层**不做任何判断**：只解析固定表头、做算术、查结构矛盾。判断（观测状态、
+这一层**不做任何判断**：只解析固定表头、做算术、查结构矛盾。判断（状态、
 断言档位、Mock 类别）都已在 Skill 里完成，写进了证据表。
 """
 
@@ -14,14 +14,19 @@ import re
 from pathlib import Path
 from typing import Any, Sequence
 
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "1.1"
 
 # ------------------------------------------------------------------ 枚举
 
-STATES = ("已观测", "部分观测", "实现被替换", "未观测", "无测试", "无法判定")
-TIERS = ("判别性", "结构性", "存在性")
+STATES = ("已断言", "断言偏弱", "实现被替换", "未断言", "无测试", "无法判定")
+TIERS = ("有效", "形状", "存活")
+TIER_RANK = {"有效": 2, "形状": 1, "存活": 0}
 CASE_KINDS = ("新增", "修改", "既有")
-SOURCE_TIERS = ("本地", "平台", "无法获取")
+SCOPE_VERDICTS = ("纳入", "无法判定")
+LANGUAGES = ("Java", "Python", "C", "C++")
+CATEGORY_ORDER = {"生产代码": 0, "测试代码": 1}
+LANGUAGE_ORDER = {name: index for index, name in enumerate(LANGUAGES)}
+SOURCE_TIERS = ("含本地仓", "仅 diff", "无法获取")
 MOCK_KINDS = tuple(str(i) for i in range(1, 8))
 EXCLUDE_PREFIX = "排除："
 
@@ -30,13 +35,13 @@ CLASS_COVERAGE = "场景覆盖不足"
 CLASS_ASSERTION = "断言质量低"
 CLASS_OFFSET = "测试对象偏移"
 CLASS_DEGRADE = "测试退化"
-HINT_EVIDENCE = "证据不足"
+HINT_EVIDENCE = "证据缺口"
 PROBLEM_ORDER = (CLASS_COVERAGE, CLASS_ASSERTION, CLASS_OFFSET, CLASS_DEGRADE)
 
 PROBLEM_UNITS = {
-    CLASS_COVERAGE: "个决策点",
+    CLASS_COVERAGE: "个逻辑点",
     CLASS_ASSERTION: "个用例",
-    CLASS_OFFSET: "个决策点",
+    CLASS_OFFSET: "个逻辑点",
     CLASS_DEGRADE: "条信号",
 }
 
@@ -47,21 +52,21 @@ BASE_SEVERITY = {
     CLASS_DEGRADE: "严重",
 }
 
-# 占比分母：可判定决策点数 / 用例总数；None 表示不填占比。
+# 占比分母：逻辑点类一律用「全部逻辑点」，用例类用「新增 + 修改用例」；None 表示不填占比。
 DIVISOR = {
-    CLASS_COVERAGE: "可判定",
+    CLASS_COVERAGE: "全部",
     CLASS_ASSERTION: "用例",
-    CLASS_OFFSET: "可判定",
+    CLASS_OFFSET: "全部",
 }
 
 # 状态 → 由它推出的问题类型。状态是唯一来源，问题类型列只是冗余标注。
 PROBLEM_OF_STATE = {
     "无测试": CLASS_COVERAGE,
-    "未观测": CLASS_COVERAGE,
+    "未断言": CLASS_COVERAGE,
     "实现被替换": CLASS_OFFSET,
     "无法判定": HINT_EVIDENCE,
-    "已观测": "",
-    "部分观测": "",
+    "已断言": "",
+    "断言偏弱": "",
 }
 
 # 信号表两种类型：测试退化按条计，测试脱靶是对象级提示。
@@ -87,30 +92,30 @@ VERDICT_DEGRADE_LIMIT = 2  # 计入的测试退化超过这个条数才判待改
 EVIDENCE_FLOOR = 0.60
 EVIDENCE_GOOD = 0.90
 EVIDENCE_PARTIAL = 0.60
-GOOD_OBSERVED = 0.70
-GOOD_DISCRIMINATING = 0.70
-COVER_FLOOR = 0.40
-DISCRIMINATING_FLOOR = 0.50
-OFFSET_POINT_FLOOR = 3
-OFFSET_RATE_FLOOR = 0.15
+GOOD_COVERAGE = 0.70  # 断言覆盖率良好水位
+COVER_FLOOR = 0.40  # 断言覆盖率低水位
+REPLACED_POINT_FLOOR = 3  # 测试对象偏移升级：被替换逻辑点数
+REPLACED_RATE_FLOOR = 0.15  # 测试对象偏移升级：实现被替换率
+ASSERTION_CASE_FLOOR = 3  # 断言质量低升级：命中用例数
+ASSERTION_CASE_RATE = 0.50  # 断言质量低升级：占新增+修改用例的比例
 DENSITY_LOW = 5.0
 DENSITY_HIGH = 30.0
 
 # 分布表排序：严重度降序，同严重度按计数单位优先级，再按数量降序。
-SEVERITY_RANK = {"严重": 0, "高": 1, "中": 2, "提示": 3}
-UNIT_RANK = {"个决策点": 0, "个用例": 1, "条信号": 2}
-DISTRIBUTION_CLASSES = 4  # 场景覆盖不足、断言质量低、测试对象偏移、测试退化；证据不足单列
+SEVERITY_RANK = {"严重": 0, "高": 1}
+UNIT_RANK = {"个逻辑点": 0, "个用例": 1, "条信号": 2}
+DISTRIBUTION_CLASSES = 4  # 场景覆盖不足、断言质量低、测试对象偏移、测试退化；证据缺口单列
 
 # ------------------------------------------------------------------ 结构
 
 REQUIRED_SECTIONS = {
     "变更概览": ["项", "值"],
     "变更单元": ["MR 地址", "标题", "作者", "仓", "来源档位", "首个提交", "末提交"],
-    "范围": ["路径", "分类", "来源档位", "新增", "删除"],
+    "范围": ["路径", "分类", "语言", "来源档位", "新增", "删除", "结论"],
     "用例清单": ["用例", "位置", "变更类型", "断言数", "只验交互"],
-    "断言清单": ["用例", "断言行号", "档位", "绑定决策点"],
+    "断言清单": ["用例", "断言行号", "原文", "档位", "绑定逻辑点"],
     "Mock 清单": ["类型", "位置", "被替换方法", "情形类", "问题类型"],
-    "决策点证据": [
+    "逻辑点证据": [
         "编号",
         "位置",
         "类型",
@@ -119,14 +124,33 @@ REQUIRED_SECTIONS = {
         "断言随动",
         "触达用例",
         "断言证据",
+        "被替换方法",
         "状态",
         "问题类型",
         "复核",
     ],
-    "信号与问题": ["类型", "信号", "位置", "计入", "说明"],
+    "信号与问题": ["类型", "信号", "位置", "引用生产符号", "计入", "说明"],
 }
 
-EMPTY_MARKS = ("", "—", "-", "–")
+EMPTY_MARKS = ("", "—")
+
+# 变更概览必须逐字提供的键（缺一即报错，避免静默取空把 KLOC 读成 0）
+REQUIRED_OVERVIEW_KEYS = (
+    "对象类型",
+    "对象标识",
+    "原始输入",
+    "变更单元数",
+    "涉及仓",
+    "关联能力",
+    "含本地仓单元数",
+    "仅 diff 单元数",
+    "无法获取单元数",
+    "变更生产代码行数",
+    "生产文件数",
+    "纳入文件数",
+    "测试文件数",
+    "C/C++ 受限文件数",
+)
 
 
 class EvidenceError(Exception):
@@ -203,6 +227,13 @@ def _parse_table(lines: Sequence[str]) -> tuple[list[str], list[dict[str, str]]]
             continue
         if _is_separator(cells):
             continue
+        if len(cells) > len(header):
+            raise EvidenceError(
+                "有一行的单元格比表头多 "
+                f"{len(cells) - len(header)} 个（表头 {len(header)} 列，该行 {len(cells)} 列）："
+                f"多半是单元格内出现了未转义的 `|`。自由文本里的管道符必须写成 `\\|`。"
+                f"原行：{stripped[:120]}"
+            )
         if len(cells) < len(header):
             cells = cells + [""] * (len(header) - len(cells))
         rows.append(dict(zip(header, cells[: len(header)])))
@@ -227,8 +258,10 @@ def load_evidence(path: Path) -> dict[str, Any]:
             continue
         try:
             header, rows = _parse_table(sections[name])
-        except EvidenceError:
-            problems.append(f"## {name} 下没有表格")
+        except EvidenceError as exc:
+            # 带上原始原因：列数超出时真正的问题是「单元格里有未转义的 |」，
+            # 只报「没有表格」会把读者引到错误方向。
+            problems.append(f"## {name}：{exc}")
             continue
         if header != expected:
             problems.append(
@@ -248,9 +281,9 @@ def load_evidence(path: Path) -> dict[str, Any]:
 
 def _rate(numerator: float, denominator: float) -> dict[str, Any]:
     if not denominator:
-        return {"ratio": None, "text": "不适用"}
+        return {"ratio": None, "raw": None, "text": "不适用"}
     ratio = numerator / denominator
-    return {"ratio": round(ratio, 4), "text": f"{ratio * 100:.1f}%"}
+    return {"ratio": round(ratio, 4), "raw": ratio, "text": f"{ratio * 100:.1f}%"}
 
 
 def _grade_completeness(ratio: float | None) -> str:
@@ -259,8 +292,8 @@ def _grade_completeness(ratio: float | None) -> str:
     if ratio >= EVIDENCE_GOOD:
         return "完整"
     if ratio >= EVIDENCE_PARTIAL:
-        return "部分"
-    return "不足"
+        return "较完整"
+    return "不完整"
 
 
 def _decide_verdict(
@@ -268,21 +301,48 @@ def _decide_verdict(
     total: int,
     new_or_modified_cases: int,
     completeness: dict[str, Any],
-    intercept_rate: dict[str, Any],
-    discriminating_rate: dict[str, Any],
+    effective_rate: dict[str, Any],
     degrade_signals: int,
+    declared_units: int = 0,
+    unable_units: int = 0,
+    limited_files: int = 0,
 ) -> dict[str, Any]:
     """按顺序判定 DT 质量定性，命中即停。返回 结论 / 规则 / 依据。"""
-    completeness_ratio = completeness.get("ratio")
-    intercept = intercept_rate.get("ratio")
-    disc = discriminating_rate.get("ratio")
+    # 判定与展示同精度：报告显示 1 位小数，阈值比较也按 2 位小数，
+    # 避免出现「显示 75.0% 却判不达标」这种自相矛盾。
+    completeness_ratio = (
+        None if completeness.get("raw") is None else round(completeness["raw"], 2)
+    )
+    effective = (
+        None if effective_rate.get("raw") is None else round(effective_rate["raw"], 2)
+    )
     comp_text = completeness.get("text", "不适用")
 
+    # 前置：全部单元取数失败时根本没有证据，不能落「合格」
+    if declared_units and unable_units >= declared_units:
+        return {
+            "结论": VERDICT_INSUFFICIENT,
+            "规则": "前置",
+            "依据": (
+                f"全部 {declared_units} 个变更单元都记为「无法获取」，"
+                "没有可分析的内容，不产出质量结论"
+            ),
+        }
+
     if total == 0:
+        if limited_files:
+            return {
+                "结论": VERDICT_PASS,
+                "规则": "R0",
+                "依据": (
+                    f"未枚举出 Java/Python 逻辑点；另有 C/C++ 受限文件 {limited_files} 个，"
+                    "不据此判断有无行为分支"
+                ),
+            }
         return {
             "结论": VERDICT_PASS,
             "规则": "R0",
-            "依据": "本次改动没有需要测的行为分支（决策点 0 个）",
+            "依据": "无可枚举分支（逻辑点 0 个）",
         }
 
     if (
@@ -307,26 +367,18 @@ def _decide_verdict(
         }
 
     blocks: list[str] = []
-    if intercept is not None and intercept < VERDICT_BLOCK_RATIO:
-        blocks.append(f"可拦截率 {intercept_rate['text']} < {VERDICT_BLOCK_RATIO * 100:.0f}%")
-    if disc is not None and disc < VERDICT_BLOCK_RATIO:
-        blocks.append(
-            f"判别性断言占比 {discriminating_rate['text']} < {VERDICT_BLOCK_RATIO * 100:.0f}%"
-        )
+    if effective is not None and effective < VERDICT_BLOCK_RATIO:
+        blocks.append(f"有效断言率 {effective_rate['text']} < {VERDICT_BLOCK_RATIO * 100:.0f}%")
     if degrade_signals > VERDICT_DEGRADE_LIMIT:
         blocks.append(f"测试退化 {degrade_signals} 条 > {VERDICT_DEGRADE_LIMIT}")
     if blocks:
         return {"结论": VERDICT_IMPROVE, "规则": "R3", "依据": "；".join(blocks)}
 
     gaps: list[str] = []
-    if intercept is None or intercept < VERDICT_EXCELLENT_RATIO:
-        gaps.append(f"可拦截率 {intercept_rate['text']} < {VERDICT_EXCELLENT_RATIO * 100:.0f}%")
-    if disc is None or disc < VERDICT_EXCELLENT_RATIO:
-        gaps.append(
-            f"判别性断言占比 {discriminating_rate['text']} < {VERDICT_EXCELLENT_RATIO * 100:.0f}%"
-        )
+    if effective is None or effective < VERDICT_EXCELLENT_RATIO:
+        gaps.append(f"有效断言率 {effective_rate['text']} < {VERDICT_EXCELLENT_RATIO * 100:.0f}%")
     if total < VERDICT_MIN_POINTS:
-        gaps.append(f"决策点 {total} 个 < {VERDICT_MIN_POINTS}")
+        gaps.append(f"逻辑点 {total} 个 < {VERDICT_MIN_POINTS}")
     if degrade_signals:
         gaps.append(f"测试退化 {degrade_signals} 条")
     if gaps:
@@ -340,8 +392,8 @@ def _decide_verdict(
         "结论": VERDICT_GOOD,
         "规则": "R4",
         "依据": (
-            f"可拦截率 {intercept_rate['text']}、判别性断言占比 {discriminating_rate['text']}、"
-            f"决策点 {total} 个、无测试退化，四项均达标"
+            f"有效断言率 {effective_rate['text']}、逻辑点 {total} 个、"
+            f"无测试退化，三项均达标"
         ),
     }
 
@@ -365,6 +417,14 @@ def analyze(path: Path) -> dict[str, Any]:
 
     errors: list[str] = []
     warnings: list[str] = []
+
+    # ---- 概览必需键（缺键静默取 0 会把 KLOC 读成 0，必须报错）
+    for key in REQUIRED_OVERVIEW_KEYS:
+        if not _norm(overview.get(key, "")):
+            errors.append(f"变更概览缺少必需键「{key}」")
+    object_type = _norm(overview.get("对象类型", ""))
+    if object_type and object_type not in ("SR", "AR", "MR"):
+        errors.append(f"变更概览.对象类型 应为 SR / AR / MR，实际「{object_type}」")
 
     # ---- 概览
     row_count = _as_int(
@@ -390,25 +450,88 @@ def analyze(path: Path) -> dict[str, Any]:
         warnings.append(
             f"变更单元数写的是 {declared_units}，变更单元段实际有 {len(unit_rows)} 行，请核对"
         )
+    unable_units = _as_int(
+        overview.get("无法获取单元数", ""), where="变更概览.无法获取单元数", errors=errors
+    )
+    if unable_units and declared_units and unable_units >= declared_units:
+        warnings.append(
+            "全部变更单元都是「无法获取」，不应产出质量结论；请按 SKILL 步骤 1 终止流程"
+        )
 
     # ---- 范围（只列纳入的文件；排除项在概览里按分类计数）
     scope_rows = parsed["范围"]
-    included_by_category: dict[str, dict[str, int]] = {}
+    included_by_category: dict[tuple[str, str], dict[str, int]] = {}
+    kloc_additions = 0
     for idx, row in enumerate(scope_rows, start=1):
         where = f"范围第 {idx} 行"
         if not _norm(row.get("路径", "")):
             errors.append(f"{where}：路径为空")
         tier = _norm(row.get("来源档位", ""))
-        if tier and tier not in SOURCE_TIERS:
+        if tier not in SOURCE_TIERS:
             errors.append(f"{where}：来源档位应为 {('/'.join(SOURCE_TIERS))}，实际「{tier}」")
+        category = _norm(row.get("分类", ""))
+        if not category:
+            errors.append(f"{where}：分类为空，每个纳入文件都必须有分类")
+        language = _norm(row.get("语言", ""))
+        if language not in LANGUAGES:
+            errors.append(f"{where}：语言应为 {('/'.join(LANGUAGES))}，实际「{language}」")
+        verdict = _norm(row.get("结论", ""))
+        if verdict not in SCOPE_VERDICTS:
+            errors.append(f"{where}：结论应为 {('/'.join(SCOPE_VERDICTS))}，实际「{verdict}」")
         additions = _as_int(_norm(row.get("新增", "")) or "0", where=f"{where}.新增", errors=errors)
         deletions = _as_int(_norm(row.get("删除", "")) or "0", where=f"{where}.删除", errors=errors)
+        if category == "生产代码" and language in ("Java", "Python"):
+            kloc_additions += additions
         bucket = included_by_category.setdefault(
-            _norm(row.get("分类", "")) or "未分类", {"文件数": 0, "新增": 0, "删除": 0}
+            (category or "未分类", language or "未标注"),
+            {"文件数": 0, "新增": 0, "删除": 0},
         )
         bucket["文件数"] += 1
         bucket["新增"] += additions
         bucket["删除"] += deletions
+
+    if (row_count or kloc_additions) and row_count != kloc_additions:
+        warnings.append(
+            f"变更生产代码行数写的是 {row_count}，按范围表（生产代码 + Java/Python）累加得 "
+            f"{kloc_additions}，请核对"
+        )
+
+    # 生产/测试文件数与范围表对账（两个键只作对账用，不进报告正文）
+    declared_prod = _as_int(
+        overview.get("生产文件数", ""), where="变更概览.生产文件数", errors=errors
+    )
+    declared_test = _as_int(
+        overview.get("测试文件数", ""), where="变更概览.测试文件数", errors=errors
+    )
+    actual_prod = sum(
+        counts["文件数"]
+        for (category, _language), counts in included_by_category.items()
+        if category == "生产代码"
+    )
+    actual_test = sum(
+        counts["文件数"]
+        for (category, _language), counts in included_by_category.items()
+        if category == "测试代码"
+    )
+    if declared_prod and declared_prod != actual_prod:
+        warnings.append(
+            f"生产文件数写的是 {declared_prod}，范围表里分类为生产代码的有 {actual_prod} 行"
+        )
+    if declared_test and declared_test != actual_test:
+        warnings.append(
+            f"测试文件数写的是 {declared_test}，范围表里分类为测试代码的有 {actual_test} 行"
+        )
+
+    actual_limited = sum(
+        counts["文件数"]
+        for (_category, language), counts in included_by_category.items()
+        if language in ("C", "C++")
+    )
+    if limited_files and limited_files != actual_limited:
+        warnings.append(
+            f"C/C++ 受限文件数写的是 {limited_files}，"
+            f"范围表里语言为 C/C++ 的有 {actual_limited} 行"
+        )
 
     excluded = [
         {
@@ -450,7 +573,7 @@ def analyze(path: Path) -> dict[str, Any]:
         assertions = _as_int(_norm(row.get("断言数", "")) or "0", where=f"{where}.断言数", errors=errors)
         interaction_only = _norm(row.get("只验交互", ""))
         if interaction_only not in ("", "是", "否"):
-            errors.append(f"{where}：只验交互只填「是」或留空，实际「{interaction_only}」")
+            errors.append(f"{where}：只验交互只填「是」「否」或留空，实际「{interaction_only}」")
         counted = kind in ("新增", "修改")
         if counted and assertions == 0:
             b1 += 1
@@ -461,21 +584,41 @@ def analyze(path: Path) -> dict[str, Any]:
     case_total = new_cases + modified_cases
 
     # ---- 断言
+    # 一条断言的身份是「用例 + 断言行号」：同一身份只计一次，档位取最高档。
+    # 这样无论写成一行绑多个逻辑点、还是拆成多行，有效断言条数都相同。
     assertion_rows = parsed["断言清单"]
-    tier_count = {tier: 0 for tier in TIERS}
+    assertion_tier: dict[tuple[str, str], str] = {}
+    assertion_bindings: list[tuple[str, list[str]]] = []
     for idx, row in enumerate(assertion_rows, start=1):
         where = f"断言清单第 {idx} 行"
         tier = _norm(row.get("档位", ""))
-        if tier not in TIERS:
-            errors.append(f"{where}：档位应为 {('/'.join(TIERS))}，实际「{tier}」")
-        else:
-            tier_count[tier] += 1
         case = _norm(row.get("用例", ""))
-        if case and case not in case_names:
-            errors.append(f"{where}：用例「{case}」不在用例清单里")
+        line_no = _norm(row.get("断言行号", ""))
+        assertion_bindings.append((where, _split_ids(row.get("绑定逻辑点", ""))))
         if not case:
             errors.append(f"{where}：用例为空")
-    assertion_total = len(assertion_rows)
+        elif case not in case_names:
+            errors.append(f"{where}：用例「{case}」不在用例清单里")
+        elif case_kind_of.get(case) == "既有":
+            errors.append(
+                f"{where}：用例「{case}」是既有用例，其断言不进断言清单"
+                "（既有断言可在步骤 3 支撑状态，但不进有效断言条数）"
+            )
+        if not line_no:
+            errors.append(f"{where}：断言行号为空")
+        if tier not in TIERS:
+            errors.append(f"{where}：档位应为 {('/'.join(TIERS))}，实际「{tier}」")
+            continue
+        if not case or not line_no:
+            continue
+        key = (case, line_no)
+        previous = assertion_tier.get(key)
+        if previous is None or TIER_RANK[tier] > TIER_RANK[previous]:
+            assertion_tier[key] = tier
+    tier_count = {tier: 0 for tier in TIERS}
+    for tier in assertion_tier.values():
+        tier_count[tier] += 1
+    assertion_total = len(assertion_tier)
 
     # ---- Mock
     mock_rows = parsed["Mock 清单"]
@@ -496,12 +639,12 @@ def analyze(path: Path) -> dict[str, Any]:
         if problem == MOCK_PROBLEM:
             contract_drifts += 1
 
-    # ---- 决策点
-    dp_rows = parsed["决策点证据"]
+    # ---- 逻辑点
+    dp_rows = parsed["逻辑点证据"]
     state_count = {state: 0 for state in STATES}
     dp_ids: set[str] = set()
     for idx, row in enumerate(dp_rows, start=1):
-        where = f"决策点证据第 {idx} 行"
+        where = f"逻辑点证据第 {idx} 行"
         dp_id = _norm(row.get("编号", ""))
         if not dp_id:
             errors.append(f"{where}：编号为空")
@@ -524,10 +667,32 @@ def analyze(path: Path) -> dict[str, Any]:
             )
 
         reach = _norm(row.get("触达用例", ""))
+        evidence = _norm(row.get("断言证据", ""))
+        replaced_method = _norm(row.get("被替换方法", ""))
+        review = _norm(row.get("复核", ""))
+
         if state == "无测试" and reach:
             errors.append(f"{where}（{dp_id}）：状态是无测试，但触达用例写了「{reach}」")
-        if state in ("已观测", "部分观测", "未观测") and not reach:
+        if state in ("已断言", "断言偏弱", "未断言") and not reach:
             errors.append(f"{where}（{dp_id}）：状态是「{state}」，触达用例不能为空")
+        if state in ("已断言", "断言偏弱") and not evidence:
+            errors.append(
+                f"{where}（{dp_id}）：状态是「{state}」，断言证据必须写「用例 + 断言行号 + 读到的产出项」"
+            )
+        if state == "实现被替换":
+            if not replaced_method:
+                errors.append(
+                    f"{where}（{dp_id}）：状态是实现被替换，「被替换方法」不能为空"
+                )
+            if not reach:
+                errors.append(
+                    f"{where}（{dp_id}）：状态是实现被替换，至少要有一条覆盖用例；"
+                    "零覆盖应落「无测试」"
+                )
+        if state == "无法判定" and "缺失：" not in review:
+            errors.append(
+                f"{where}（{dp_id}）：状态是无法判定，「复核」列必须写 `缺失：…` 说明缺什么"
+            )
 
         source = _norm(row.get("来源", ""))
         if source not in ("新增", "修改"):
@@ -539,20 +704,27 @@ def analyze(path: Path) -> dict[str, Any]:
                     f"{where}（{dp_id}）：来源是修改，断言随动应填「是」或「否」，实际「{follow}」"
                 )
             elif follow == "否":
-                review = _norm(row.get("复核", ""))
-                if state == "已观测" and not review:
+                if "随动：" not in review:
                     errors.append(
-                        f"{where}（{dp_id}）：断言未随实现变更却判已观测，「复核」列必须写明理由"
+                        f"{where}（{dp_id}）：断言未随实现变更，「复核」列必须写 `随动：…` 理由"
                     )
-                elif state in ("已观测", "部分观测") and review:
+                elif state in ("已断言", "断言偏弱"):
                     warnings.append(f"{dp_id}：断言未随实现变更，已按复核列说明放行")
         elif follow:
             errors.append(f"{where}（{dp_id}）：来源是新增，断言随动应留空，实际「{follow}」")
 
+    # 断言绑定的逻辑点必须真实存在（逻辑点表在这一段之后，所以这里才校验）
+    for where, bindings in assertion_bindings:
+        for dp_id in bindings:
+            if dp_id not in dp_ids:
+                errors.append(f"{where}：绑定逻辑点「{dp_id}」不在逻辑点证据里")
+
     # ---- 信号
     signal_rows = parsed["信号与问题"]
-    degrade_signals = 0
+    degrade_signals = 0  # 计入 = 是
+    degrade_hints = 0  # 计入 = 否，只作提示
     miss_signals = 0
+    seen_signals: set[tuple[str, str]] = set()
     for idx, row in enumerate(signal_rows, start=1):
         where = f"信号与问题第 {idx} 行"
         kind = _norm(row.get("类型", ""))
@@ -564,33 +736,52 @@ def analyze(path: Path) -> dict[str, Any]:
         if kind == SIGNAL_MISS:
             miss_signals += 1
             continue
-        if not _norm(row.get("信号", "")):
+        signal = _norm(row.get("信号", ""))
+        position = _norm(row.get("位置", ""))
+        if not signal:
             errors.append(f"{where}：测试退化要填「信号」名，如 断言弱化 / 测试文件删除 / 新增禁用")
+        if not position:
+            errors.append(f"{where}：位置为空")
+        if signal and position:
+            key = (position, signal)
+            if key in seen_signals:
+                errors.append(f"{where}：同一位置同一信号重复登记（{position} / {signal}）")
+            seen_signals.add(key)
+        if not _norm(row.get("引用生产符号", "")):
+            errors.append(f"{where}：要填「引用生产符号」，三段要件的第一段靠它落点")
         counted = _norm(row.get("计入", ""))
         if counted not in ("是", "否"):
             errors.append(f"{where}：测试退化的「计入」应填 是 或 否，实际「{counted}」")
         elif counted == "是":
             degrade_signals += 1
+        else:
+            degrade_hints += 1
+            if not _norm(row.get("说明", "")):
+                errors.append(f"{where}：计入=否 时「说明」要写清缺了哪一段要件")
 
-    # ---- 决策点合计
+    # ---- 逻辑点合计
     total = len(dp_rows)
     undecidable = state_count["无法判定"]
     decidable = total - undecidable
     if total and sum(state_count.values()) != total:
         errors.append(
-            f"决策点状态合计 {sum(state_count.values())} 与总行数 {total} 不一致"
+            f"逻辑点状态合计 {sum(state_count.values())} 与总行数 {total} 不一致"
         )
-    unnoticed = state_count["实现被替换"] + state_count["无测试"] + state_count["未观测"]
-    if decidable != state_count["已观测"] + state_count["部分观测"] + unnoticed:
+    unnoticed = state_count["实现被替换"] + state_count["无测试"] + state_count["未断言"]
+    if decidable != state_count["已断言"] + state_count["断言偏弱"] + unnoticed:
         errors.append(
-            "可判定决策点数与各状态之和不符："
-            f"{decidable} != 已观测 {state_count['已观测']} + 部分观测 {state_count['部分观测']}"
-            f" + 未被观测 {unnoticed}"
+            "可判定逻辑点数与各状态之和不符："
+            f"{decidable} != 已断言 {state_count['已断言']} + 断言偏弱 {state_count['断言偏弱']}"
+            f" + 未被断言 {unnoticed}"
         )
     if miss_signals and state_count["无测试"] != total:
-        warnings.append("测试脱靶命中时，全部决策点应都是「无测试」；当前不是，请核对")
+        warnings.append("测试脱靶命中时，全部逻辑点应都是「无测试」；当前不是，请核对")
+    if miss_signals and new_cases + modified_cases == 0:
+        errors.append("测试脱靶要求本对象有新增或修改用例；当前一个都没有")
 
     # ---- 指标
+    # 三个率与证据完整度共用同一个分母「全部逻辑点」：核心要看护的是业务代码里
+    # 所有需要断言的分支，读不到的那部分不能从分母里消失，否则会虚高。
     thousand_lines = row_count / 1000.0
     density: dict[str, Any]
     if thousand_lines:
@@ -599,18 +790,28 @@ def analyze(path: Path) -> dict[str, Any]:
     else:
         density = {"value": None, "text": "不适用"}
 
-    observed_rate = _rate(state_count["已观测"] + state_count["部分观测"], decidable)
-    intercept_rate = _rate(state_count["已观测"], total)
-    discriminating_rate = _rate(tier_count["判别性"], assertion_total)
-    mocked_rate = _rate(state_count["实现被替换"], decidable)
+    coverage_rate = _rate(state_count["已断言"] + state_count["断言偏弱"], total)
+    effective_rate = _rate(state_count["已断言"], total)
+    replaced_rate = _rate(state_count["实现被替换"], total)
     completeness_ratio = (decidable / total) if total else None
     completeness = {
         "ratio": round(completeness_ratio, 4) if completeness_ratio is not None else None,
+        "raw": completeness_ratio,
         "text": f"{completeness_ratio * 100:.1f}%" if completeness_ratio is not None else "不适用",
         "档": _grade_completeness(completeness_ratio),
         "低于下限": bool(completeness_ratio is not None and completeness_ratio < EVIDENCE_FLOOR),
     }
 
+    # 三个率共用分母，必然有这条链：有效断言率 ≤ 断言覆盖率 ≤ 证据完整度
+    for name, value in (
+        ("有效断言率", effective_rate["raw"]),
+        ("断言覆盖率", coverage_rate["raw"]),
+    ):
+        if value is not None and completeness_ratio is not None and value > completeness_ratio + 1e-9:
+            errors.append(f"{name} 不能高于证据完整度（分母都是全部逻辑点）")
+
+    # 三个率共用分母，只有「全部逻辑点 = 0」才不适用；可判定为 0 时照常给 0.0%，
+    # 由 R2 的「证据不足」兜底，不再单独抹成「不适用」。
     metrics = {
         "变更生产代码行数": row_count,
         "变更生产代码KLOC": round(thousand_lines, 3),
@@ -619,13 +820,12 @@ def analyze(path: Path) -> dict[str, Any]:
         "既有用例数": case_kind_count["既有"],
         "用例总数": case_total,
         "新增DT密度": density,
-        "全部决策点": total,
-        "可判定决策点数": decidable,
-        "无法判定决策点数": undecidable,
-        "观测率": observed_rate,
-        "可拦截率": intercept_rate,
-        "判别性断言占比": discriminating_rate,
-        "架空率": mocked_rate,
+        "全部逻辑点": total,
+        "可判定逻辑点数": decidable,
+        "无法判定逻辑点数": undecidable,
+        "断言覆盖率": coverage_rate,
+        "有效断言率": effective_rate,
+        "实现被替换率": replaced_rate,
         "证据完整度": completeness,
         "C/C++受限文件数": limited_files,
     }
@@ -634,26 +834,27 @@ def analyze(path: Path) -> dict[str, Any]:
         total=total,
         new_or_modified_cases=new_cases + modified_cases,
         completeness=completeness,
-        intercept_rate=intercept_rate,
-        discriminating_rate=discriminating_rate,
+        effective_rate=effective_rate,
         degrade_signals=degrade_signals,
+        declared_units=declared_units,
+        unable_units=unable_units,
+        limited_files=limited_files,
     )
 
     # ---- 问题计数
-    # 断言质量低：新增或修改用例里，一条判别性断言都没有的用例
-    discriminating_per_case: dict[str, int] = {}
-    for row in assertion_rows:
-        case = _norm(row.get("用例", ""))
-        if _norm(row.get("档位", "")) == "判别性":
-            discriminating_per_case[case] = discriminating_per_case.get(case, 0) + 1
+    # 断言质量低：新增或修改用例里，一条有效断言都没有的用例
+    effective_per_case: dict[str, int] = {}
+    for (case_name, _line_no), tier in assertion_tier.items():
+        if tier == "有效":
+            effective_per_case[case_name] = effective_per_case.get(case_name, 0) + 1
     weak_cases = [
         name
         for name, kind in case_kind_of.items()
-        if kind in ("新增", "修改") and discriminating_per_case.get(name, 0) == 0
+        if kind in ("新增", "修改") and effective_per_case.get(name, 0) == 0
     ]
 
     counts = {
-        CLASS_COVERAGE: state_count["无测试"] + state_count["未观测"],
+        CLASS_COVERAGE: state_count["无测试"] + state_count["未断言"],
         CLASS_ASSERTION: len(weak_cases),
         CLASS_OFFSET: state_count["实现被替换"],
         CLASS_DEGRADE: degrade_signals,
@@ -665,18 +866,22 @@ def analyze(path: Path) -> dict[str, Any]:
         CLASS_DEGRADE: "",
     }
     details = {
-        CLASS_COVERAGE: f"无测试 {state_count['无测试']}、分支未观测 {state_count['未观测']}",
+        CLASS_COVERAGE: f"无测试 {state_count['无测试']}、分支未断言 {state_count['未断言']}",
         CLASS_ASSERTION: (
             f"无断言用例 {b1}、只用交互验证 {b3}、"
-            f"不判别断言 {tier_count['结构性'] + tier_count['存在性']} 条"
+            f"仅形状或存活档断言 {tier_count['形状'] + tier_count['存活']} 条"
         ),
         CLASS_OFFSET: (
             f"实现被替换 {state_count['实现被替换']}"
             + (f"、契约漂移 {contract_drifts} 处" if contract_drifts else "")
         ),
-        CLASS_DEGRADE: "",
+        CLASS_DEGRADE: (
+            f"计入 {degrade_signals} 条、仅提示 {degrade_hints} 条"
+            if (degrade_signals or degrade_hints)
+            else ""
+        ),
     }
-    denominators = {"可判定": decidable, "用例": case_total}
+    denominators = {"全部": total, "用例": case_total}
 
     distribution: list[dict[str, Any]] = []
     for problem_cls in PROBLEM_ORDER:
@@ -689,17 +894,18 @@ def analyze(path: Path) -> dict[str, Any]:
             share = _rate(count, denominator) if denominator else None
         severity = BASE_SEVERITY[problem_cls]
         upgrade: str | None = None
-        if problem_cls == CLASS_ASSERTION and discriminating_rate["ratio"] is not None:
-            if discriminating_rate["ratio"] < DISCRIMINATING_FLOOR:
+        if problem_cls == CLASS_ASSERTION and count and case_total:
+            case_share = count / case_total
+            if count >= ASSERTION_CASE_FLOOR and case_share >= ASSERTION_CASE_RATE:
                 severity, upgrade = "严重", (
-                    f"判别性断言占比 {discriminating_rate['text']} "
-                    f"< {DISCRIMINATING_FLOOR * 100:.0f}%"
+                    f"命中 {count} 个用例 ≥ {ASSERTION_CASE_FLOOR}，"
+                    f"且占新增/修改用例 {case_share * 100:.1f}% ≥ {ASSERTION_CASE_RATE * 100:.0f}%"
                 )
-        if problem_cls == CLASS_OFFSET and counts[CLASS_OFFSET] >= OFFSET_POINT_FLOOR:
-            if mocked_rate["ratio"] is not None and mocked_rate["ratio"] >= OFFSET_RATE_FLOOR:
+        if problem_cls == CLASS_OFFSET and counts[CLASS_OFFSET] >= REPLACED_POINT_FLOOR:
+            if replaced_rate.get("raw") is not None and replaced_rate["raw"] >= REPLACED_RATE_FLOOR:
                 severity, upgrade = "严重", (
-                    f"被替换 {counts[CLASS_OFFSET]} 个 ≥ {OFFSET_POINT_FLOOR}，"
-                    f"架空率 {mocked_rate['text']} ≥ {OFFSET_RATE_FLOOR * 100:.0f}%"
+                    f"被替换 {counts[CLASS_OFFSET]} 个 ≥ {REPLACED_POINT_FLOOR}，"
+                    f"实现被替换率 {replaced_rate['text']} ≥ {REPLACED_RATE_FLOOR * 100:.0f}%"
                 )
         quantity = f"{count} {PROBLEM_UNITS[problem_cls]}"
         if notes[problem_cls]:
@@ -719,6 +925,10 @@ def analyze(path: Path) -> dict[str, Any]:
             }
         )
 
+    # 零逻辑点：问题分布留空（报告结构 1.2 唯一口径），否则会出现「合格」与命中问题并存
+    if total == 0:
+        distribution.clear()
+
     payload: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
         "对象": {
@@ -729,8 +939,8 @@ def analyze(path: Path) -> dict[str, Any]:
             "涉及仓": overview.get("涉及仓", ""),
             "关联能力": overview.get("关联能力", ""),
             "证据来源分布": {
-                "本地": overview.get("本地单元数", ""),
-                "平台": overview.get("平台单元数", ""),
+                "含本地仓": overview.get("含本地仓单元数", ""),
+                "仅 diff": overview.get("仅 diff 单元数", ""),
                 "无法获取": overview.get("无法获取单元数", ""),
             },
         },
@@ -749,10 +959,18 @@ def analyze(path: Path) -> dict[str, Any]:
         "变更构成": {
             "纳入文件数": len(scope_rows),
             "纳入分类": [
-                {"分类": category, **counts}
-                for category, counts in sorted(included_by_category.items())
+                {"分类": category, "语言": language, **counts}
+                for (category, language), counts in sorted(
+                    included_by_category.items(),
+                    key=lambda kv: (
+                        CATEGORY_ORDER.get(kv[0][0], 9),
+                        LANGUAGE_ORDER.get(kv[0][1], 9),
+                        kv[0],
+                    ),
+                )
             ],
             "排除": excluded,
+            "KLOC口径新增行数": kloc_additions,
         },
         "指标": metrics,
         "定性": verdict,
@@ -761,10 +979,20 @@ def analyze(path: Path) -> dict[str, Any]:
         "Mock 情形分布": {f"类{kind}": mock_kind_count[kind] for kind in MOCK_KINDS},
         "问题分布": distribution,
         "分布表": _distribution_table(distribution),
-        "证据不足": {
+        "证据缺口": {
             "数量": undecidable,
             "占全部": _rate(undecidable, total)["text"],
+            "无法获取单元数": unable_units,
         },
+        "测试退化": {
+            "计入条数": degrade_signals,
+            "提示条数": degrade_hints,
+        },
+        "断言质量": {
+            "无断言用例数": b1,
+            "只用交互验证用例数": b3,
+        },
+        "契约漂移数": contract_drifts,
         "命中类数": sum(1 for item in distribution if item["命中"]),
         "未命中类数": DISTRIBUTION_CLASSES - sum(1 for item in distribution if item["命中"]),
         "证据": completeness,
@@ -772,10 +1000,9 @@ def analyze(path: Path) -> dict[str, Any]:
             "证据完整度下限": EVIDENCE_FLOOR,
             "证据完整度完整档": EVIDENCE_GOOD,
             "证据完整度部分档": EVIDENCE_PARTIAL,
-            "观测率良好": GOOD_OBSERVED,
-            "判别性断言占比良好": GOOD_DISCRIMINATING,
-            "覆盖低水位": COVER_FLOOR,
-            "判别性断言占比下限": DISCRIMINATING_FLOOR,
+            "断言覆盖率良好": GOOD_COVERAGE,
+            "断言覆盖率低": COVER_FLOOR,
+            "实现被替换率高档": REPLACED_RATE_FLOOR,
             "密度参考带": [DENSITY_LOW, DENSITY_HIGH],
         },
         "校验": {"通过": not errors, "错误": errors, "警告": warnings},

@@ -16,28 +16,14 @@ from pathlib import Path
 from typing import Any, NoReturn, Sequence
 
 from .contracts import SCHEMA_VERSION
+from .errors import AuditError, NotFoundError, UpstreamError
 from .fetch import fetch_mr_changes
 from .index import fetch_sr_mr_index
 from .mr import fetch_mr_details
+from .render import RenderError, run_render
 from .stats import EvidenceError, run_stats
 
-
-class AuditError(Exception):
-    """脚本可预期错误的基类。"""
-
-    exit_code = 1
-
-
-class NotFoundError(AuditError):
-    """SR / AR / MR / 仓不存在。"""
-
-    exit_code = 2
-
-
-class UpstreamError(AuditError):
-    """平台不可达或鉴权失败。"""
-
-    exit_code = 3
+DEFAULT_TEMPLATE = Path(__file__).resolve().parents[2] / "references" / "报告模板.md"
 
 
 class _Parser(argparse.ArgumentParser):
@@ -78,6 +64,18 @@ def _cmd_stats(args: argparse.Namespace) -> dict[str, Any]:
     )
 
 
+def _cmd_render(args: argparse.Namespace) -> dict[str, Any]:
+    return run_render(
+        template=Path(args.template),
+        stats=Path(args.stats),
+        evidence=Path(args.evidence),
+        manifest=Path(args.manifest) if args.manifest else None,
+        narrative=Path(args.narrative),
+        out=Path(args.out) if args.out else None,
+        check=args.check,
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = _Parser(prog="dt_audit", description="DT 质量审计取数脚本")
     parser.add_argument("--version", action="version", version=f"%(prog)s {SCHEMA_VERSION}")
@@ -105,6 +103,17 @@ def build_parser() -> argparse.ArgumentParser:
     p_stats.add_argument("--pretty", action="store_true", help="缩进输出")
     p_stats.set_defaults(handler=_cmd_stats)
 
+    p_render = sub.add_parser("render", help="装配最终报告，并可回读校验")
+    p_render.add_argument("--template", default=str(DEFAULT_TEMPLATE), help="报告模板路径")
+    p_render.add_argument("--stats", required=True, help="stats.json 路径")
+    p_render.add_argument("--evidence", required=True, help="evidence.md 路径")
+    p_render.add_argument("--manifest", default=None, help="manifest.json 路径，缺省则 3.1 文件数为 —")
+    p_render.add_argument("--narrative", required=True, help="narrative.json 路径（判断类文案）")
+    p_render.add_argument("--out", default=None, help="报告输出路径，默认与证据表同目录")
+    p_render.add_argument("--check", action="store_true", help="回读校验，不通过则报错且不写文件")
+    p_render.add_argument("--pretty", action="store_true", help="缩进输出")
+    p_render.set_defaults(handler=_cmd_render)
+
     return parser
 
 
@@ -119,6 +128,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 1
     except EvidenceError as exc:
         print(f"evidence error: {exc}", file=sys.stderr)
+        return 1
+    except RenderError as exc:
+        print(f"render error: {exc}", file=sys.stderr)
         return 1
     except NotFoundError as exc:
         print(f"not found: {exc}", file=sys.stderr)

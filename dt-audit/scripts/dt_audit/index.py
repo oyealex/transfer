@@ -21,7 +21,7 @@ def fetch_sr_mr_index(object_id: str) -> SrMrIndex:
     2. 同时解析直接挂 SR 的 MR 与挂在 AR 下的 MR，``linked_via`` 标明来源。
     3. 每个 MR 只返回首个与末个提交（``first_commit`` / ``last_commit``），
        不返回完整提交列表，也不返回任何 diff。
-    4. 同一仓库的 MR 只出现一次；跨仓 MR 各自一条。
+    4. 同一 MR 地址只出现一次；同仓不同 MR 各自一条。
     5. ``author`` 取 MR 作者名，报告 1.1 要列。
     6. 单个 MR 取数失败不抛异常，写入 ``warnings`` 后继续。
     7. ``mrs`` 按 ``mr_id`` 排序，保证同一输入多次调用结果稳定。
@@ -32,5 +32,7 @@ def fetch_sr_mr_index(object_id: str) -> SrMrIndex:
     Raises:
         NotFoundError: SR / AR 不存在。
         UpstreamError: 平台不可达或鉴权失败。
+
+    异常定义见 :mod:`dt_audit.errors`，不要在 ``cli`` 里导入以免循环依赖。
     """
     raise NotImplementedError("fetch_sr_mr_index 尚未实现，见 scripts/README.md")
