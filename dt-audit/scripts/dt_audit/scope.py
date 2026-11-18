@@ -4,7 +4,7 @@
 输出范围表数据、排除计数与分片/短路要用的体量指标。
 
 只做**路径与扩展名**能判的部分：内容特征（``@Test``、生成代码文件头）需要读文件，
-留给 Skill 在步骤 1 复核时补判。判不准的文件按「其余」排除，不猜。
+留给 Skill 在步骤 1 复核时补判。判不准的文件按路径给结论，不猜内容。
 """
 
 from __future__ import annotations
@@ -82,6 +82,9 @@ def _norm_path(path: str) -> str:
 
 def _ext(path: str) -> str:
     name = path.rsplit("/", 1)[-1]
+    # 点开头的文件名（.env、.gitignore）把整个名字当扩展名，否则会落进「其他语言」
+    if name.startswith(".") and name.count(".") == 1:
+        return name.lower()
     dot = name.rfind(".")
     return name[dot:].lower() if dot > 0 else ""
 
@@ -161,6 +164,8 @@ def analyze_scope(manifest_path: Path) -> dict[str, Any]:
                 previous = seen[path]
                 previous["additions"] = max(previous["additions"], int(raw.get("additions") or 0))
                 previous["deletions"] = max(previous["deletions"], int(raw.get("deletions") or 0))
+                if url and url not in previous["mrs"]:
+                    previous["mrs"].append(url)
                 warnings.append(f"同一文件出现在多个 MR：{path}，按较大量计一次")
                 continue
             category, language, verdict = classify(
@@ -168,6 +173,7 @@ def analyze_scope(manifest_path: Path) -> dict[str, Any]:
             )
             item = {
                 "mr": url,
+                "mrs": [url] if url else [],
                 "path": path,
                 "old_path": raw.get("old_path"),
                 "change_type": str(raw.get("change_type", "")),

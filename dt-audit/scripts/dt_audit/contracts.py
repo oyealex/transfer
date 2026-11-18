@@ -52,7 +52,7 @@ class MrRef(TypedDict):
     title: str
     web_url: str
     author: str
-    """MR 作者名。报告 1.1 基本信息要列。"""
+    """MR 作者名。报告 3.2 的变更单元表要列。"""
 
     repo: RepoRef
     target_branch: str
@@ -73,7 +73,7 @@ class SrMrIndex(TypedDict):
     schema_version: str
     object_type: ObjectType
     object_id: str
-    """归一化后的编号，如 ``SR-1234`` / ``AR-77``。"""
+    """归一化后的编号，如 ``SR1234`` / ``AR77``。"""
 
     fetched_at: str
     """ISO8601，带时区。"""
@@ -87,13 +87,13 @@ class MrDetailBatch(TypedDict):
     """``fetch_mr_details`` 的返回值。
 
     与 ``SrMrIndex`` 的差别只在入口：这里从 MR 地址列表进入，``object_type`` 恒为
-    ``"MR"``，``object_id`` 取单地址时的 ``MR-<编号>``；多地址时取首个并追加 ``+N``。
+    ``"MR"``，``object_id`` 取单地址时的 MR 地址原文；多地址时取首个地址。
     """
 
     schema_version: str
     object_type: ObjectType
     object_id: str
-    """``MR-1234``（单地址）或 ``MR-1234+2``（多地址表示另有 2 个）。"""
+    """MR 地址原文，如 ``https://git.corp/group/repo/merge_requests/12``。"""
 
     fetched_at: str
     """ISO8601，带时区。"""

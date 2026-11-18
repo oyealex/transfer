@@ -21,7 +21,7 @@ def fetch_mr_details(mr_urls: Sequence[str]) -> MrDetailBatch:
        GitHub（``/pull/<n>``）、Gitee（``/pulls/<n>``）的常见地址形态。
     2. 每个 MR 只返回首个与末个提交（``first_commit`` / ``last_commit``），不返回完整提交列表。
     3. 每条的 ``MrRef`` 与 SR/AR 路径结构一致；``object_type`` 固定 ``"MR"``，
-       ``object_id`` 取 ``MR-<首个编号>``，多地址时追加 ``+N``；``linked_via`` 为空串。
+       ``object_id`` 取首个 MR 地址原文；``linked_via`` 为空串。
     4. 单条失败不抛异常，写入 ``warnings`` 后继续；全部失败才抛 ``NotFoundError``。
     5. ``mrs`` 按 ``mr_id`` 排序，保证同一输入多次调用结果稳定。
 

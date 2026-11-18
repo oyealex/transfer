@@ -22,12 +22,12 @@ def fetch_sr_mr_index(object_id: str) -> SrMrIndex:
     3. 每个 MR 只返回首个与末个提交（``first_commit`` / ``last_commit``），
        不返回完整提交列表，也不返回任何 diff。
     4. 同一 MR 地址只出现一次；同仓不同 MR 各自一条。
-    5. ``author`` 取 MR 作者名，报告 1.1 要列。
+    5. ``author`` 取 MR 作者名，报告 3.2 要列。
     6. 单个 MR 取数失败不抛异常，写入 ``warnings`` 后继续。
     7. ``mrs`` 按 ``mr_id`` 排序，保证同一输入多次调用结果稳定。
 
     Args:
-        object_id: SR 或 AR 编号，如 ``"SR-1234"`` / ``"AR-77"``。
+        object_id: SR 或 AR 编号，如 ``"SR1234"`` / ``"AR77"``。
 
     Raises:
         NotFoundError: SR / AR 不存在。

@@ -72,7 +72,6 @@ def _cmd_render(args: argparse.Namespace) -> dict[str, Any]:
         template=Path(args.template),
         stats=Path(args.stats),
         evidence=Path(args.evidence),
-        manifest=Path(args.manifest) if args.manifest else None,
         narrative=Path(args.narrative),
         out=Path(args.out) if args.out else None,
         check=args.check,
@@ -103,8 +102,6 @@ def _cmd_assemble(args: argparse.Namespace) -> dict[str, Any]:
         meta=Path(args.meta) if args.meta else None,
         object_type=args.object_type,
         object_id=args.object_id,
-        raw_input=args.input,
-        ability=args.ability,
         tier=args.tier,
         shards=[Path(p) for p in args.shards],
         judges=[Path(p) for p in args.judges],
@@ -117,7 +114,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
 
     p_index = sub.add_parser("index", help="按 SR / AR 编号查关联 MR 清单（只给元数据）")
-    p_index.add_argument("--id", required=True, help="SR 或 AR 编号，如 SR-1234 / AR-77")
+    p_index.add_argument("--id", required=True, help="SR 或 AR 编号，如 SR1234 / AR77")
     p_index.add_argument("--pretty", action="store_true", help="缩进输出")
     p_index.set_defaults(handler=_cmd_index)
 
@@ -142,7 +139,6 @@ def build_parser() -> argparse.ArgumentParser:
     p_render.add_argument("--template", default=str(DEFAULT_TEMPLATE), help="报告模板路径")
     p_render.add_argument("--stats", required=True, help="stats.json 路径")
     p_render.add_argument("--evidence", required=True, help="evidence.md 路径")
-    p_render.add_argument("--manifest", default=None, help="manifest.json 路径，缺省则 3.1 文件数为 —")
     p_render.add_argument("--narrative", required=True, help="narrative.json 路径（判断类文案）")
     p_render.add_argument("--out", default=None, help="报告输出路径，默认与证据表同目录")
     p_render.add_argument("--check", action="store_true", help="回读校验，不通过则报错且不写文件")
@@ -155,7 +151,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_scope.add_argument("--pretty", action="store_true", help="缩进输出")
     p_scope.set_defaults(handler=_cmd_scope)
 
-    p_scan = sub.add_parser("scan", help="扫测试 diff，输出测试退化候选")
+    p_scan = sub.add_parser("scan", help="扫测试 diff，输出方向原因的线索")
     p_scan.add_argument("--manifest", required=True, help="manifest.json 路径（diff 相对它解析）")
     p_scan.add_argument("--out", default=None, help="scan.json 输出路径")
     p_scan.add_argument("--pretty", action="store_true", help="缩进输出")
@@ -169,9 +165,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_assemble.add_argument("--index", default=None, help="index / mr 命令的 JSON 输出")
     p_assemble.add_argument("--meta", default=None, help="对象与变更单元的元数据 JSON")
     p_assemble.add_argument("--object-type", default="", help="SR / AR / MR")
-    p_assemble.add_argument("--object-id", default="", help="如 SR-1234")
-    p_assemble.add_argument("--input", default="", help="用户消息里的原始输入")
-    p_assemble.add_argument("--ability", default="静态级", help="索引级 / 静态级 / 文件级")
+    p_assemble.add_argument("--object-id", default="", help="SR1234 / AR77 / MR 地址；SR/AR 带分隔符会自动归一")
     p_assemble.add_argument("--tier", default="仅 diff", help="变更单元来源档位")
     p_assemble.add_argument("--shards", action="append", default=[], help="枚举片 JSON，可重复")
     p_assemble.add_argument("--judges", action="append", default=[], help="裁定片 JSON，可重复")

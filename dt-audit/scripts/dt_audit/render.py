@@ -1,13 +1,12 @@
 """报告装配器。
 
-把 ``stats.json`` / ``evidence.md`` / ``manifest.json`` / ``narrative.json`` 拼成最终报告。
+把 ``stats.json`` / ``evidence.md`` / ``narrative.json`` 拼成最终报告。
 
-职责边界（很重要）：
+职责边界：
 
 - **只做两件事**：标量替换、行块展开。
-- **不做判断**：不决定选哪几条问题、不写措辞、不给影响档。那些由 ``narrative.json`` 提供。
-- **排序是规则驱动的**：分布表、Top3、未覆盖清单按「影响档 / 严重度」这两个已声明的枚举排序，
-  规则写在 ``scripts/README.md`` 的「报告口径」，属于确定性变换，不是判断。
+- **不做判断**：不决定定性、不挑问题、不写措辞。判断在 Skill 里，措辞在 ``narrative.json``。
+- **排序是规则驱动的**：分布表按分类固定顺序，Top3 按问题点数降序，属于确定性变换。
 
 模板语法（三种）：
 
@@ -17,7 +16,7 @@
 ``{{#if 键}}…{{/if}}``        真假块；空串 / None / 空列表 / 0 视为假
 ============================  ====================================================
 
-块可以嵌套（例如「是 SR 对象」块里再展开 MR 清单），行上下文按栈查找：先当前行，再外层，最后全局。
+块可以嵌套，行上下文按栈查找：先当前行，再外层，最后全局。
 """
 
 from __future__ import annotations
@@ -28,22 +27,10 @@ from pathlib import Path
 from typing import Any, Sequence
 
 from .errors import AuditError
-from .stats import SEVERITY_RANK, load_evidence
+from .stats import PROBLEMS, load_evidence
 
 TOKEN = re.compile(r"\{\{([^{}]*)\}\}")
 COMMENT = re.compile(r"<!--.*?-->", re.S)
-
-CLASS_COVERAGE = "场景覆盖不足"
-CLASS_ASSERTION = "断言质量低"
-CLASS_OFFSET = "测试对象偏移"
-CLASS_DEGRADE = "测试退化"
-HINT_EVIDENCE = "证据缺口"
-
-IMPACT_RANK = {"高": 0, "中": 1, "低": 2}
-IMPACT_VALUES = ("高", "中", "低")
-
-#: 报告里 3.3 矩阵的列，从「逻辑点证据」投影而来
-MATRIX_FIELDS = ("编号", "位置", "类型", "条件摘要", "触达用例", "状态")
 
 
 class RenderError(AuditError):
@@ -136,9 +123,15 @@ def _escape_cell(text: str) -> str:
     """Markdown 表格单元格里的裸 | 会把一行拆成多格。
 
     证据表侧要求写 ``\\|``，stats 解析时会还原成 ``|``，所以装配输出时必须再转义一次。
-    只在最终输出处转义，不能放进 ``_as_text``——上下文构建也用它，会变成双重转义。
     """
     return text.replace("|", "\\|")
+
+
+def _at_table_line(out: Sequence[str]) -> bool:
+    """当前输出是否落在以 ``|`` 开头的表格行里。只有表格单元格需要转义竖线。"""
+    text = "".join(out)
+    line = text[text.rfind("\n") + 1 :]
+    return line.lstrip().startswith("|")
 
 
 def _render_nodes(
@@ -152,7 +145,10 @@ def _render_nodes(
         if kind == "text":
             out.append(node[1])
         elif kind == "scalar":
-            out.append(_escape_cell(_as_text(_lookup(node[1], stack, missing))))
+            value = _as_text(_lookup(node[1], stack, missing))
+            if _at_table_line(out):
+                value = _escape_cell(value)
+            out.append(value)
         elif kind == "if":
             if _truthy(_lookup(node[1], stack, missing)):
                 out.append(_render_nodes(node[2], stack, missing))
@@ -160,9 +156,7 @@ def _render_nodes(
             rows = _lookup(node[1], stack, missing)
             if not isinstance(rows, list):
                 raise RenderError(f"{{{{#each {node[1]}}}}} 绑定的不是列表，是 {type(rows).__name__}")
-            rendered = [
-                _render_nodes(node[2], [*stack, row], missing) for row in rows
-            ]
+            rendered = [_render_nodes(node[2], [*stack, row], missing) for row in rows]
             if rendered:
                 out.append("\n".join(rendered))
                 out.append("\n")
@@ -171,7 +165,7 @@ def _render_nodes(
     return "".join(out)
 
 
-# ------------------------------------------------------------------ 上下文
+# ------------------------------------------------------------------ 工具
 
 
 def _s(value: Any) -> str:
@@ -179,7 +173,6 @@ def _s(value: Any) -> str:
 
 
 def _no_tail(text: str) -> str:
-    """模板会在字段后补标点；作者已经写了句号或分号时去掉，避免「。。」。"""
     return text.rstrip("。；; ")
 
 
@@ -190,450 +183,246 @@ def _int(value: Any) -> int:
         return 0
 
 
-def _join(parts: Sequence[str], sep: str = "；") -> str:
-    kept = [p for p in parts if p]
-    return sep.join(kept) if kept else "无"
+def _share(payload: dict[str, Any], name: str) -> str:
+    for item in payload.get("问题分布") or []:
+        if item.get("类型") == name:
+            return str(item.get("占比", ""))
+    return "0.0%"
 
 
-def _strip_prefix(text: str, prefix: str) -> str:
-    for chunk in re.split(r"[；;]", text):
-        chunk = chunk.strip()
-        if chunk.startswith(prefix):
-            return chunk[len(prefix) :].strip()
+def _problem_rows(parsed: dict[str, Any], problem: str) -> list[dict[str, str]]:
+    return [row for row in parsed["逻辑点证据"] if _s(row.get("问题")) == problem]
+
+
+def _case_position(parsed: dict[str, Any], name: str) -> str:
+    for row in parsed["用例清单"]:
+        if _s(row.get("用例")) == name:
+            return _s(row.get("位置"))
     return ""
 
 
-def _review(rows: Sequence[dict[str, str]], *, state: str, prefix: str) -> list[str]:
-    out = []
-    for row in rows:
-        if state and _s(row.get("状态")) != state:
-            continue
-        got = _strip_prefix(_s(row.get("复核")), prefix)
-        if got:
-            out.append(got)
-    return out
+def _case_rows(parsed: dict[str, Any], names: Sequence[str]) -> list[dict[str, str]]:
+    return [{"用例": name, "位置": _case_position(parsed, name)} for name in names]
 
 
-def _mr_number(url: str) -> str:
-    tail = url.rstrip("/").rsplit("/", 1)[-1]
-    return f"!{tail}" if tail.isdigit() else url
+# ------------------------------------------------------------------ 上下文
 
 
 def build_context(
     stats: dict[str, Any],
     evidence_path: Path,
-    manifest_path: Path | None,
     narrative: dict[str, Any],
 ) -> dict[str, Any]:
-    evidence = load_evidence(evidence_path)
-    dp_rows = evidence["逻辑点证据"]
-    unit_rows = evidence["变更单元"]
-    signal_rows = evidence["信号与问题"]
-
+    parsed = load_evidence(evidence_path)
+    overview = parsed["_overview"]
+    units = parsed["变更单元"]
+    points = parsed["逻辑点证据"]
+    case_rows = parsed["用例清单"]
     metrics = stats["指标"]
-    obj = stats["对象"]
     verdict = stats["定性"]
-    state = stats["状态分布"]
-    tiers = stats["断言档位分布"]
-    gap = stats.get("证据缺口", {})
-    degrade = stats.get("测试退化", {})
 
     total = _int(metrics["全部逻辑点"])
-    decidable = _int(metrics["可判定逻辑点数"])
-    undecidable = _int(metrics["无法判定逻辑点数"])
 
-    def rate(name: str) -> str:
-        return _s(metrics[name]["text"])
+    # 1.1 构成
+    composition = [
+        {
+            "分类": item["分类"],
+            "语言": item["语言"],
+            "文件数": item["文件数"],
+            "新增": item["新增"],
+            "删除": item["删除"],
+        }
+        for item in stats["变更构成"]["纳入分类"]
+    ]
+    excluded = [
+        {"分类": key, "数量": value} for key, value in (stats["变更构成"]["排除"] or {}).items()
+    ]
 
-    assertion_total = sum(_int(v) for v in tiers.values())
-    non_discriminating = _int(tiers.get("形状", 0)) + _int(tiers.get("存活", 0))
-
-    attributed = sum(1 for row in dp_rows if "自查：归属成立" in _s(row.get("复核")))
-    mismatched = sum(1 for row in dp_rows if "自查：归属不符" in _s(row.get("复核")))
-
-    # 1.1 的证据来源与 3.1 表同源：都按「变更单元」的档位统计，避免两处打架
-    source_counts = {"含本地仓": 0, "仅 diff": 0, "无法获取": 0}
-    for row in unit_rows:
-        tier = _s(row.get("来源档位"))
-        if tier in source_counts:
-            source_counts[tier] += 1
-    source_text = "含本地仓 {a} 个单元 / 仅 diff {b} / 无法获取 {c}".format(
-        a=source_counts["含本地仓"],
-        b=source_counts["仅 diff"],
-        c=source_counts["无法获取"],
-    )
-
-    density = metrics.get("新增DT密度", {})
-    # 直接用 stats 给的文本：带单位（「25.0 个/KLOC」）或「不适用」
-    density_text = _s(density.get("text")) or "不适用"
-
-    # ---- 分布表（位置摘要来自 narrative，其余全部来自 stats）
-    summaries = narrative.get("位置摘要") or {}
+    # 1.2 分布
     distribution = [
         {
             "类型": item["类型"],
-            "位置摘要": _s(summaries.get(item["类型"])) or "—",
-            "数量文本": item["数量文本"],
-            "占比": item["占同类总数"],
-            "严重度": item["严重度"],
-            "升级理由": item.get("升级理由") or "—",
+            "数量": item["数量"],
+            "占比": item["占比"],
+            "位置摘要": item.get("位置摘要") or "—",
         }
-        for item in stats["分布表"]
+        for item in stats["问题分布"]
     ]
 
-    # ---- Top3 / 问题清单：排序规则确定，内容由 narrative 提供
-    top3 = [
-        {**item, "序号": index}
-        for index, item in enumerate(
-            sorted(
-                narrative.get("top3") or [],
-                key=lambda item: IMPACT_RANK.get(_s(item.get("影响档")), 9),
-            ),
-            1,
-        )
-    ]
-
-    def problems(section: str) -> list[dict[str, Any]]:
-        items = (narrative.get("维度", {}).get(section) or {}).get("问题") or []
-        ordered = sorted(items, key=lambda i: SEVERITY_RANK.get(_s(i.get("严重度")), 9))
-        return [
+    # 1.3 Top3
+    gap_files = {item["文件"]: item for item in stats.get("缺口文件") or []}
+    top3 = []
+    for index, item in enumerate(narrative.get("top3") or [], start=1):
+        path = _s(item.get("文件"))
+        if path not in gap_files:
+            raise RenderError(f"top3 第 {index} 条的「文件」不在问题分布里：{path}")
+        bucket = gap_files[path]
+        top3.append(
             {
                 "序号": index,
-                "严重度": _s(i.get("严重度")),
-                "类型": _s(i.get("类型")),
-                "子类": _s(i.get("子类")),
-                "位置": _s(i.get("位置")),
-                "标题": _s(i.get("标题")),
-                "现象": _no_tail(_s(i.get("现象"))),
-                "证据原文": _no_tail(_s(i.get("证据原文"))),
-                "后果": _no_tail(_s(i.get("后果"))),
-            }
-            for index, i in enumerate(ordered, 1)
-        ]
-
-    def tips(section: str) -> list[dict[str, str]]:
-        items = (narrative.get("维度", {}).get(section) or {}).get("建议") or []
-        return [
-            {"位置": _s(i.get("位置")), "动作": _s(i.get("动作"))}
-            for i in items
-            if _s(i.get("位置")) or _s(i.get("动作"))
-        ]
-
-    # ---- 2.3 未覆盖清单：编号与影响档来自 narrative，位置/状态/子类反查证据表
-    dp_index = {_s(r.get("编号")): r for r in dp_rows}
-    uncovered: list[dict[str, Any]] = []
-    for item in (narrative.get("维度", {}).get("2.3") or {}).get("未覆盖") or []:
-        dp_id = _s(item.get("编号"))
-        if dp_id not in dp_index:
-            raise RenderError(
-                f"narrative 2.3 未覆盖引用了不存在的逻辑点「{dp_id}」；"
-                "编号必须逐字取自 evidence.md 的「逻辑点证据」"
-            )
-        row = dp_index[dp_id]
-        dp_state = _s(row.get("状态"))
-        if dp_state not in ("无测试", "未断言"):
-            raise RenderError(
-                f"2.3 未覆盖只列「无测试 / 未断言」的逻辑点，"
-                f"而「{dp_id}」的状态是「{dp_state}」；实现被替换请放在 2.2"
-            )
-        uncovered.append(
-            {
-                "编号": dp_id,
-                "位置": _s(row.get("位置")) or "—",
-                "状态": dp_state,
-                "子类": "无测试" if dp_state == "无测试" else "分支未断言",
-                "严重度": "严重",
-                "影响档": _s(item.get("影响档")),
-                "现象": _no_tail(_s(item.get("现象"))),
-                "证据": _no_tail(_s(item.get("证据"))) or "—",
-                "后果": _no_tail(_s(item.get("后果"))),
+                "文件": path,
+                "点数": bucket["点数"],
+                "构成": "、".join(
+                    f"{name} {bucket[name]}"
+                    for name in ("未覆盖", "无效", "低价值")
+                    if bucket.get(name)
+                ),
+                "问题": _no_tail(_s(item.get("问题"))),
+                "建议": _no_tail(_s(item.get("建议"))),
             }
         )
-    uncovered.sort(key=lambda i: IMPACT_RANK.get(i["影响档"], 9))
-    for index, item in enumerate(uncovered, 1):
+
+    # 2.1 分组
+    groups = []
+    for problem in ("未覆盖", "无效", "低价值", "不确定"):
+        rows = _problem_rows(parsed, problem)
+        if not rows:
+            continue
+        groups.append(
+            {
+                "分组标题": problem,
+                "分组数量": len(rows),
+                "行": [
+                    {
+                        "编号": _s(row.get("编号")),
+                        "位置": _s(row.get("位置")),
+                        "原因": _s(row.get("原因")),
+                        "说明": _s(row.get("说明")) or "—",
+                        "覆盖用例": _s(row.get("覆盖用例")) or "—",
+                    }
+                    for row in rows
+                ],
+            }
+        )
+
+    lists = stats.get("用例名单") or {}
+    matrix = [
+        {
+            "编号": _s(row.get("编号")),
+            "位置": _s(row.get("位置")),
+            "条件摘要": _s(row.get("条件摘要")),
+            "问题": _s(row.get("问题")),
+            "原因": _s(row.get("原因")) or "—",
+        }
+        for row in points
+    ]
+
+    zero_point = total == 0
+    short = bool(stats.get("短路"))
+    limited = _int(stats.get("C/C++受限文件数", 0))
+    if zero_point:
+        if verdict["规则"] == "R0":
+            note = "全部变更单元都是「无法获取」，不产出质量结论。"
+        elif limited and short:
+            note = (
+                f"本次没有 Java / Python 生产代码改动；另有 {limited} 个 C/C++ 受限文件，"
+                "未抽取逻辑点，直接记合格。"
+            )
+        elif limited:
+            note = f"本次没有产生逻辑点；{limited} 个 C/C++ 受限文件未抽取逻辑点，直接记合格。"
+        elif short:
+            note = "本次变更没有生产代码改动（新增 + 删除 0 行），没有可判的逻辑点，直接记合格。"
+        else:
+            note = "本次变更没有产生逻辑点，直接记合格。"
+    else:
+        note = ""
+
+    top3.sort(key=lambda item: (-item["点数"], item["文件"]))
+    for index, item in enumerate(top3, start=1):
         item["序号"] = index
 
-    # 2.3 清单必须列全，否则 1.2 的数量与 2.3 的条目对不上
-    expected_uncovered = _int(state.get("无测试")) + _int(state.get("未断言"))
-    if len(uncovered) != expected_uncovered:
-        raise RenderError(
-            f"narrative 2.3 未覆盖列了 {len(uncovered)} 条，"
-            f"但无测试 + 未断言共有 {expected_uncovered} 个；未覆盖清单不能省略，请逐条列全"
-        )
-
-    # ---- 2.2 被替换清单：同一个替换者合并成一行
-    replaced: dict[tuple[str, str], list[str]] = {}
-    for row in dp_rows:
-        if _s(row.get("状态")) != "实现被替换":
-            continue
-        key = (_s(row.get("被替换方法")), _s(row.get("断言证据")))
-        replaced.setdefault(key, []).append(_s(row.get("编号")))
-    replaced_rows = [
-        {"逻辑点": "、".join(ids), "方法": method or "—", "替换者": where or "—"}
-        for (method, where), ids in replaced.items()
-    ]
-
-    # ---- 3.1 表：变更单元 + manifest 汇总
-    manifest_by_url: dict[str, dict[str, Any]] = {}
-    if manifest_path and manifest_path.is_file():
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        for item in manifest.get("mrs", []):
-            files = item.get("files") or []
-            manifest_by_url[_s(item.get("web_url"))] = {
-                "文件数": len(files),
-                "新增": sum(_int(f.get("additions")) for f in files),
-                "删除": sum(_int(f.get("deletions")) for f in files),
-                "截断": sum(1 for f in files if f.get("truncated")),
-            }
-    unit_table = []
-    unable_urls, diff_only_urls = [], []
-    for row in unit_rows:
-        url = _s(row.get("MR 地址"))
-        tier = _s(row.get("来源档位"))
-        if tier == "无法获取":
-            unable_urls.append(url)
-        elif tier == "仅 diff":
-            diff_only_urls.append(url)
-        info = manifest_by_url.get(url, {})
-        truncated = _int(info.get("截断"))
-        note = f"{truncated} 个文件 diff 被截断" if truncated else "无"
-        unit_table.append(
-            {
-                "MR": _mr_number(url),
-                "档位": tier,
-                "文件数": str(info.get("文件数", "—")),
-                "增删": (
-                    f"+{info['新增']} / -{info['删除']}" if info else "—"
-                ),
-                "备注": note,
-            }
-        )
-
-    # ---- 3.2 构成表
-    composition = []
-    for group in stats["变更构成"]["纳入分类"]:
-        category = _s(group.get("分类"))
-        language = _s(group.get("语言"))
-        label = f"{language} {'生产' if category == '生产代码' else '测试'}"
-        handling = (
-            "受限：只做文件级结论，不枚举逻辑点"
-            if language in ("C", "C++")
-            else "纳入"
-        )
-        composition.append(
-            {
-                "分类": label,
-                "数量": f"{_int(group.get('文件数'))} 个文件 / {_int(group.get('新增'))} 行",
-                "处理": handling,
-            }
-        )
-    for item in stats["变更构成"]["排除"]:
-        composition.append(
-            {
-                "分类": f"排除：{_s(item.get('分类'))}",
-                "数量": f"{_int(item.get('数量'))} 个文件",
-                "处理": "排除",
-            }
-        )
-    included_files = _int(stats["变更构成"]["纳入文件数"])
-    excluded_files = sum(_int(i.get("数量")) for i in stats["变更构成"]["排除"])
-    composition_total = str(included_files + excluded_files)
-
-    # ---- 3.3 矩阵
-    matrix = [
-        {field: _s(row.get(field)) or "—" for field in MATRIX_FIELDS}
-        for row in dp_rows
-    ]
-
-    # ---- 3.1 的四类清单
-    undecidable_list = _review(dp_rows, state="无法判定", prefix="缺失：")
-
-    def kind_tally(kind: str, unit: str) -> str:
-        rows = [r for r in dp_rows if _s(r.get("类型")) == kind]
-        if not rows:
-            return f"0 {unit}"
-        ok = sum(1 for r in rows if _s(r.get("状态")) == "已断言")
-        weak = sum(1 for r in rows if _s(r.get("状态")) == "断言偏弱")
-        return f"{len(rows)} {unit}，其中已断言 {ok} 个、断言偏弱 {weak} 个"
-
-    cross_check = (
-        f"全部 {total} − 无法判定 {undecidable} = 可判定 {decidable}；"
-        f"{decidable} − {_int(state.get('已断言'))} − {_int(state.get('断言偏弱'))} = "
-        f"{_int(state.get('实现被替换')) + _int(state.get('未断言')) + _int(state.get('无测试'))}"
-        f" = 实现被替换 {_int(state.get('实现被替换'))} + 未断言 {_int(state.get('未断言'))}"
-        f" + 无测试 {_int(state.get('无测试'))}"
-    )
-
-    # 列表类数据先算好，模板用「有/无」两个布尔量决定是否输出空标题
-    p21, p22 = problems("2.1"), problems("2.2")
-    t21, t22, t23 = tips("2.1"), tips("2.2"), tips("2.3")
-
-    # Mock 情形：全 0 时不铺七行零值，只留一句「没有 Mock 点」
-    mock_counts = {
-        i: _int((stats.get("Mock 情形分布") or {}).get(f"类{i}")) for i in range(1, 8)
-    }
-    mock_total = sum(mock_counts.values())
-    mock_parts = [f"类 {i} {n} 处" for i, n in mock_counts.items() if n]
-    mock_zero = sum(1 for n in mock_counts.values() if not n)
-    mock_text = "；".join(mock_parts)
-    if mock_zero and mock_parts:
-        mock_text += f"（其余 {mock_zero} 类为 0）"
-    hit_classes = _int(stats.get("命中类数"))
-
     ctx: dict[str, Any] = {
-        # 对象
-        "检测对象标识": _s(obj.get("对象标识")),
-        "对象类型": _s(obj.get("对象类型")),
-        "标识": _s(obj.get("对象标识")),
-        "原始输入": _s(obj.get("原始输入")),
-        "涉及代码仓": _s(obj.get("涉及仓")),
-        "关联能力": _s(obj.get("关联能力")) or "—",
-        "证据来源分布": source_text,
-        # 体量
-        "KLOC": _s(metrics.get("变更生产代码KLOC")),
-        "新增DT数": _s(metrics.get("新增DT数")),
-        "密度数值": density_text,
-        # 定性
-        "定性": _s(verdict.get("结论")),
-        "定性依据": _s(verdict.get("依据")),
-        # 1.2
-        "未命中类数": _s(stats.get("未命中类数")),
-        "命中类数": _s(stats.get("命中类数")),
-        "有命中": hit_classes > 0,
-        "零命中有分支": hit_classes == 0 and total > 0,
-        "断言覆盖率": rate("断言覆盖率"),
-        "有效断言率": rate("有效断言率"),
-        "实现被替换率": rate("实现被替换率"),
-        # 2.1
-        "新增用例数": _s(metrics.get("新增DT数")),
-        "修改用例数": _s(metrics.get("修改DT数")),
-        "既有用例数": _s(metrics.get("既有用例数")),
-        "断言总数": str(assertion_total),
-        "有效条数": str(_int(tiers.get("有效"))),
-        "非有效条数": str(non_discriminating),
-        "计入退化条数": str(_int(degrade.get("计入条数"))),
-        "提示退化条数": str(_int(degrade.get("提示条数"))),
-        "抽查数": str(attributed + mismatched),
-        "归属成立数": str(attributed),
-        "归属不符数": str(mismatched),
-        "无断言用例数": str(_int((stats.get("断言质量") or {}).get("无断言用例数"))),
-        "只用交互验证用例数": str(_int((stats.get("断言质量") or {}).get("只用交互验证用例数"))),
-        # 2.2
-        "Mock情形分布": mock_text,
-        "有Mock": mock_total > 0,
-        "无Mock": mock_total == 0,
-        "有被替换": bool(replaced_rows),
-        "契约漂移数": str(_int(stats.get("契约漂移数"))),
-        # 2.3
-        "全部逻辑点": str(total),
-        "可判定逻辑点": str(decidable),
-        "无法判定逻辑点": str(undecidable),
-        "已断言数": str(_int(state.get("已断言"))),
-        "断言偏弱数": str(_int(state.get("断言偏弱"))),
-        "实现被替换数": str(_int(state.get("实现被替换"))),
-        "未断言数": str(_int(state.get("未断言"))),
-        "无测试数": str(_int(state.get("无测试"))),
-        "受限文件数": _s(metrics.get("C/C++受限文件数")),
-        "无逻辑点": total == 0,
-        "无逻辑点说明": (
-            (
-                "本次变更没有生产代码改动（新增 + 删除 0 行）。"
-                if stats.get("短路")
-                else "本次未枚举出 Java / Python 逻辑点（0 个）。"
-            )
-            + (
-                f"另有 C/C++ 受限文件 {_int(metrics.get('C/C++受限文件数'))} 个，"
-                "不据此判断有无行为分支。"
-                if _int(metrics.get("C/C++受限文件数"))
-                else ""
-            )
-        ),
-        "异常路径细分": kind_tally("异常处理", "个 catch 类逻辑点"),
-        "边界比较细分": kind_tally("边界比较", "个"),
-        # 3.x
-        "证据完整度算式": (
-            f"可判定 {decidable} / 全部 {total} = {_s(metrics['证据完整度']['text'])}"
-        ),
-        "证据缺口行": (
-            "证据缺口：不适用（无逻辑点）"
-            if total == 0
-            else (
-                f"证据缺口：{_int(gap.get('数量'))} 个逻辑点无法判定 ｜ "
-                f"{_int(gap.get('无法获取单元数'))} 个 MR 无法获取 ｜ "
-                f"证据完整度 {_s(metrics['证据完整度']['text'])}"
-                f"（{_s(metrics['证据完整度']['档'])}）"
-            )
-        ),
-        "是MR对象": _s(obj.get("对象类型")) == "MR",
-        "是SR对象": _s(obj.get("对象类型")) != "MR",
-        "算式校验": cross_check,
-        "合计文件数": composition_total,
-        "无法判定清单": _join(undecidable_list),
-        "无法获取清单": _join(unable_urls),
-        "仅diff清单": _join(diff_only_urls),
-        "受限语言": (
-            f"C/C++ 文件 {_int(metrics.get('C/C++受限文件数'))} 个"
-            if _int(metrics.get("C/C++受限文件数"))
-            else "无"
-        ),
-        "测试脱靶提示": (
-            "有测试变更但全部逻辑点无测试"
-            if any(_s(r.get("类型")) == "测试脱靶" for r in signal_rows)
-            else ""
-        ),
-        # narrative
-        "偏差声明": narrative.get("偏差声明"),
-        "范围一句话": _s(narrative.get("范围一句话")),
-        "一句话判断": _s(narrative.get("一句话判断")),
-        "2.1总评": _s((narrative.get("维度", {}).get("2.1") or {}).get("总评")),
-        "2.2总评": _s((narrative.get("维度", {}).get("2.2") or {}).get("总评")),
-        "2.3总评": _s((narrative.get("维度", {}).get("2.3") or {}).get("总评")),
-        "3.1取数": _s((narrative.get("3.1") or {}).get("取数")),
-        "3.1去重": _s((narrative.get("3.1") or {}).get("去重")),
-        "3.1额外限制": _s((narrative.get("3.1") or {}).get("额外限制")),
-        # 数据集
-        "关联MR清单": [
-            {"MR地址": _s(r.get("MR 地址")), "标题": _s(r.get("标题")), "作者": _s(r.get("作者"))}
-            for r in unit_rows
+        # 标题与基本信息
+        "检测对象标识": _s(overview.get("对象标识")) or "对象",
+        "对象类型": _s(overview.get("对象类型")),
+        "对象标识": _s(overview.get("对象标识")),
+        "变更单元数": _s(overview.get("变更单元数")),
+        "涉及仓": _s(overview.get("涉及仓")),
+        "来源含本地仓": _s(overview.get("含本地仓单元数")),
+        "来源仅diff": _s(overview.get("仅 diff 单元数")),
+        "来源无法获取": _s(overview.get("无法获取单元数")),
+        "变更单元": [
+            {
+                "MR 地址": _s(row.get("MR 地址")),
+                "标题": _s(row.get("标题")),
+                "作者": _s(row.get("作者")),
+                "仓": _s(row.get("仓")),
+                "来源档位": _s(row.get("来源档位")),
+            }
+            for row in units
         ],
-        "分布表": distribution,
+        "构成": composition,
+        "排除": excluded,
+        "纳入文件数": stats["变更构成"]["纳入文件数"],
+        "新增DT数": metrics["新增DT数"],
+        "修改DT数": metrics["修改DT数"],
+        "既有用例数": metrics["既有用例数"],
+        "用例总数": metrics["用例总数"],
+        "变更生产代码KLOC": metrics["变更生产代码KLOC"],
+        "新增DT密度": metrics["新增DT密度"]["text"],
+        "C/C++受限文件数": limited,
+        "有受限": bool(limited),
+        # 1.2
+        "偏差声明": _no_tail(_s(narrative.get("偏差声明"))),
+        "有偏差声明": bool(_s(narrative.get("偏差声明"))),
+        "定性": verdict["结论"],
+        "定性规则": verdict["规则"],
+        "定性依据": _no_tail(verdict["依据"]),
+        "分布": distribution,
+        "全部逻辑点": total,
+        "有效占比": _share(stats, "有效"),
+        "未覆盖占比": _share(stats, "未覆盖"),
+        "无效占比": _share(stats, "无效"),
+        "低价值占比": _share(stats, "低价值"),
+        "不确定占比": _share(stats, "不确定"),
+        "命中类数": stats.get("命中类数", 0),
+        "一句话判断": _no_tail(_s(narrative.get("一句话判断"))),
+        "无逻辑点": zero_point,
+        "无逻辑点说明": note,
+        # 1.3
         "top3": top3,
         "有top3": bool(top3),
         "无top3": not top3,
-        "2.1问题": p21,
-        "有21问题": bool(p21),
-        "无21问题": not p21,
-        "2.1建议": t21,
-        "有21建议": bool(t21),
-        "无21建议": not t21,
-        "2.2问题": p22,
-        "有22问题": bool(p22),
-        "无22问题": not p22,
-        "2.2建议": t22,
-        "有22建议": bool(t22),
-        "无22建议": not t22,
-        "2.2被替换": replaced_rows,
-        "有22被替换": bool(replaced_rows),
-        "无22被替换": not replaced_rows,
-        "2.3未覆盖": uncovered,
-        "有23未覆盖": bool(uncovered),
-        "无23未覆盖": not uncovered,
-        "2.3建议": t23,
-        "有23建议": bool(t23),
-        "无23建议": not t23,
-        "3.1表": unit_table,
-        "3.2表": composition,
-        "3.3矩阵": matrix,
-        # MR 单对象变体
-        "MR地址": _s(unit_rows[0].get("MR 地址")) if len(unit_rows) == 1 else "",
-        "MR标题": _s(unit_rows[0].get("标题")) if len(unit_rows) == 1 else "",
-        "MR作者": _s(unit_rows[0].get("作者")) if len(unit_rows) == 1 else "",
+        # 2.1
+        "2.1总评": _no_tail(_s((narrative.get("维度") or {}).get("2.1", {}).get("总评"))),
+        "2.1分组": groups,
+        "2.1建议": [
+            {"动作": _no_tail(_s(item))}
+            for item in ((narrative.get("维度") or {}).get("2.1", {}) or {}).get("建议") or []
+        ],
+        # 2.2
+        "2.2总评": _no_tail(_s((narrative.get("维度") or {}).get("2.2", {}).get("总评"))),
+        "2.2建议": [
+            {"动作": _no_tail(_s(item))}
+            for item in ((narrative.get("维度") or {}).get("2.2", {}) or {}).get("建议") or []
+        ],
+        "无效用例": _case_rows(parsed, lists.get("无效") or []),
+        "低价值用例": _case_rows(parsed, lists.get("低价值") or []),
+        "未涉及用例": _case_rows(parsed, lists.get("未涉及改动") or []),
+        "有无效用例": bool(lists.get("无效")),
+        "有低价值用例": bool(lists.get("低价值")),
+        "有未涉及用例": bool(lists.get("未涉及改动")),
+        "无无效用例": not lists.get("无效"),
+        "无低价值用例": not lists.get("低价值"),
+        "无未涉及用例": not lists.get("未涉及改动"),
+        "有21建议": bool((narrative.get("维度") or {}).get("2.1", {}).get("建议")),
+        "有22建议": bool((narrative.get("维度") or {}).get("2.2", {}).get("建议")),
+        "无21建议": not (narrative.get("维度") or {}).get("2.1", {}).get("建议"),
+        "无22建议": not (narrative.get("维度") or {}).get("2.2", {}).get("建议"),
+        # 3.1
+        "取数": _no_tail(_s((narrative.get("3.1") or {}).get("取数"))),
+        "去重": _no_tail(_s((narrative.get("3.1") or {}).get("去重"))),
+        "额外限制": _no_tail(_s((narrative.get("3.1") or {}).get("额外限制"))),
+        # 3.3
+        "矩阵": matrix,
+        "有矩阵": bool(matrix),
+        "无矩阵": not matrix,
+        "有变更单元": bool(units),
+        "无变更单元": not units,
+        "有构成": bool(composition),
+        "无构成": not composition,
+        "短路": short,
     }
-
-    # 证据完整度低于下限时删掉「一句话判断」
-    if metrics["证据完整度"].get("低于下限"):
-        ctx["一句话判断"] = ""
-
     return ctx
 
 
@@ -649,7 +438,6 @@ def _section(text: str, start: str, end: str | None = None) -> str:
 
 
 def _table_rows(block: str) -> int:
-    """数 Markdown 表格的数据行（去掉表头与分隔行）。"""
     lines = [line for line in block.splitlines() if line.strip().startswith("|")]
     return max(0, len(lines) - 2)
 
@@ -658,61 +446,62 @@ def check_report(text: str, ctx: dict[str, Any], stats: dict[str, Any]) -> list[
     """回读生成的报告，做确定性校验。返回违规项，空列表表示通过。"""
     problems: list[str] = []
 
-    # 1. 残留
     if "{{" in text or "}}" in text:
         problems.append("报告里残留了未替换的 {{ }}")
     if "<!--" in text or "-->" in text:
         problems.append("报告里残留了 HTML 注释")
 
-    # 2. 3.4 附录完整（模板内联，3.4.1–3.4.7 必须逐节齐全）
-    missing_sections = [f"3.4.{n}" for n in range(1, 8) if f"#### 3.4.{n}" not in text]
+    missing_sections = [f"3.4.{n}" for n in range(1, 5) if f"#### 3.4.{n}" not in text]
     if missing_sections:
-        problems.append("3.4 枚举释义不完整，缺：" + "、".join(missing_sections))
+        problems.append("3.4 术语与判定说明不完整，缺：" + "、".join(missing_sections))
 
-    # 3. 数字回读比对
-    anchors = {
-        "定性": f"DT 质量定性：{ctx['定性']}",
-        "三个率": (
-            f"断言覆盖率 {ctx['断言覆盖率']} ｜ 有效断言率 {ctx['有效断言率']} ｜ "
-            f"实现被替换率 {ctx['实现被替换率']}"
-        ),
-        "未命中类数": f"4 类问题中命中 {ctx['命中类数']} 类",
-        "证据缺口": ctx["证据缺口行"],
-        "3.3 合计": (
-            f"全部逻辑点 {ctx['全部逻辑点']} = 已断言 {ctx['已断言数']} + "
-            f"断言偏弱 {ctx['断言偏弱数']} + 实现被替换 {ctx['实现被替换数']} + "
-            f"未断言 {ctx['未断言数']} + 无测试 {ctx['无测试数']} + "
-            f"无法判定 {ctx['无法判定逻辑点']}"
-        ),
-    }
+    anchors = {"定性": f"DT 质量定性：{ctx['定性']}"}
+    if ctx["全部逻辑点"]:
+        anchors["数据行"] = (
+            f"有效 {ctx['有效占比']} ｜ 未覆盖 {ctx['未覆盖占比']} ｜ "
+            f"无效 {ctx['无效占比']} ｜ 低价值 {ctx['低价值占比']} ｜ "
+            f"不确定 {ctx['不确定占比']}"
+        )
+        anchors["合计"] = f"合计 {ctx['全部逻辑点']} 个逻辑点"
+        anchors["命中类数"] = f"3 类问题中命中 {ctx['命中类数']} 类"
     for label, needle in anchors.items():
         if needle not in text:
             problems.append(f"{label} 与 stats.json 对不上：报告里找不到「{needle}」")
 
-    # 4. 行数
-    matrix_rows = _table_rows(_section(text, "### 3.3", "**合计**"))
+    matrix_rows = _table_rows(_section(text, "### 3.3", "### 3.4"))
     expect_matrix = _int(ctx["全部逻辑点"])
     if matrix_rows != expect_matrix:
         problems.append(f"3.3 矩阵 {matrix_rows} 行，逻辑点应为 {expect_matrix} 个")
 
-    dist_rows = _table_rows(_section(text, "**（1）问题分布表**", "**（2）证据缺口提示**"))
-    expect_dist = _int(stats.get("命中类数"))
-    if dist_rows != expect_dist:
-        problems.append(f"1.2 分布表 {dist_rows} 行，命中类数应为 {expect_dist}")
+    # 3.3 取自证据表、1.2 取自 stats.json，逐类对齐，防止两边静默不一致
+    matrix_counts: dict[str, int] = {}
+    for row in ctx["矩阵"]:
+        name = row["问题"]
+        matrix_counts[name] = matrix_counts.get(name, 0) + 1
+    for item in stats.get("问题分布") or []:
+        name = item["类型"]
+        expected = _int(item["数量"])
+        actual = matrix_counts.get(name, 0)
+        if actual != expected:
+            problems.append(f"3.3 矩阵里「{name}」有 {actual} 行，stats.json 是 {expected} 个")
 
-    # 5. Top3
+    if ctx["全部逻辑点"]:
+        dist_rows = _table_rows(_section(text, "**问题分布**", "**数据**"))
+        if dist_rows != len(PROBLEMS):
+            problems.append(f"1.2 分布表 {dist_rows} 行，应为 {len(PROBLEMS)} 行")
+
     top_block = _section(text, "### 1.3", "## 二、")
     top_items = re.findall(r"^\d+\. \*\*`", top_block, flags=re.M)
     if len(top_items) > 3:
         problems.append(f"1.3 列了 {len(top_items)} 条，最多 3 条")
-    impacts = re.findall(r"影响：([高中低])", top_block)
-    ranks = [IMPACT_RANK.get(i, 9) for i in impacts]
-    if ranks != sorted(ranks):
-        problems.append("1.3 条目没有按影响档降序排列")
+    points = [int(n) for n in re.findall(r"问题点 (\d+) 个", top_block)]
+    if points != sorted(points, reverse=True):
+        problems.append("1.3 条目没有按问题点数降序排列")
+    listed = [item["文件"] for item in ctx["top3"]]
+    expected_top = [item["文件"] for item in (stats.get("缺口文件") or [])[: len(listed)]]
+    if listed != expected_top:
+        problems.append("1.3 列出的文件不是问题点最多的前几个：" + "、".join(listed))
 
-    # 6. 内部引用：报告是唯一交付物，不能指向读者拿不到的文件。
-    #    只拦「不可能是源码路径」的名字：.md / .json 不会是 Java/Python/C 源文件，
-    #    目录名（scripts/、references/）可能是仓里的真实路径，不拦，避免误伤。
     internal = (
         ".dt-audit",
         "_diffs",
@@ -720,14 +509,21 @@ def check_report(text: str, ctx: dict[str, Any], stats: dict[str, Any]) -> list[
         "narrative.json",
         "stats.json",
         "manifest.json",
+        "scope.json",
+        "index.json",
+        "signals.json",
+        "shard-",
+        "judge-",
+        "run.py",
+        "dt_audit",
+        "references/",
         "SKILL.md",
     )
     leaked = [token for token in internal if token in text]
     if leaked:
         problems.append("报告里出现了读者拿不到的内部引用：" + "、".join(leaked))
 
-    # 7. 固定骨架
-    for heading in ("## 一、整体结论", "## 二、DT 质量评估", "## 三、附录", "### 3.4 枚举释义"):
+    for heading in ("## 一、整体结论", "## 二、DT 质量评估", "## 三、附录", "### 3.4 术语与判定说明"):
         if heading not in text:
             problems.append(f"报告缺少固定章节：{heading}")
 
@@ -737,27 +533,27 @@ def check_report(text: str, ctx: dict[str, Any], stats: dict[str, Any]) -> list[
 # ------------------------------------------------------------------ 入口
 
 
-REQUIRED_NARRATIVE = (
-    "偏差声明",
-    "范围一句话",
-    "一句话判断",
-    "位置摘要",
-    "top3",
-    "维度",
-    "3.1",
-)
+REQUIRED_NARRATIVE = ("一句话判断", "维度", "top3", "3.1")
 SECTION_RULES = {
-    "2.1": ("总评", "问题", "建议"),
-    "2.2": ("总评", "问题", "建议"),
-    "2.3": ("总评", "未覆盖", "建议"),
+    "2.1": ("总评", "建议"),
+    "2.2": ("总评", "建议"),
 }
 
 
-def _validate_narrative(narrative: dict[str, Any]) -> None:
-    """判断类字段不许留空；缺字段直接报错，避免装配出一份空壳报告。"""
+def _validate_narrative(narrative: dict[str, Any], stats: dict[str, Any]) -> None:
+    """判断类字段不许留空；类型写错直接报错，避免装配出空壳或崩在渲染中途。"""
     if not isinstance(narrative, dict):
         raise RenderError("narrative.json 顶层必须是对象")
     problems = [f"缺少字段「{name}」" for name in REQUIRED_NARRATIVE if name not in narrative]
+
+    if not _s(narrative.get("一句话判断")):
+        problems.append("字段「一句话判断」不能为空")
+    declaration = narrative.get("偏差声明")
+    if declaration is not None and not isinstance(declaration, str):
+        problems.append("字段「偏差声明」必须是字符串")
+    object_type = (stats.get("对象") or {}).get("对象类型", "")
+    if not _s(declaration) and (object_type != "SR" or stats.get("短路")):
+        problems.append("对象不是 SR、或走了短路时，「偏差声明」不能为空")
 
     sections = narrative.get("维度")
     if not isinstance(sections, dict):
@@ -772,51 +568,46 @@ def _validate_narrative(narrative: dict[str, Any]) -> None:
                 problems.append(f"缺少字段「维度.{name}.{field}」")
         if not _s(block.get("总评")):
             problems.append(f"维度.{name}.总评 不能为空")
+        advice = block.get("建议")
+        if not isinstance(advice, list):
+            problems.append(f"维度.{name}.建议 必须是字符串数组")
+        else:
+            for index, item in enumerate(advice, start=1):
+                if not isinstance(item, str) or not item.strip():
+                    problems.append(f"维度.{name}.建议 第 {index} 条必须是非空字符串")
 
     block31 = narrative.get("3.1")
     if isinstance(block31, dict):
         for field in ("取数", "去重", "额外限制"):
             if field not in block31:
                 problems.append(f"缺少字段「3.1.{field}」")
+            elif not isinstance(block31.get(field), str):
+                problems.append(f"字段「3.1.{field}」必须是字符串")
     elif "3.1" in narrative:
         problems.append("narrative.3.1 必须是对象")
 
-    for index, item in enumerate(narrative.get("top3") or [], 1):
-        for field in ("位置", "问题", "影响档", "建议"):
+    top3 = narrative.get("top3")
+    if top3 is None:
+        top3 = []
+    if not isinstance(top3, list):
+        problems.append("字段「top3」必须是数组")
+        top3 = []
+    if len(top3) > 3:
+        problems.append(f"top3 最多 3 条，实际 {len(top3)} 条")
+    for index, item in enumerate(top3, start=1):
+        if not isinstance(item, dict):
+            problems.append(f"top3 第 {index} 条必须是对象")
+            continue
+        for field in ("文件", "问题", "建议"):
             if not _s(item.get(field)):
                 problems.append(f"top3 第 {index} 条缺少「{field}」")
-        if _s(item.get("影响档")) not in IMPACT_VALUES:
-            problems.append(f"top3 第 {index} 条影响档应为 高 / 中 / 低")
-
-    for name in ("2.1", "2.2"):
-        items = (sections.get(name) or {}).get("问题") or []
-        for index, item in enumerate(items, 1):
-            for field in ("严重度", "类型", "子类", "位置", "标题", "现象", "证据原文", "后果"):
-                if not _s(item.get(field)):
-                    problems.append(f"{name} 第 {index} 条问题缺少「{field}」")
-            if _s(item.get("严重度")) not in ("严重", "高"):
-                problems.append(f"{name} 第 {index} 条严重度应为 严重 / 高")
-
-    for index, item in enumerate((sections.get("2.3") or {}).get("未覆盖") or [], 1):
-        for field in ("编号", "影响档", "现象", "后果"):
-            if not _s(item.get(field)):
-                problems.append(f"2.3 未覆盖第 {index} 条缺少「{field}」")
-        if _s(item.get("影响档")) not in IMPACT_VALUES:
-            problems.append(f"2.3 未覆盖第 {index} 条影响档应为 高 / 中 / 低")
-
-    for name in ("2.1", "2.2", "2.3"):
-        for index, item in enumerate((sections.get(name) or {}).get("建议") or [], 1):
-            if not _s(item.get("动作")):
-                problems.append(f"{name} 建议第 {index} 条缺少「动作」")
-            if not _s(item.get("位置")):
-                problems.append(f"{name} 建议第 {index} 条缺少落点「位置」")
 
     if problems:
         raise RenderError("narrative.json 不合格：" + "；".join(problems[:8]))
 
 
 def _tidy(text: str) -> str:
-    """收拾块展开留下的空行：表格中间不留空行（会断开表格），连续空行压成一个。"""
+    """收拾块展开留下的空行：表格中间不留空行，连续空行压成一个。"""
     lines = text.splitlines()
     kept: list[str] = []
     for index, line in enumerate(lines):
@@ -834,7 +625,6 @@ def render_report(
     template: Path,
     stats_path: Path,
     evidence_path: Path,
-    manifest_path: Path | None,
     narrative_path: Path,
 ) -> tuple[str, dict[str, Any], list[str]]:
     """渲染并校验，返回（报告文本、上下文、校验问题）。"""
@@ -842,8 +632,8 @@ def render_report(
         raise RenderError(f"模板不存在：{template}")
     stats = json.loads(stats_path.read_text(encoding="utf-8"))
     narrative = json.loads(narrative_path.read_text(encoding="utf-8"))
-    _validate_narrative(narrative)
-    ctx = build_context(stats, evidence_path, manifest_path, narrative)
+    _validate_narrative(narrative, stats)
+    ctx = build_context(stats, evidence_path, narrative)
 
     nodes = _parse(_tokenize(COMMENT.sub("", template.read_text(encoding="utf-8"))))
     missing: list[str] = []
@@ -862,7 +652,6 @@ def run_render(
     template: Path,
     stats: Path,
     evidence: Path,
-    manifest: Path | None,
     narrative: Path,
     out: Path | None = None,
     check: bool = False,
@@ -871,14 +660,11 @@ def run_render(
         template=template,
         stats_path=stats,
         evidence_path=evidence,
-        manifest_path=manifest,
         narrative_path=narrative,
     )
     target = out or evidence.with_name("DT-AUDIT-REPORT.md")
     if check and problems:
-        raise RenderError(
-            f"报告校验未通过（{len(problems)} 项）：" + "；".join(problems[:10])
-        )
+        raise RenderError(f"报告校验未通过（{len(problems)} 项）：" + "；".join(problems[:10]))
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(text, encoding="utf-8")
     return {
@@ -886,4 +672,3 @@ def run_render(
         "校验": {"通过": not problems, "问题": problems},
         "定性": ctx["定性"],
     }
-
